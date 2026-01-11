@@ -34,18 +34,37 @@ export async function GET(request: Request) {
     }
 
     const selectedDate = new Date(date)
-    const dayOfWeek = selectedDate.getDay() // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+    // Use getUTCDay() because 'YYYY-MM-DD' parses as UTC midnight. 
+    // This ensures consistent day calculation regardless of server timezone.
+    const dayOfWeek = selectedDate.getUTCDay()
+
+    console.log(`[Availability API] Date: ${date}, Day: ${dayOfWeek}, Server Timezone Offset: ${selectedDate.getTimezoneOffset()}`)
 
     if (dayOfWeek === 0) {
-        return NextResponse.json({ slots: [], message: 'Closed on Sundays' })
+        return NextResponse.json({
+            slots: [],
+            message: 'Closed on Sundays',
+            debug: { date, dayOfWeek, reason: 'Sunday' }
+        })
     }
 
     // 1. Get all possible slots for this day
     const possibleSlots = generateSlots(date, dayOfWeek)
+    console.log(`[Availability API] Generated ${possibleSlots.length} slots for day ${dayOfWeek}`)
+
+    if (possibleSlots.length === 0) {
+        // Should usually be covered by Sunday check, but just in case
+        return NextResponse.json({ slots: [], message: 'No slots generated (Closed?)' })
+    }
 
     // 2. Fetch existing bookings for this date
-    const startOfDay = new Date(`${date}T00:00:00`).toISOString()
+    // We assume the strict date string YYYY-MM-DD refers to a "Day" in the timeframe of the venue (Germany)
+    // For simplicity, we query the whole UT day range that covers the potential business hours.
+
+    const startOfDay = new Date(`${date}T00:00:00`).toISOString() // Local Midnight -> UTC
     const endOfDay = new Date(`${date}T23:59:59`).toISOString()
+
+    console.log(`[Availability API] Querying bookings between ${startOfDay} and ${endOfDay}`)
 
     const { data: bookings, error } = await supabase
         .from('bookings')
@@ -54,8 +73,11 @@ export async function GET(request: Request) {
         .lte('start_time', endOfDay)
 
     if (error) {
+        console.error('[Availability API] Supabase Error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    console.log(`[Availability API] Found ${bookings?.length || 0} existing bookings`)
 
     // 3. Calculate availability per slot
     // structure: { "14:00": { arena1: true, arena2: true }, "14:30": ... }

@@ -4,15 +4,61 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ChevronRight, Gamepad2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
+
+
+// Helper for random stars
+function StarField() {
+    const [stars, setStars] = useState<{ id: number; top: number; left: number; size: number; duration: number }[]>([])
+
+    useEffect(() => {
+        const newStars = Array.from({ length: 70 }).map((_, i) => ({
+            id: i,
+            top: Math.random() * 100,
+            left: Math.random() * 100,
+            size: Math.random() * 2 + 1,
+            duration: Math.random() * 3 + 2,
+        }))
+        setStars(newStars)
+    }, [])
+
+    return (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+            {stars.map((star) => (
+                <motion.div
+                    key={star.id}
+                    initial={{ opacity: 0.1, scale: 0.8 }}
+                    animate={{ opacity: [0.1, 0.8, 0.1], scale: [0.8, 1.2, 0.8] }}
+                    transition={{
+                        duration: star.duration,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="absolute rounded-full bg-white"
+                    style={{
+                        top: `${star.top}%`,
+                        left: `${star.left}%`,
+                        width: `${star.size}px`,
+                        height: `${star.size}px`,
+                    }}
+                />
+            ))}
+        </div>
+    )
+}
 
 export function HeroSection() {
     return (
         <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden bg-background text-center md:min-h-screen">
             {/* Background Effects */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[120px]" />
-                <div className="absolute left-1/4 top-1/4 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/20 blur-[100px]" />
-                <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0a0a] to-black">
+
+                {/* Random Stars */}
+                <StarField />
+
+                {/* Glows */}
+                <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px]" />
+                <div className="absolute left-1/4 top-1/3 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/10 blur-[80px]" />
             </div>
 
             <div className="container relative z-10 mx-auto px-4 md:px-6">
@@ -27,9 +73,13 @@ export function HeroSection() {
                         Neu in Ingolstadt
                     </div>
 
-                    <h1 className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-7xl md:text-8xl lg:text-9xl font-mono">
-                        SPIEL<span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">NOVA</span>
-                    </h1>
+                    <div className="flex justify-center">
+                        <img
+                            src="/logo.png"
+                            alt="Spielnova Logo"
+                            className="w-full max-w-[600px] h-auto drop-shadow-[0_0_30px_rgba(0,240,255,0.3)] animate-in zoom-in duration-1000 mix-blend-screen [mask-image:radial-gradient(closest-side,black_60%,transparent_100%)]"
+                        />
+                    </div>
 
                     <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl lg:text-2xl">
                         Tauche ein in die Zukunft der Unterhaltung. Erlebe Virtual Reality Shooter, Escape Rooms und Simulatoren im West Park Ingolstadt.

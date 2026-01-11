@@ -68,12 +68,31 @@ export default function BookingPage() {
             setLoading(true)
             const dateStr = format(date, "yyyy-MM-dd")
             fetch(`/api/availability?date=${dateStr}`)
-                .then(res => res.json())
+                .then(async (res) => {
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`Server Data Error: ${res.status} ${res.statusText} - ${text.substring(0, 50)}...`);
+                    }
+                    return res.json();
+                })
                 .then(data => {
-                    setAvailableSlots(data.availability || {})
+                    if (data.error) {
+                        console.error("Availability API Error:", data.error)
+                        setAvailableSlots({})
+                        // Only alert if it's a specific logic error, not just empty slots
+                        if (data.message !== 'Closed on Sundays') {
+                            alert("Hinweis: " + data.error)
+                        }
+                    } else {
+                        setAvailableSlots(data.availability || {})
+                    }
                     setLoading(false)
                 })
-                .catch(() => setLoading(false))
+                .catch((err) => {
+                    console.error("Fetch Error Detail:", err)
+                    alert(`Fehler: ${err.message}`)
+                    setLoading(false)
+                })
         }
     }, [date])
 
