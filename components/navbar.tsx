@@ -23,7 +23,7 @@ export function Navbar() {
 
     return (
         <div className="border-b border-white/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-            <div className="container flex h-16 items-center px-4 md:px-6">
+            <div className="w-full max-w-full flex h-16 items-center px-4 md:px-6">
                 <Link href="/" className="mr-6 flex items-center space-x-2">
                     {/* Replaced generic icon with Logo Image or styled text */}
                     <div className="relative h-8 w-8">
@@ -34,7 +34,7 @@ export function Navbar() {
                         SPIEL<span className="text-secondary">NOVA</span>
                     </span>
                 </Link>
-                <div className="hidden md:flex">
+                <div className="hidden md:flex flex-1">
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
