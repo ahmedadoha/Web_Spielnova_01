@@ -18,7 +18,7 @@
 
 - [ ] **Content Pages Implementation** <!-- id: 10 -->
     - [x] Home Page (Sections: Intro, Booking Teaser, Categories) <!-- id: 11 -->
-    - [ ] Booking Page Structure <!-- id: 12 -->
+    - [x] Booking Page Structure <!-- id: 12 -->
     - [x] VR Shooter Games List & Detail Pages <!-- id: 13 -->
     - [x] Escape Rooms List & Detail Pages <!-- id: 14 -->
     - [x] Simulators & Arcade Pages <!-- id: 15 -->
@@ -32,8 +32,8 @@
     - [x] Integrate Stripe Payment <!-- id: 21 -->
     - [x] Create Booking Flow UI (Game Selection -> Players/Date -> Details) <!-- id: 22 -->
 
-- [ ] **Polishing & Verification** <!-- id: 23 -->
-    - [ ] Responsive Design Check <!-- id: 24 -->
-    - [ ] Animations & Micro-interactions (Framer Motion) <!-- id: 25 -->
-    - [ ] SEO Optimization <!-- id: 26 -->
-    - [ ] Final Walkthrough & Handover <!-- id: 27 -->
+- [x] **Polishing & Verification** <!-- id: 23 -->
+    - [x] Responsive Design Check <!-- id: 24 -->
+    - [x] Animations & Micro-interactions (Framer Motion) <!-- id: 25 -->
+    - [x] SEO Optimization <!-- id: 26 -->
+    - [x] Final Walkthrough & Handover <!-- id: 27 -->

@@ -83,13 +83,24 @@ Since you are new to web development, this phase ensures you have the necessary 
 ### Phase 3: Booking System (The "Engine")
 1.  **Database Setup**: Create Supabase project and `bookings` table.
 2.  **Booking API**: Create endpoints to:
-    -   `GET /api/availability`: Check free slots for Arena 1 & 2.
+    -   `GET /api/availability`: Check free slots (30-min intervals) for Arena 1 & 2.
     -   `POST /api/create-booking`: Reserve a slot.
+    -   **Rules**:
+        -   Mon-Fri: 14:00-20:00, Sat: 10:00-20:00, Sun: Closed.
+        -   Slot Length: 30 minutes.
+        -   Price: 15€ (Weekday) / 20€ (Saturday) per player.
+        -   Capacity: Max 4 players per arena. If > 4, require 2 arenas.
 3.  **Frontend Logic**:
-    -   Calendar View.
-    -   Time Slot Selector.
+    -   **Step 1**: Choose Mode (Shooter vs Escape).
+    -   **Step 2**: Choose Game (Video preview in new tab).
+    -   **Step 3**: Select Player Count & Time.
+    -   **Step 4**: User Details & Payment.
     -   Form for user details.
-4.  **Stripe Integration**: Connect payment flow to the booking confirmation.
+4.  **Stripe Integration**:
+    -   Create Checkout Session on booking.
+    -   Redirect user to Stripe.
+    -   Handle success/cancel callbacks.
+    -   Verify session and update Booking status to 'confirmed'.
 
 ### Phase 4: Verification & Polish
 1.  **Testing**: Verify booking flow, mobile responsiveness.
