@@ -49,7 +49,7 @@ function StarField() {
 
 export function HeroSection() {
     return (
-        <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden bg-background text-center md:min-h-screen">
+        <section className="relative flex min-h-[90vh] flex-col items-center justify-start pt-16 md:pt-20 overflow-hidden bg-background text-center md:min-h-screen">
             {/* Background Effects */}
             <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0a0a] to-black">
 
@@ -66,7 +66,7 @@ export function HeroSection() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="space-y-6"
+                    className="space-y-4 mb-20"
                 >
                     <div className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary backdrop-blur-sm">
                         <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
@@ -105,7 +105,7 @@ export function HeroSection() {
             <motion.div
                 animate={{ y: [0, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 text-muted-foreground"
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 text-muted-foreground z-0"
             >
                 <span className="sr-only">Scroll down</span>
                 <div className="flex flex-col items-center gap-2">
