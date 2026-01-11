@@ -64,6 +64,13 @@ export function Navbar() {
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
+                                <Link href="/oeffnungszeiten" legacyBehavior passHref>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        Öffnungszeiten
+                                    </NavigationMenuLink>
+                                </Link>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
                                 <Link href="/preise" legacyBehavior passHref>
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                                         Preise & Infos
@@ -110,6 +117,9 @@ export function Navbar() {
                                 </Link>
                                 <Link href="/simulators" onClick={() => setIsOpen(false)} className="text-lg font-medium hover:text-primary transition-colors">
                                     Simulatoren
+                                </Link>
+                                <Link href="/oeffnungszeiten" onClick={() => setIsOpen(false)} className="text-lg font-medium hover:text-primary transition-colors">
+                                    Öffnungszeiten
                                 </Link>
                                 <Link href="/preise" onClick={() => setIsOpen(false)} className="text-lg font-medium hover:text-primary transition-colors">
                                     Preise & Infos

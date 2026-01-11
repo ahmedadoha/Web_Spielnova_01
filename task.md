@@ -14,22 +14,23 @@
 - [ ] **Core Components & Layout** <!-- id: 6 -->
     - [x] Create Layout (Navbar, Footer) <!-- id: 7 -->
     - [x] Implement Hero Section (Home) <!-- id: 8 -->
-    - [ ] Create Reusable UI Components (Cards, Buttons, Section headers) <!-- id: 9 -->
+    - [x] Create Reusable UI Components (Cards, Buttons, Section headers) <!-- id: 9 -->
 
 - [ ] **Content Pages Implementation** <!-- id: 10 -->
-    - [ ] Home Page (Sections: Intro, Booking Teaser, Categories) <!-- id: 11 -->
+    - [x] Home Page (Sections: Intro, Booking Teaser, Categories) <!-- id: 11 -->
     - [ ] Booking Page Structure <!-- id: 12 -->
-    - [ ] VR Shooter Games List & Detail Pages <!-- id: 13 -->
-    - [ ] Escape Rooms List & Detail Pages <!-- id: 14 -->
-    - [ ] Simulators & Arcade Pages <!-- id: 15 -->
-    - [ ] Info Pages (Prices, Vouchers, FAQ, Contact) <!-- id: 16 -->
-    - [ ] Legal Pages (AGB, Impressum, Privacy) <!-- id: 17 -->
+    - [x] VR Shooter Games List & Detail Pages <!-- id: 13 -->
+    - [x] Escape Rooms List & Detail Pages <!-- id: 14 -->
+    - [x] Simulators & Arcade Pages <!-- id: 15 -->
+    - [x] Info Pages (Prices, Vouchers, FAQ, Contact) <!-- id: 16 -->
+    - [x] Opening Hours Page (Accessible from Home) <!-- id: 103 -->
+    - [x] Legal Pages (AGB, Impressum, Privacy) <!-- id: 17 -->
 
 - [ ] **Booking System Logic (Backend/Integration)** <!-- id: 18 -->
-    - [ ] Define Database Schema (Supabase/Postgres) <!-- id: 19 -->
-    - [ ] Implement Booking API (Availability check, Reservation) <!-- id: 20 -->
-    - [ ] Integrate Stripe Payment <!-- id: 21 -->
-    - [ ] Create Booking Flow UI (Calendar, Slot selection, Form) <!-- id: 22 -->
+    - [x] Define Database Schema (Supabase/Postgres) <!-- id: 19 -->
+    - [x] Implement Booking API (Logic: 30min slots, Variable Pricing, 2 Arenas) <!-- id: 20 -->
+    - [x] Integrate Stripe Payment <!-- id: 21 -->
+    - [x] Create Booking Flow UI (Game Selection -> Players/Date -> Details) <!-- id: 22 -->
 
 - [ ] **Polishing & Verification** <!-- id: 23 -->
     - [ ] Responsive Design Check <!-- id: 24 -->

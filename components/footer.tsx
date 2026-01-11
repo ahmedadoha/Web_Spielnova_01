@@ -53,6 +53,11 @@ export function Footer() {
                         <h4 className="text-sm font-bold uppercase tracking-wider text-foreground">Rechtliches</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
+                                <Link href="/oeffnungszeiten" className="hover:text-primary transition-colors">
+                                    Öffnungszeiten
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/impressum" className="hover:text-primary transition-colors">
                                     Impressum
                                 </Link>
