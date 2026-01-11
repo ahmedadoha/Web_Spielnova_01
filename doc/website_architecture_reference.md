@@ -33,7 +33,9 @@
 	- Shooter Game 4
 	- Shooter Game 5
 	- Shooter Game 6
-  - Buchen
+  - VR Arena Buchen
+  - Simulators
+  - Arcade Games
   - Kontakt
 
 - ** Title and welcome message: "SpielNova" VR Erlebnis
@@ -64,10 +66,12 @@
 
 /
 ├── buchen
-├── escaperooms
+├── VR Shooter Games
 │   └── experience/<slug>
-├── games
+├── VR Escape Rooms
 │   └── experience/<slug>
+├── VR Simulators
+├── Arcade Games
 ├── preise
 ├── gutscheine
 ├── faq
@@ -111,15 +115,35 @@ Content Blocks:
 
 ---
 
-### 3.3 Escape Rooms Overview (/escaperooms)
+### 3.3 VR Games / Shooter Section (/shooter_games)
+
+- Marketing-focused game presentation
+- Detail pages share the same structure as escape rooms
+
+---
+
+### 3.4 Escape Rooms Overview (/escaperooms)
 
 - Category description
 - Grid of escape room cards
 - CTA to booking
 
 ---
+### 3.5 VR Simulators
 
-### 3.4 Experience Detail Pages (/experience/<slug>)
+- Category description
+- Paraglider: Photos and videos
+- Super Fighter: Photos and videos
+
+---
+### 3.6 Arcade Games
+
+- Category description
+- Photos and videos:  Basketball machine, Air hockey table, Motorcycle game, Helicopter game
+
+---
+
+### 3.7 Experience Detail Pages (/experience/<slug>)
 
 - Hero image
 - Title
@@ -131,14 +155,7 @@ Content Blocks:
 
 ---
 
-### 3.5 VR Games / Shooter Section (/games)
-
-- Marketing-focused game presentation
-- Detail pages share the same structure as escape rooms
-
----
-
-### 3.6 Info Pages
+### 3.7 Info Pages
 
 Prices (/preise):
 - Pricing explanation
@@ -153,7 +170,7 @@ FAQ (/faq):
 
 ---
 
-### 3.7 Events Pages (/events/*)
+### 3.8 Events Pages (/events/*)
 
 - Tournaments
 - Birthdays & corporate events
@@ -161,7 +178,7 @@ FAQ (/faq):
 
 ---
 
-### 3.8 Contact Page (/kontakt)
+### 3.9 Contact Page (/kontakt)
 
 - Address
 - Phone
@@ -171,7 +188,7 @@ FAQ (/faq):
 
 ---
 
-### 3.9 Legal Pages
+### 3.10 Legal Pages
 
 - AGB
 - Impressum

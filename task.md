@@ -1,0 +1,38 @@
+# Task List for Spielnova Website
+
+- [ ] **Planning & Setup** <!-- id: 0 -->
+    - [x] Create Implementation Plan <!-- id: 1 -->
+    - [x] User Review & Approval of Plan <!-- id: 2 -->
+    - [x] **Phase 0: Environment & Accounts** <!-- id: 99 -->
+        - [x] Verify/Install Node.js & Git <!-- id: 100 -->
+        - [x] Create Supabase Account & Project <!-- id: 101 -->
+        - [x] Create Stripe Account <!-- id: 102 -->
+    - [x] Initialize Next.js Project (v14/v15 App Router) <!-- id: 3 -->
+    - [x] Setup Tailwind CSS & Shadcn/UI <!-- id: 4 -->
+    - [x] Configure Theme (Colors, Fonts - Premium/VR aesthetic) <!-- id: 5 -->
+
+- [ ] **Core Components & Layout** <!-- id: 6 -->
+    - [x] Create Layout (Navbar, Footer) <!-- id: 7 -->
+    - [x] Implement Hero Section (Home) <!-- id: 8 -->
+    - [ ] Create Reusable UI Components (Cards, Buttons, Section headers) <!-- id: 9 -->
+
+- [ ] **Content Pages Implementation** <!-- id: 10 -->
+    - [ ] Home Page (Sections: Intro, Booking Teaser, Categories) <!-- id: 11 -->
+    - [ ] Booking Page Structure <!-- id: 12 -->
+    - [ ] VR Shooter Games List & Detail Pages <!-- id: 13 -->
+    - [ ] Escape Rooms List & Detail Pages <!-- id: 14 -->
+    - [ ] Simulators & Arcade Pages <!-- id: 15 -->
+    - [ ] Info Pages (Prices, Vouchers, FAQ, Contact) <!-- id: 16 -->
+    - [ ] Legal Pages (AGB, Impressum, Privacy) <!-- id: 17 -->
+
+- [ ] **Booking System Logic (Backend/Integration)** <!-- id: 18 -->
+    - [ ] Define Database Schema (Supabase/Postgres) <!-- id: 19 -->
+    - [ ] Implement Booking API (Availability check, Reservation) <!-- id: 20 -->
+    - [ ] Integrate Stripe Payment <!-- id: 21 -->
+    - [ ] Create Booking Flow UI (Calendar, Slot selection, Form) <!-- id: 22 -->
+
+- [ ] **Polishing & Verification** <!-- id: 23 -->
+    - [ ] Responsive Design Check <!-- id: 24 -->
+    - [ ] Animations & Micro-interactions (Framer Motion) <!-- id: 25 -->
+    - [ ] SEO Optimization <!-- id: 26 -->
+    - [ ] Final Walkthrough & Handover <!-- id: 27 -->
