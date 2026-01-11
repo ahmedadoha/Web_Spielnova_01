@@ -16,7 +16,7 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
-import { ModeToggle } from "@/components/mode-toggle"
+
 
 export function Navbar() {
     const [isOpen, setIsOpen] = React.useState(false)
@@ -88,7 +88,7 @@ export function Navbar() {
                     </NavigationMenu>
                 </div>
                 <div className="ml-auto flex items-center space-x-4">
-                    <ModeToggle />
+
                     <Button asChild className="hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-[0_0_15px_rgba(0,240,255,0.5)] transition-all hover:shadow-[0_0_25px_rgba(0,240,255,0.8)]">
                         <Link href="/buchen">Jetzt Buchen</Link>
                     </Button>
