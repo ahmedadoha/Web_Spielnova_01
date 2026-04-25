@@ -20,11 +20,12 @@ interface GameCardProps {
     title: string
     description: string
     imageSrc: string
-    duration: string
-    players: string
+    duration?: string
+    players?: string
     difficulty?: string
     href: string
     category?: string
+    buttonText?: string
 }
 
 export function GameCard({
@@ -36,6 +37,7 @@ export function GameCard({
     difficulty,
     href,
     category,
+    buttonText,
 }: GameCardProps) {
     return (
         <motion.div
@@ -58,11 +60,6 @@ export function GameCard({
                 </div>
                 <CardHeader>
                     <CardTitle className="line-clamp-1 text-xl font-bold tracking-wide">{title}</CardTitle>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-primary" /> {duration}</span>
-                        <span className="flex items-center gap-1"><Users className="h-3 w-3 text-primary" /> {players}</span>
-                        {difficulty && <span className="flex items-center gap-1"><Zap className="h-3 w-3 text-secondary" /> {difficulty}</span>}
-                    </div>
                 </CardHeader>
                 <CardContent className="flex-1">
                     <CardDescription className="line-clamp-3 text-sm leading-relaxed">
@@ -72,7 +69,7 @@ export function GameCard({
                 <CardFooter>
                     <Button asChild className="w-full font-bold group bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground border border-secondary/20">
                         <Link href={href}>
-                            Details & Buchen
+                            {buttonText || "Details & Buchen"}
                         </Link>
                     </Button>
                 </CardFooter>

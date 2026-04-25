@@ -38,11 +38,11 @@ export function Navbar() {
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
-                                <Link href="/buchen" legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                                    <Link href="/buchen">
                                         Buchen
-                                    </NavigationMenuLink>
-                                </Link>
+                                    </Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuTrigger>Erlebnisse</NavigationMenuTrigger>
@@ -64,25 +64,25 @@ export function Navbar() {
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link href="/oeffnungszeiten" legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                                    <Link href="/oeffnungszeiten">
                                         Öffnungszeiten
-                                    </NavigationMenuLink>
-                                </Link>
+                                    </Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link href="/preise" legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                                    <Link href="/preise">
                                         Preise & Infos
-                                    </NavigationMenuLink>
-                                </Link>
+                                    </Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link href="/kontakt" legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                                    <Link href="/kontakt">
                                         Kontakt
-                                    </NavigationMenuLink>
-                                </Link>
+                                    </Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                         </NavigationMenuList>
                     </NavigationMenu>

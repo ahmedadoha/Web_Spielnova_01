@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
 
 export async function POST(request: Request) {
     try {
@@ -7,6 +8,7 @@ export async function POST(request: Request) {
         const {
             date,
             time,
+            duration,
             arenaId,
             gameMode,
             gameSlug,
@@ -23,7 +25,8 @@ export async function POST(request: Request) {
         // Construct timestamp
         // Assuming 'date' is YYYY-MM-DD and 'time' is HH:mm
         const startTime = new Date(`${date}T${time}:00`) // Naive local construction
-        const endTime = new Date(startTime.getTime() + 30 * 60000) // +30 minutes
+        const bookingDuration = duration || 60
+        const endTime = new Date(startTime.getTime() + bookingDuration * 60000)
 
         // Check if slot is still free (Double check to avoid race conditions)
         const { data: conflicts } = await supabase
@@ -44,6 +47,9 @@ export async function POST(request: Request) {
                     start_time: startTime.toISOString(),
                     end_time: endTime.toISOString(),
                     arena_id: arenaId,
+                    game_mode: gameMode,
+                    game_slug: gameSlug,
+                    player_count: playerCount,
                     customer_name: customerName,
                     customer_email: customerEmail,
                     status: 'pending_payment',
@@ -62,10 +68,46 @@ export async function POST(request: Request) {
         const { stripe } = await import('@/lib/stripe')
 
         // Calculate Price
-        // Logic: 15 EUR (Weekday) / 20 EUR (Saturday) * Players
         const dayOfWeek = startTime.getDay()
-        const pricePerPerson = dayOfWeek === 6 ? 2000 : 1500 // In cents
-        const totalAmount = pricePerPerson * playerCount
+        const isWeekend = [0, 5, 6].includes(dayOfWeek) // Sun, Fri, Sat
+        
+        let singlePrice = 0
+        let teamPrice = 0
+        if (bookingDuration === 30) {
+            singlePrice = isWeekend ? 1990 : 1490
+            teamPrice = isWeekend ? 7400 : 5500
+        } else {
+            singlePrice = isWeekend ? 3490 : 2490
+            teamPrice = isWeekend ? 12400 : 9000
+        }
+
+        const teamCount = Math.floor(playerCount / 4)
+        const singleCount = playerCount % 4
+        
+        const totalAmount = (teamCount * teamPrice) + (singleCount * singlePrice)
+
+        // Loyalty Logic: Top Gamer Rabatt
+        let finalAmount = totalAmount;
+        let isTopGamer = false;
+
+        if (gameMode === 'shooter' || gameMode === 'escape') {
+            const thirtyDaysAgo = new Date(startTime.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+            const startOfBookingDay = new Date(`${date}T00:00:00`).toISOString(); // Must not be the same day
+
+            const { data: pastBookings } = await supabase
+                .from('bookings')
+                .select('id')
+                .eq('customer_email', customerEmail)
+                .eq('status', 'confirmed')
+                .gte('start_time', thirtyDaysAgo)
+                .lt('start_time', startOfBookingDay)
+                .limit(1);
+
+            if (pastBookings && pastBookings.length > 0) {
+                isTopGamer = true;
+                finalAmount = Math.round(totalAmount * (1 - TOP_GAMER_DISCOUNT_PERCENT));
+            }
+        }
 
         // Create Stripe Checkout Session
         const session = await stripe.checkout.sessions.create({
@@ -75,10 +117,10 @@ export async function POST(request: Request) {
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: `${gameMode === 'shooter' ? 'VR Shooter' : 'VR Escape Room'} - ${playerCount} Spieler`,
+                            name: `${gameMode === 'shooter' ? 'VR Shooter' : 'VR Escape Room'} (${bookingDuration} Min) - ${playerCount} Spieler ${isTopGamer ? `(Inkl. ${TOP_GAMER_DISCOUNT_PERCENT * 100}% Top Gamer Rabatt)` : ''}`,
                             description: `Buchung für ${customerName} am ${date} um ${time}`,
                         },
-                        unit_amount: totalAmount,
+                        unit_amount: finalAmount,
                     },
                     quantity: 1,
                 },

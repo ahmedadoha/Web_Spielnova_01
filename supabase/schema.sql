@@ -1,14 +1,17 @@
 
 -- Create a table for bookings
 create table bookings (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   start_time timestamp with time zone not null,
   end_time timestamp with time zone not null,
   arena_id text not null, -- 'arena-1' or 'arena-2'
+  game_mode text not null,
+  game_slug text not null,
+  player_count integer not null,
   customer_name text not null,
   customer_email text not null,
-  status text default 'confirmed', -- 'pending', 'confirmed', 'cancelled'
+  status text default 'pending_payment', -- 'pending_payment', 'confirmed', 'cancelled'
   payment_id text -- Stripe Payment Intent ID
 );
 

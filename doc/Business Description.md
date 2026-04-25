@@ -1,4 +1,4 @@
-I am startubg uo a business and I want to plan, and implement the website for the business 
+I am starting up a business and I want to plan, and implement the website for the business 
 
 
 The business is called "Spielnova". It operates a Virtual Reality (VR) entertainment center in the shopping mall "West Park" in the city of Ingolstadt. Spielnova provides immersive experiences for children, teens, adults, families, and casual visitors. The venue consists of 2 main parts :

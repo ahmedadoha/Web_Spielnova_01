@@ -13,20 +13,37 @@ export default function PricingPage() {
             />
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {/* Standard Ticket */}
+                {/* VR Arena 30 Min */}
                 <Card className="flex flex-col border-border/50 bg-card/40 backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-2xl">VR Arena Ticket</CardTitle>
-                        <CardDescription>Für Einzelspieler & kleine Gruppen</CardDescription>
+                        <CardTitle className="text-2xl">VR Arena <span className="text-primary text-lg ml-1">(30 Min)</span></CardTitle>
+                        <CardDescription>Kurzer Spaß oder zum Reinschnuppern</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
-                        <div className="text-4xl font-bold mb-6">35€ <span className="text-sm font-normal text-muted-foreground">/ Person</span></div>
-                        <ul className="space-y-3">
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> 60 Minuten Spielzeit</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Freie Spielwahl (Shooter oder Escape)</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Einweisung durch Personal</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Kostenloses Schließfach</li>
-                        </ul>
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Einzelspieler</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg">14.90€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg">19.90€</span>
+                                </div>
+                            </div>
+                            <div className="pt-4 border-t border-white/10">
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Team (4 Spieler)</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg text-primary">55.00€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg text-primary">74.00€</span>
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter>
                         <Button asChild className="w-full">
@@ -35,48 +52,107 @@ export default function PricingPage() {
                     </CardFooter>
                 </Card>
 
-                {/* Group Ticket */}
+                {/* VR Arena 60 Min */}
                 <Card className="flex flex-col border-primary/50 bg-primary/5 backdrop-blur-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1">BELIEBT</div>
                     <CardHeader>
-                        <CardTitle className="text-2xl text-primary">Team Paket</CardTitle>
-                        <CardDescription>Perfekt für 4 Spieler</CardDescription>
+                        <CardTitle className="text-2xl text-primary">VR Arena <span className="text-white text-lg ml-1">(60 Min)</span></CardTitle>
+                        <CardDescription>Das volle Erlebnis für dich und deine Freunde</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
-                        <div className="text-4xl font-bold mb-6">120€ <span className="text-sm font-normal text-muted-foreground">/ Gruppe</span></div>
-                        <ul className="space-y-3">
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Alles aus dem Standard Ticket</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Exklusive Arena-Nutzung</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> 1 Freigetränk pro Person</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Ersparnis von 20€</li>
-                        </ul>
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Einzelspieler</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg">24.90€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg">34.90€</span>
+                                </div>
+                            </div>
+                            <div className="pt-4 border-t border-white/10">
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Team (4 Spieler)</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg text-primary">90.00€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg text-primary">124.00€</span>
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter>
-                        <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                            <Link href="/buchen">Team Buchen</Link>
+                        <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                            <Link href="/buchen">Ticket Buchen</Link>
                         </Button>
                     </CardFooter>
                 </Card>
 
-                {/* Simulator Ticket */}
+                {/* Simulatoren */}
                 <Card className="flex flex-col border-border/50 bg-card/40 backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Simulator Ride</CardTitle>
-                        <CardDescription>Paraglider, Jet oder Motorrad</CardDescription>
+                        <CardTitle className="text-2xl">Simulatoren & Arcade</CardTitle>
+                        <CardDescription>Fliegen, Fahren und Klassiker</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
-                        <div className="text-4xl font-bold mb-6">10€ <span className="text-sm font-normal text-muted-foreground">/ Fahrt</span></div>
-                        <ul className="space-y-3">
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Ca. 10 Minuten Erlebnis</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Freie Wahl des Simulators</li>
-                            <li className="flex items-center"><Check className="mr-2 h-4 w-4 text-primary" /> Keine Reservierung nötig</li>
-                        </ul>
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">VR Simulator</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg">7.00€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg">9.00€</span>
+                                </div>
+                            </div>
+                            <div className="pt-4 border-t border-white/10">
+                                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Kinder Arcade</h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span>Mo - Do</span>
+                                    <span className="font-bold text-lg">3.00€</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span>Fr - Sa</span>
+                                    <span className="font-bold text-lg">4.00€</span>
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter>
-                        <Button asChild variant="outline" className="w-full">
-                            <Link href="/kontakt">Vor Ort bezahlbar</Link>
-                        </Button>
+                        <div className="w-full text-center py-2 px-4 rounded-md border border-border text-muted-foreground text-sm font-medium">
+                            Vor Ort bezahlbar
+                        </div>
                     </CardFooter>
+                </Card>
+            </div>
+
+            <p className="text-sm text-muted-foreground mt-6 text-center max-w-2xl mx-auto">
+                * Bei Gruppen über 4 Personen wird unser intelligentes Buchungssystem den günstigeren Team-Tarif für jede volle 4er-Gruppe automatisch anwenden.
+            </p>
+
+            {/* Birthday Section */}
+            <div className="mt-12">
+                <Card className="border-secondary/50 bg-secondary/5 backdrop-blur-sm relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-transparent pointer-events-none" />
+                    <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative z-10">
+                        <div className="flex-1 space-y-4">
+                            <h3 className="text-3xl font-bold text-secondary">Wir feiern Geburtstage!</h3>
+                            <p className="text-lg text-muted-foreground">
+                                Auf der Suche nach dem ultimativen Geburtstagserlebnis in Ingolstadt? Feiere bei Spielnova für einen unvergesslichen Tag voller Gaming, VR-Abenteuer und Spaß.
+                            </p>
+                        </div>
+                        <div className="flex-none">
+                            <Button asChild size="lg" className="h-14 px-8 text-lg font-bold bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-[0_0_15px_rgba(255,0,255,0.4)]">
+                                <Link href="/kontakt">Kontaktiere uns</Link>
+                            </Button>
+                        </div>
+                    </CardContent>
                 </Card>
             </div>
 

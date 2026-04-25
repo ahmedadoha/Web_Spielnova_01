@@ -19,28 +19,12 @@ export default function OpeningHoursPage() {
 
                         <div className="space-y-4 text-lg">
                             <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Montag</span>
-                                <span className="font-semibold">14:00 - 20:00</span>
-                            </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Dienstag</span>
-                                <span className="font-semibold">14:00 - 20:00</span>
-                            </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Mittwoch</span>
-                                <span className="font-semibold">14:00 - 20:00</span>
-                            </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Donnerstag</span>
-                                <span className="font-semibold">14:00 - 20:00</span>
-                            </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Freitag</span>
-                                <span className="font-semibold">14:00 - 20:00</span>
+                                <span className="text-muted-foreground">Mo. - Fr.</span>
+                                <span className="font-semibold">14:00 - 20:00 Uhr</span>
                             </div>
                             <div className="flex justify-between border-b border-white/5 pb-2">
                                 <span className="text-muted-foreground">Samstag</span>
-                                <span className="font-semibold">10:00 - 20:00</span>
+                                <span className="font-semibold">10:00 - 20:00 Uhr</span>
                             </div>
                             <div className="flex justify-between pt-2 text-muted-foreground/60">
                                 <span>Sonntag</span>
@@ -52,7 +36,7 @@ export default function OpeningHoursPage() {
 
                 <div className="mt-8 p-4 rounded-lg bg-secondary/10 border border-secondary/20 text-center">
                     <p className="font-medium text-secondary">
-                        In den Schulferien und an Feiertagen:
+                        In Schulferien:
                     </p>
                     <p className="text-xl font-bold mt-1">10:00 - 20:00 Uhr</p>
                 </div>

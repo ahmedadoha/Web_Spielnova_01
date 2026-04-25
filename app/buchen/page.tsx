@@ -6,6 +6,7 @@ import { Calendar as CalendarIcon, Check, Loader2, Users } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
+import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -53,6 +54,7 @@ export default function BookingPage() {
     const [gameMode, setGameMode] = React.useState<"shooter" | "escape" | null>(null)
     const [selectedGame, setSelectedGame] = React.useState<string>("")
     const [playerCount, setPlayerCount] = React.useState<string>("2")
+    const [duration, setDuration] = React.useState<"30" | "60">("60")
     const [date, setDate] = React.useState<Date | undefined>(new Date())
     const [availableSlots, setAvailableSlots] = React.useState<Record<string, { arena1: boolean, arena2: boolean }>>({})
     const [selectedTime, setSelectedTime] = React.useState<string | null>(null)
@@ -96,6 +98,27 @@ export default function BookingPage() {
         }
     }, [date])
 
+    const calculatePrice = () => {
+        if (!date) return { total: 0, standardTotal: 0, savings: 0, singlePrice: 0, teamPrice: 0, teamCount: 0, singleCount: 0 }
+        const isWeekend = [0, 5, 6].includes(date.getDay()) // Sun, Fri, Sat
+        let singlePrice = 0, teamPrice = 0
+        if (duration === "30") {
+            singlePrice = isWeekend ? 19.90 : 14.90
+            teamPrice = isWeekend ? 74.00 : 55.00
+        } else {
+            singlePrice = isWeekend ? 34.90 : 24.90
+            teamPrice = isWeekend ? 124.00 : 90.00
+        }
+        const pCount = parseInt(playerCount)
+        const teamCount = Math.floor(pCount / 4)
+        const singleCount = pCount % 4
+        const total = (teamCount * teamPrice) + (singleCount * singlePrice)
+        const standardTotal = pCount * singlePrice
+        const savings = standardTotal - total
+        return { total, standardTotal, savings, singlePrice, teamPrice, teamCount, singleCount }
+    }
+    const pricing = calculatePrice()
+
     const handleNext = () => setStep(step + 1)
     const handleBack = () => setStep(step - 1)
 
@@ -129,6 +152,7 @@ export default function BookingPage() {
             body: JSON.stringify({
                 date: date ? format(date, "yyyy-MM-dd") : "",
                 time: selectedTime,
+                duration: parseInt(duration),
                 arenaId: assignedArena,
                 gameMode,
                 gameSlug: selectedGame,
@@ -155,6 +179,13 @@ export default function BookingPage() {
     return (
         <div className="container py-20 px-4 md:px-6 max-w-4xl mx-auto">
             <SectionHeader title="Erlebnis Buchen" subtitle={`Schritt ${step} von 4`} />
+
+            <div className="mb-6 bg-primary/10 border border-primary/30 p-4 rounded-xl flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+                <span className="text-2xl">🎮</span>
+                <p className="font-medium text-sm sm:text-base">
+                    <strong className="text-primary font-bold">Top Gamer Rabatt:</strong> Komm innerhalb von 30 Tagen zurück und sichere dir <span className="font-bold text-primary">{TOP_GAMER_DISCOUNT_PERCENT * 100}% Rabatt</span> auf dein nächstes VR Arena Erlebnis! (Wird an der Kasse automatisch abgezogen)
+                </p>
+            </div>
 
             <Card className="border-border/50 bg-card/60 backdrop-blur-md">
                 <CardContent className="p-6 md:p-10">
@@ -190,7 +221,30 @@ export default function BookingPage() {
                                 </div>
 
                                 {gameMode && (
-                                    <div className="space-y-4">
+                                    <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
+                                        <h3 className="text-xl font-bold">Spieldauer</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <Button
+                                                variant={duration === "30" ? "default" : "outline"}
+                                                className="h-16 text-lg font-bold"
+                                                onClick={() => setDuration("30")}
+                                            >
+                                                30 Minuten
+                                            </Button>
+                                            <Button
+                                                variant={duration === "60" ? "default" : "outline"}
+                                                className="h-16 text-lg font-bold relative overflow-hidden"
+                                                onClick={() => setDuration("60")}
+                                            >
+                                                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5">BELIEBT</div>
+                                                60 Minuten
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {gameMode && (
+                                    <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
                                         <h3 className="text-xl font-bold">Wähle das Spiel</h3>
                                         <div className="grid grid-cols-1 gap-3">
                                             {games[gameMode].map((g) => (
@@ -305,24 +359,42 @@ export default function BookingPage() {
                                     <h3 className="font-bold text-lg mb-2">Zusammenfassung</h3>
                                     <div className="grid grid-cols-2 gap-2 text-sm">
                                         <span className="text-muted-foreground">Spiel:</span>
-                                        <span className="font-medium text-right">{games[gameMode!].find(g => g.slug === selectedGame)?.title}</span>
+                                        <span className="font-medium text-right">{games[gameMode!].find(g => g.slug === selectedGame)?.title} ({duration} Min)</span>
 
                                         <span className="text-muted-foreground">Datum & Zeit:</span>
                                         <span className="font-medium text-right">{date ? format(date, "dd.MM.yyyy") : ""} um {selectedTime} Uhr</span>
 
                                         <span className="text-muted-foreground">Spieler:</span>
-                                        <span className="font-medium text-right">{playerCount}</span>
+                                        <span className="font-medium text-right">
+                                            {playerCount} {pricing.teamCount > 0 ? `(${pricing.teamCount}x Team-Paket${pricing.singleCount > 0 ? ` + ${pricing.singleCount} Einzelspieler` : ''})` : ''}
+                                        </span>
 
-                                        <span className="text-muted-foreground">Preis pro Person:</span>
-                                        <span className="font-medium text-right">{date && date.getDay() === 6 ? "20 €" : "15 €"}</span>
+                                        {pricing.savings > 0 ? (
+                                            <>
+                                                <span className="text-muted-foreground">Standardpreis:</span>
+                                                <span className="font-medium text-right line-through text-muted-foreground">
+                                                    {pricing.standardTotal.toFixed(2)} € <span className="text-xs">({playerCount}x {pricing.singlePrice.toFixed(2)} €)</span>
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="text-muted-foreground">Preis pro Person:</span>
+                                                <span className="font-medium text-right">{pricing.singlePrice.toFixed(2)} €</span>
+                                            </>
+                                        )}
 
                                         <div className="col-span-2 h-px bg-white/10 my-2"></div>
 
-                                        <span className="text-lg font-bold">Gesamtbetrag:</span>
+                                        <span className="text-lg font-bold">Dein Preis:</span>
                                         <span className="text-lg font-bold text-right text-primary">
-                                            {parseInt(playerCount) * (date && date.getDay() === 6 ? 20 : 15)} €
+                                            {pricing.total.toFixed(2)} €
                                         </span>
                                     </div>
+                                    {pricing.savings > 0 && (
+                                        <div className="mt-4 p-3 bg-primary/20 border border-primary/30 rounded text-center">
+                                            <span className="font-bold text-primary">🎉 Du sparst: {pricing.savings.toFixed(2)} €!</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-4">

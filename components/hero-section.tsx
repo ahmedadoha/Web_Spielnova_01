@@ -91,11 +91,16 @@ export function HeroSection() {
                                 Jetzt Buchen <ChevronRight className="ml-2 h-5 w-5" />
                             </Link>
                         </Button>
-                        <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg hover:bg-white/5">
-                            <Link href="/shooter_games">
-                                <Gamepad2 className="mr-2 h-5 w-5" />
-                                Spiele entdecken
-                            </Link>
+                        <Button 
+                            variant="outline" 
+                            size="lg" 
+                            className="h-14 px-8 text-lg hover:bg-white/5"
+                            onClick={() => {
+                                document.getElementById('erlebnisse')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                        >
+                            <Gamepad2 className="mr-2 h-5 w-5" />
+                            Spiele entdecken
                         </Button>
                     </div>
                 </motion.div>

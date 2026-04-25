@@ -4,7 +4,7 @@ import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react"
 export function Footer() {
     return (
         <footer className="w-full border-t border-white/10 bg-black/90 pt-12 pb-8">
-            <div className="container px-4 md:px-6">
+            <div className="container mx-auto px-4 md:px-6">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="space-y-4">
                         <h3 className="font-mono text-xl font-bold tracking-widest">
@@ -88,7 +88,7 @@ export function Footer() {
                             </li>
                             <li className="flex items-center space-x-2">
                                 <Phone className="h-4 w-4 text-primary" />
-                                <span>+49 123 456789</span>
+                                <span>+49 15754497518</span>
                             </li>
                             <li className="flex items-center space-x-2">
                                 <Mail className="h-4 w-4 text-primary" />
