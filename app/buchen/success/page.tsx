@@ -4,9 +4,10 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Check, Loader2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Suspense } from "react"
 import Link from "next/link"
 
-export default function SuccessPage() {
+function SuccessContent() {
     const searchParams = useSearchParams()
     const sessionId = searchParams.get("session_id")
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
@@ -76,5 +77,18 @@ export default function SuccessPage() {
                 </Button>
             </div>
         </div>
+    )
+}
+
+export default function SuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <h1 className="text-2xl font-bold">Laden...</h1>
+            </div>
+        }>
+            <SuccessContent />
+        </Suspense>
     )
 }
