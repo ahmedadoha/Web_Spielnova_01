@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 // Initialize Resend with the API key from environment variables
 // Note: In a production environment, ensure RESEND_API_KEY is set in .env.local
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
 interface BookingDetails {
     customerName: string;
