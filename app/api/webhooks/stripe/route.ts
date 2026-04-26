@@ -61,7 +61,7 @@ export async function POST(request: Request) {
                 try {
                     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
                     // Check if any line item name contains 'Top Gamer'
-                    isTopGamer = lineItems.data.some(item => item.description.includes('Top Gamer Rabatt'));
+                    isTopGamer = lineItems.data.some(item => item.description?.includes('Top Gamer Rabatt'));
                 } catch (e) {
                     console.error('Could not fetch line items for top gamer check', e);
                 }

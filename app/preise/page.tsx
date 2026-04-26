@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { SectionHeader } from "@/components/section-header"
+import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
 
 export default function PricingPage() {
     return (
@@ -11,6 +12,13 @@ export default function PricingPage() {
                 title="Preise & Pakete"
                 subtitle="Transparent und fair. Wähle das passende Paket für dein Erlebnis."
             />
+
+            <div className="mb-10 max-w-4xl mx-auto bg-primary/10 border border-primary/30 p-4 md:p-5 rounded-xl flex items-center justify-center gap-4 shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+                <span className="text-3xl hidden sm:block">🎮</span>
+                <p className="font-medium text-sm sm:text-base">
+                    <strong className="text-primary font-bold">Top Gamer Rabatt:</strong> Komm innerhalb von 30 Tagen zurück und sichere dir <span className="font-bold text-primary">{TOP_GAMER_DISCOUNT_PERCENT * 100}% Rabatt</span> auf dein nächstes VR Arena Erlebnis! (Wird an der Kasse automatisch abgezogen)
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {/* VR Arena 30 Min */}

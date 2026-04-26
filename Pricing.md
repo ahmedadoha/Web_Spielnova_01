@@ -15,7 +15,7 @@ Team Packet (4 players - 60 minutes)     | 90.00 EUR            | 124.00 EUR
 --- VR Simulators & Arcade ---
 Jump into the cockpit or enjoy classic arcade fun.
 
-* VR Simulator (Paraglider or Fighter Jet)
+* VR Simulator (Paraglider or Super Fighter)
   - Weekdays: 7.00 EUR
   - Weekends: 9.00 EUR
 

@@ -45,7 +45,7 @@ export default function Home() {
             <div className="col-span-1 md:col-span-3 lg:col-span-2">
               <GameCard
                 title="VR Simulatoren"
-                description="Erlebe das Gefühl des Fliegens mit unserem Paraglider oder steuere einen Kampfjet im 360-Grad-Simulator."
+                description="Erlebe das Gefühl des Fliegens mit unserem Paraglider oder steuere einen Super Fighter im 360-Grad-Simulator."
                 imageSrc="/Paraglider.jpg"
                 duration="5-10 Min"
                 players="1 Spieler"

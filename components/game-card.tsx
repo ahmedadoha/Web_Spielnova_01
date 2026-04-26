@@ -26,6 +26,8 @@ interface GameCardProps {
     href: string
     category?: string
     buttonText?: string
+    hideFooter?: boolean
+    onClickImage?: () => void
 }
 
 export function GameCard({
@@ -38,6 +40,8 @@ export function GameCard({
     href,
     category,
     buttonText,
+    hideFooter,
+    onClickImage,
 }: GameCardProps) {
     return (
         <motion.div
@@ -45,7 +49,10 @@ export function GameCard({
             transition={{ type: "spring", stiffness: 300 }}
         >
             <Card className="flex h-full flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)]">
-                <div className="relative aspect-video w-full overflow-hidden">
+                <div 
+                    className={`relative aspect-video w-full overflow-hidden ${onClickImage ? 'cursor-pointer' : ''}`}
+                    onClick={onClickImage}
+                >
                     <Image
                         src={imageSrc}
                         alt={title}
@@ -66,13 +73,15 @@ export function GameCard({
                         {description}
                     </CardDescription>
                 </CardContent>
-                <CardFooter>
-                    <Button asChild className="w-full font-bold group bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground border border-secondary/20">
-                        <Link href={href}>
-                            {buttonText || "Details & Buchen"}
-                        </Link>
-                    </Button>
-                </CardFooter>
+                {!hideFooter && (
+                    <CardFooter>
+                        <Button asChild className="w-full font-bold group bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground border border-secondary/20">
+                            <Link href={href}>
+                                {buttonText || "Details & Buchen"}
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                )}
             </Card>
         </motion.div>
     )
