@@ -83,3 +83,47 @@ export async function sendBookingConfirmation(details: BookingDetails) {
         return { success: false, error: err };
     }
 }
+
+interface RescheduleDetails {
+    customerName: string;
+    customerEmail: string;
+    gameName: string;
+    oldDate: string;
+    oldTime: string;
+    newDate: string;
+    newTime: string;
+    employeeName: string;
+}
+
+export async function sendRescheduleConfirmation(details: RescheduleDetails) {
+    try {
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const { data, error } = await resend.emails.send({
+            from: `Spielnova <${fromEmail}>`,
+            to: [details.customerEmail],
+            subject: 'Ihre Buchung wurde umgebucht – Spielnova',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                    <h1 style="color: #000;">Hallo ${details.customerName},</h1>
+                    <p>Ihre Buchung bei <strong>Spielnova</strong> wurde auf Ihren Wunsch hin umgebucht.</p>
+                    <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h2 style="margin-top: 0; color: #000;">Neue Buchungsdetails:</h2>
+                        <ul style="list-style: none; padding: 0;">
+                            <li><strong>Spiel:</strong> ${details.gameName}</li>
+                            <li><strong>Neues Datum:</strong> ${details.newDate}</li>
+                            <li><strong>Neue Uhrzeit:</strong> ${details.newTime} Uhr</li>
+                        </ul>
+                        <p style="color: #888; font-size: 0.9em;">Alter Termin: ${details.oldDate} um ${details.oldTime} Uhr</p>
+                    </div>
+                    <p>Bei Fragen wenden Sie sich bitte an unser Team.</p>
+                    <p>Wir freuen uns auf Sie!<br/>Ihr Spielnova Team</p>
+                </div>
+            `,
+        });
+        if (error) console.error('Resend reschedule error:', error);
+        return { success: !error, data };
+    } catch (err) {
+        console.error('Failed to send reschedule email:', err);
+        return { success: false, error: err };
+    }
+}
