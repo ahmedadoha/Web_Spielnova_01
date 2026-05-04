@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
+import { checkSlotAvailability } from '@/lib/availability'
 
 export async function POST(request: Request) {
     try {
@@ -23,20 +24,18 @@ export async function POST(request: Request) {
         }
 
         // Construct timestamp
-        // Assuming 'date' is YYYY-MM-DD and 'time' is HH:mm
-        const startTime = new Date(`${date}T${time}:00`) // Naive local construction
+        const startTime = new Date(`${date}T${time}:00`)
         const bookingDuration = duration || 60
         const endTime = new Date(startTime.getTime() + bookingDuration * 60000)
 
-        // Check if slot is still free (Double check to avoid race conditions)
-        const { data: conflicts } = await supabase
-            .from('bookings')
-            .select('id')
-            .eq('arena_id', arenaId)
-            .eq('start_time', startTime.toISOString())
+        // Calculate arenas needed
+        const arenasCount = playerCount > 4 ? 2 : 1
 
-        if (conflicts && conflicts.length > 0) {
-            return NextResponse.json({ error: 'Slot already booked' }, { status: 409 })
+        // Check if slot is strictly valid and free
+        const isAvailable = await checkSlotAvailability(date, time, bookingDuration, arenasCount)
+        
+        if (!isAvailable) {
+            return NextResponse.json({ error: 'This time slot is no longer available.' }, { status: 409 })
         }
 
         // Insert Booking with 'pending_payment' status
@@ -46,7 +45,8 @@ export async function POST(request: Request) {
                 {
                     start_time: startTime.toISOString(),
                     end_time: endTime.toISOString(),
-                    arena_id: arenaId,
+                    arena_id: arenaId, // keeping for legacy reasons, but arenas_count handles logic now
+                    arenas_count: arenasCount, // Add explicit arenas_count
                     game_mode: gameMode,
                     game_slug: gameSlug,
                     player_count: playerCount,

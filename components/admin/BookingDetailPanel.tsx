@@ -160,15 +160,15 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             <Mail className="h-4 w-4 text-blue-400" /> Erinnerung senden
                         </button>
 
-                        {/* Refund — manager only */}
-                        {isManager && isOnline && (
+                        {/* Refund */}
+                        {isOnline && (
                             <div className="space-y-2">
                                 <button
                                     id="admin-refund-btn"
                                     onClick={() => setShowRefund(!showRefund)}
                                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/30 hover:bg-red-500/10 transition-all text-sm font-medium text-red-400"
                                 >
-                                    <RefreshCw className="h-4 w-4" /> Rückerstattung (Manager)
+                                    <RefreshCw className="h-4 w-4" /> Rückerstattung
                                 </button>
                                 {showRefund && (
                                     <div className="space-y-2 pl-2">
@@ -194,17 +194,15 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             </div>
                         )}
 
-                        {/* Delete — manager only */}
-                        {isManager && (
-                            <button
-                                id="admin-delete-btn"
-                                onClick={handleDelete}
-                                disabled={loading}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-900/40 hover:bg-red-950/30 transition-all text-sm text-red-600"
-                            >
-                                <Trash2 className="h-4 w-4" /> Buchung löschen (nur Manager)
-                            </button>
-                        )}
+                        {/* Delete */}
+                        <button
+                            id="admin-delete-btn"
+                            onClick={handleDelete}
+                            disabled={loading}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-900/40 hover:bg-red-950/30 transition-all text-sm text-red-600"
+                        >
+                            <Trash2 className="h-4 w-4" /> Buchung löschen
+                        </button>
                     </div>
                 </div>
             </div>

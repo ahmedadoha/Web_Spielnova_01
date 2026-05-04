@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
             name,
             role: role || 'worker',
             is_active: true,
+            requires_password_change: true,
         })
         if (profileError) return NextResponse.json({ error: profileError.message }, { status: 500 })
 
@@ -64,6 +65,10 @@ export async function POST(request: NextRequest) {
             password: temp_password,
         })
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        // Flag the user so they are forced to change their password on next login
+        await adminClient.from('employees').update({ requires_password_change: true }).eq('id', employee_id)
+
         return NextResponse.json({ success: true })
     }
 

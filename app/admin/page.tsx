@@ -1,20 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function AdminLoginPage() {
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const router = useRouter()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [view, setView] = useState<'login' | 'forgot'>('login')
     const [error, setError] = useState('')
+    const [msg, setMsg] = useState('')
     const [loading, setLoading] = useState(false)
 
     async function handleLogin(e: React.FormEvent) {
@@ -30,14 +33,44 @@ export default function AdminLoginPage() {
             return
         }
 
-        // Update last_login
+        // Securely update last_login bypassing RLS
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-            await supabase.from('employees').update({ last_login: new Date().toISOString() }).eq('id', user.id)
+            await fetch('/api/admin/me', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ update_last_login: true })
+            })
         }
 
         router.push('/admin/dashboard')
         router.refresh()
+    }
+
+    async function handleForgotPassword(e: React.FormEvent) {
+        e.preventDefault()
+        setLoading(true)
+        setError('')
+        setMsg('')
+
+        try {
+            const res = await fetch('/api/admin/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            })
+
+            const data = await res.json()
+            if (!res.ok) {
+                setError(data.error || 'Ein Fehler ist aufgetreten.')
+            } else {
+                setMsg(data.message)
+            }
+        } catch (err) {
+            setError('Netzwerkfehler. Bitte versuche es später erneut.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -61,61 +94,134 @@ export default function AdminLoginPage() {
 
                 {/* Card */}
                 <div className="bg-card/60 backdrop-blur-md border border-border/50 rounded-2xl p-8 shadow-[0_0_40px_rgba(0,240,255,0.05)]">
-                    <h2 className="text-xl font-bold mb-6 text-center">Anmelden</h2>
+                    <h2 className="text-xl font-bold mb-6 text-center">
+                        {view === 'login' ? 'Anmelden' : 'Passwort vergessen'}
+                    </h2>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-muted-foreground mb-1.5">
-                                E-Mail-Adresse
-                            </label>
-                            <input
-                                id="admin-email"
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                required
-                                autoComplete="email"
-                                className="w-full bg-background/60 border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                                placeholder="mitarbeiter@spielnova.de"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-muted-foreground mb-1.5">
-                                Passwort
-                            </label>
-                            <input
-                                id="admin-password"
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                required
-                                autoComplete="current-password"
-                                className="w-full bg-background/60 border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
-                                {error}
+                    {view === 'login' ? (
+                        <form onSubmit={handleLogin} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                                    E-Mail-Adresse
+                                </label>
+                                <input
+                                    id="admin-email"
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    required
+                                    autoComplete="email"
+                                    className="w-full bg-background/60 border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                    placeholder="mitarbeiter@spielnova.de"
+                                />
                             </div>
-                        )}
 
-                        <button
-                            id="admin-login-btn"
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-                        >
-                            {loading ? 'Wird angemeldet...' : 'Anmelden'}
-                        </button>
-                    </form>
+                            <div>
+                                <div className="flex justify-between mb-1.5">
+                                    <label className="block text-sm font-medium text-muted-foreground">
+                                        Passwort
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setView('forgot'); setError(''); setMsg(''); }}
+                                        className="text-xs text-primary hover:underline"
+                                    >
+                                        Vergessen?
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        id="admin-password"
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        required
+                                        autoComplete="current-password"
+                                        className="w-full bg-background/60 border border-border rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                        placeholder="••••••••"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                            </div>
 
-                    <p className="text-xs text-muted-foreground text-center mt-6">
-                        Zugang wird von der Geschäftsleitung verwaltet.<br />
-                        Bei Problemen bitte den Manager kontaktieren.
-                    </p>
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                id="admin-login-btn"
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                            >
+                                {loading ? 'Wird angemeldet...' : 'Anmelden'}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleForgotPassword} className="space-y-5">
+                            <p className="text-sm text-muted-foreground mb-4">
+                                Gib deine E-Mail-Adresse ein. Wenn du ein Manager bist, senden wir dir einen Link zum Zurücksetzen.
+                            </p>
+                            <div>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                                    E-Mail-Adresse
+                                </label>
+                                <input
+                                    id="forgot-email"
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    required
+                                    autoComplete="email"
+                                    className="w-full bg-background/60 border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                    placeholder="mitarbeiter@spielnova.de"
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
+                                    {error}
+                                </div>
+                            )}
+
+                            {msg && (
+                                <div className={`border text-sm rounded-lg px-4 py-3 ${msg.includes('Manager') ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
+                                    {msg}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                            >
+                                {loading ? 'Wird gesendet...' : 'Senden'}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setView('login'); setError(''); setMsg(''); }}
+                                className="w-full text-sm text-muted-foreground hover:text-white transition-colors"
+                            >
+                                Zurück zur Anmeldung
+                            </button>
+                        </form>
+                    )}
+
+                    {view === 'login' && (
+                        <p className="text-xs text-muted-foreground text-center mt-6">
+                            Zugang wird von der Geschäftsleitung verwaltet.<br />
+                            Bei Problemen bitte den Manager kontaktieren.
+                        </p>
+                    )}
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground/40 mt-6">

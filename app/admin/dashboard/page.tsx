@@ -1,28 +1,28 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import BookingTable from '@/components/admin/BookingTable'
 import BookingDetailPanel from '@/components/admin/BookingDetailPanel'
 import WalkInForm from '@/components/admin/WalkInForm'
 import TeamManagement from '@/components/admin/TeamManagement'
-import { LogOut, Plus, Calendar, Users, Activity, RefreshCw } from 'lucide-react'
+import HolidaySettings from '@/components/admin/HolidaySettings'
+import { LogOut, Plus, Calendar, Users, Activity, RefreshCw, Key, Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-type Tab = 'today' | 'all' | 'team' | 'log'
-
 export default function AdminDashboard() {
+    type Tab = 'today' | 'all' | 'team' | 'holidays' | 'log'
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const router = useRouter()
-    const [employee, setEmployee] = useState<{ name: string; role: string } | null>(null)
+    const [employee, setEmployee] = useState<{ name: string; role: string; requires_password_change?: boolean } | null>(null)
     const [bookings, setBookings] = useState<Record<string, unknown>[]>([])
     const [selectedBooking, setSelectedBooking] = useState<Record<string, unknown> | null>(null)
     const [showWalkIn, setShowWalkIn] = useState(false)
+    const [showChangePassword, setShowChangePassword] = useState(false)
     const [activeTab, setActiveTab] = useState<Tab>('today')
     const [loading, setLoading] = useState(true)
     const [lastRefresh, setLastRefresh] = useState(new Date())
@@ -43,18 +43,42 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         async function init() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) { router.push('/admin'); return }
+            try {
+                console.log('Fetching user...');
+                const { data: { user }, error: userError } = await supabase.auth.getUser()
+                console.log('User result:', user, userError);
+                if (!user) { 
+                    setLoadingText('Nicht angemeldet, leite weiter...')
+                    console.log('No user, redirecting to /admin');
+                    router.push('/admin'); 
+                    return;
+                }
 
-            const { data: emp } = await supabase
-                .from('employees')
-                .select('name, role')
-                .eq('id', user.id)
-                .single()
+                console.log('Fetching employee profile for user:', user.id);
+                setLoadingText('Lade Mitarbeiterprofil...')
+                const { data: emp, error: empError } = await supabase
+                    .from('employees')
+                    .select('name, role, requires_password_change')
+                    .eq('id', user.id)
+                    .single()
+                
+                console.log('Employee result:', emp, empError);
 
-            if (!emp) { router.push('/admin'); return }
-            setEmployee(emp)
-            setLoading(false)
+                if (!emp) { 
+                    setLoadingText('Kein Profil gefunden, leite weiter...')
+                    console.log('No employee profile, redirecting to /admin');
+                    router.push('/admin'); 
+                    return;
+                }
+                setEmployee(emp)
+                if (emp.requires_password_change) {
+                    setShowChangePassword(true)
+                }
+                setLoading(false)
+            } catch (err) {
+                console.error('Init error:', err);
+                router.push('/admin');
+            }
         }
         init()
     }, [router])
@@ -72,27 +96,50 @@ export default function AdminDashboard() {
         return () => { supabase.removeChannel(channel) }
     }, [fetchBookings])
 
-    // 7-hour auto-logout
+    // 1-hour inactivity auto-logout
     useEffect(() => {
-        const timer = setTimeout(async () => {
-            await supabase.auth.signOut()
-            router.push('/admin')
-        }, 7 * 60 * 60 * 1000)
-        return () => clearTimeout(timer)
-    }, [router])
+        let timer: ReturnType<typeof setTimeout>
+
+        const resetTimer = () => {
+            clearTimeout(timer)
+            timer = setTimeout(async () => {
+                await supabase.auth.signOut()
+                router.push('/admin')
+            }, 60 * 60 * 1000) // 1 hour
+        }
+
+        // Initialize timer
+        resetTimer()
+
+        // Setup activity listeners
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
+        events.forEach(event => {
+            window.addEventListener(event, resetTimer)
+        })
+
+        return () => {
+            clearTimeout(timer)
+            events.forEach(event => {
+                window.removeEventListener(event, resetTimer)
+            })
+        }
+    }, [router, supabase])
 
     async function handleLogout() {
         await supabase.auth.signOut()
         router.push('/admin')
     }
 
+    const [loadingText, setLoadingText] = useState('Lade Dashboard...')
+
     const todayCount = bookings.filter(b => b.status !== 'deleted').length
     const confirmedCount = bookings.filter(b => b.status === 'confirmed').length
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#050A14] flex items-center justify-center">
-                <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+            <div className="min-h-screen bg-[#050A14] flex flex-col items-center justify-center text-white">
+                <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mb-4" />
+                <p className="text-muted-foreground">{loadingText}</p>
             </div>
         )
     }
@@ -122,7 +169,10 @@ export default function AdminDashboard() {
                             <Plus className="h-4 w-4" />
                             <span className="hidden sm:block">Walk-in</span>
                         </button>
-                        <button onClick={handleLogout} className="text-muted-foreground hover:text-white transition-colors">
+                        <button onClick={() => setShowChangePassword(true)} title="Passwort ändern" className="text-muted-foreground hover:text-white transition-colors">
+                            <Key className="h-5 w-5" />
+                        </button>
+                        <button onClick={handleLogout} title="Abmelden" className="text-muted-foreground hover:text-white transition-colors">
                             <LogOut className="h-5 w-5" />
                         </button>
                     </div>
@@ -150,7 +200,11 @@ export default function AdminDashboard() {
                     {([
                         { id: 'today', label: 'Heute', icon: Calendar },
                         { id: 'all', label: 'Alle', icon: Users },
-                        ...(isManager ? [{ id: 'team', label: 'Team', icon: Users }, { id: 'log', label: 'Aktivitäten', icon: Activity }] : []),
+                        ...(isManager ? [
+                            { id: 'team', label: 'Team', icon: Users }, 
+                            { id: 'holidays', label: 'Einstellungen', icon: Calendar },
+                            { id: 'log', label: 'Aktivitäten', icon: Activity }
+                        ] : []),
                     ] as { id: Tab; label: string; icon: React.ElementType }[]).map(tab => (
                         <button
                             key={tab.id}
@@ -175,6 +229,7 @@ export default function AdminDashboard() {
                     />
                 )}
                 {activeTab === 'team' && isManager && <TeamManagement />}
+                {activeTab === 'holidays' && isManager && <HolidaySettings />}
                 {activeTab === 'log' && isManager && <AuditLog />}
             </main>
 
@@ -195,6 +250,121 @@ export default function AdminDashboard() {
                     onSuccess={() => { setShowWalkIn(false); fetchBookings() }}
                 />
             )}
+
+            {/* Change Password modal */}
+            {showChangePassword && (
+                <ChangePasswordModal 
+                    onClose={() => setShowChangePassword(false)} 
+                    force={employee?.requires_password_change}
+                />
+            )}
+        </div>
+    )
+}
+
+function ChangePasswordModal({ onClose, force = false }: { onClose: () => void, force?: boolean }) {
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState('')
+    const [msg, setMsg] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    async function handleUpdate(e: React.FormEvent) {
+        e.preventDefault()
+        if (password !== confirmPassword) {
+            setError('Passwörter stimmen nicht überein.')
+            return
+        }
+        setLoading(true)
+        setError('')
+        setMsg('')
+
+        const { error: updateError } = await supabase.auth.updateUser({ password })
+        setLoading(false)
+
+        if (updateError) {
+            setError(updateError.message || 'Ein Fehler ist aufgetreten.')
+        } else {
+            setMsg('Passwort erfolgreich geändert!')
+            if (force) {
+                // Clear the flag securely
+                await fetch('/api/admin/me', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clear_requires_password_change: true })
+                })
+                // Reload the window to fetch fresh employee data
+                setTimeout(() => window.location.reload(), 1500)
+            } else {
+                setTimeout(onClose, 2000)
+            }
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <div className="bg-[#050A14] border border-border/50 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative">
+                <div className="px-6 py-4 border-b border-border/30 flex items-center justify-between">
+                    <h3 className="font-bold text-lg">Passwort ändern</h3>
+                    {!force && <button onClick={onClose} className="text-muted-foreground hover:text-white transition-colors">✕</button>}
+                </div>
+                <div className="p-6">
+                    {force && (
+                        <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm rounded-lg px-4 py-3 mb-5">
+                            Du verwendest ein temporäres Passwort. Bitte wähle jetzt ein neues, sicheres Passwort, um fortzufahren.
+                        </div>
+                    )}
+                    <form onSubmit={handleUpdate} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Neues Passwort</label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
+                                    className="w-full bg-background/60 border border-border rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                    placeholder="Mindestens 6 Zeichen"
+                                    minLength={6}
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors">
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Passwort bestätigen</label>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={e => setConfirmPassword(e.target.value)}
+                                required
+                                className="w-full bg-background/60 border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                placeholder="Passwort wiederholen"
+                                minLength={6}
+                            />
+                        </div>
+                        {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-3 py-2">{error}</div>}
+                        {msg && <div className="bg-green-500/10 border border-green-500/30 text-green-300 text-sm rounded-lg px-3 py-2">{msg}</div>}
+                        
+                        <div className="flex justify-end gap-3 pt-4">
+                            {!force && (
+                                <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border/50 hover:border-border text-muted-foreground hover:text-white transition-colors">
+                                    Abbrechen
+                                </button>
+                            )}
+                            <button type="submit" disabled={loading || !!msg} className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg text-sm hover:bg-primary/90 disabled:opacity-50 transition-all shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                                {loading ? 'Wird gespeichert...' : 'Speichern'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     )
 }
@@ -202,7 +372,7 @@ export default function AdminDashboard() {
 function AuditLog() {
     const [logs, setLogs] = useState<Record<string, unknown>[]>([])
     useEffect(() => {
-        const client = createClient(
+        const client = createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )

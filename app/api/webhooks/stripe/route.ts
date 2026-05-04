@@ -39,7 +39,12 @@ export async function POST(request: Request) {
             // 1. Update the booking status in Supabase
             const { data: bookingData, error: updateError } = await supabase
                 .from('bookings')
-                .update({ status: 'confirmed' })
+                .update({
+                    status: 'confirmed',
+                    stripe_session_id: session.id,
+                    payment_id: session.payment_intent as string,
+                    total_amount: session.amount_total || 0,
+                })
                 .eq('id', bookingId)
                 .select()
                 .single();

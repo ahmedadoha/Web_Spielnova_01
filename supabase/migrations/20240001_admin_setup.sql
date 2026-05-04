@@ -15,9 +15,12 @@ CREATE TABLE IF NOT EXISTS public.employees (
 ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
 
 -- Employees can only read their own profile; managers can read all
+-- Note: DROP + CREATE is used because CREATE POLICY IF NOT EXISTS is not supported.
+DROP POLICY IF EXISTS "Employees can view own profile" ON public.employees;
 CREATE POLICY "Employees can view own profile" ON public.employees
     FOR SELECT USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Managers can view all employees" ON public.employees;
 CREATE POLICY "Managers can view all employees" ON public.employees
     FOR SELECT USING (
         EXISTS (
@@ -26,6 +29,7 @@ CREATE POLICY "Managers can view all employees" ON public.employees
         )
     );
 
+DROP POLICY IF EXISTS "Managers can manage employees" ON public.employees;
 CREATE POLICY "Managers can manage employees" ON public.employees
     FOR ALL USING (
         EXISTS (
@@ -50,6 +54,7 @@ CREATE TABLE IF NOT EXISTS public.audit_log (
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Only managers can see the audit log
+DROP POLICY IF EXISTS "Managers can view audit log" ON public.audit_log;
 CREATE POLICY "Managers can view audit log" ON public.audit_log
     FOR SELECT USING (
         EXISTS (
@@ -59,6 +64,7 @@ CREATE POLICY "Managers can view audit log" ON public.audit_log
     );
 
 -- Any active employee can insert into audit log (system writes on their behalf)
+DROP POLICY IF EXISTS "Active employees can insert audit log" ON public.audit_log;
 CREATE POLICY "Active employees can insert audit log" ON public.audit_log
     FOR INSERT WITH CHECK (
         EXISTS (
