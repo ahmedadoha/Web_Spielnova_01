@@ -7,6 +7,9 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build'
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 const LOCATION_HTML = `Spielnova im West Park<br/>Am Westpark 6<br/>85057 Ingolstadt`
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+const LOGO_URL = `${BASE_URL}/logo.png`;
+
 // ---------------------------------------------------------------------------
 // Booking Confirmation (sent after successful payment via Stripe webhook)
 // ---------------------------------------------------------------------------
@@ -35,30 +38,55 @@ export async function sendBookingConfirmation(details: BookingDetails) {
             to: [customerEmail],
             subject: 'Ihre Buchungsbestätigung - Spielnova',
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                    <h1 style="color: #000;">Hallo ${customerName},</h1>
-                    <p>vielen Dank für Ihre Buchung bei <strong>Spielnova</strong>!</p>
-                    
-                    <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                        <h2 style="margin-top: 0; color: #000;">Ihre Buchungsdetails:</h2>
-                        <ul style="list-style: none; padding: 0;">
-                            <li><strong>Spiel:</strong> ${gameName}</li>
-                            <li><strong>Datum:</strong> ${date}</li>
-                            <li><strong>Uhrzeit:</strong> ${time} Uhr</li>
-                            <li><strong>Dauer:</strong> ${duration} Minuten</li>
-                            <li><strong>Spieler:</strong> ${playerCount}</li>
-                            <li><strong>Gesamtpreis:</strong> ${(totalAmount / 100).toFixed(2)} €</li>
-                        </ul>
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
+                    <!-- Header with Logo/Brand -->
+                    <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px 20px; text-align: center;">
+                        <img src="${LOGO_URL}" alt="Spielnova Logo" style="max-width: 200px; height: auto; margin: 0 auto; display: block;" />
                     </div>
                     
-                    ${isTopGamer ? `
-                    <div style="background-color: #e6f7ff; border-left: 4px solid #1890ff; padding: 15px; margin-bottom: 20px;">
-                        <p style="margin: 0;">🎮 <strong>Top Gamer Rabatt angewendet!</strong> Danke, dass du wieder da bist. Wir haben dir automatisch 20% Rabatt auf diese Buchung gewährt.</p>
-                    </div>
-                    ` : ''}
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #ffffff; font-size: 24px; margin-top: 0;">Hey ${customerName.split(' ')[0]}, bist du bereit für dein Abenteuer? 🚀</h2>
+                        <p style="font-size: 16px; line-height: 1.6; color: #a1a1aa;">
+                            Deine Mission ist bestätigt! Die Grenzen der Realität verschwinden und eine völlig neue Welt wartet auf dich. Lade deine Energie auf und mach dich bereit für ein unvergessliches Erlebnis.
+                        </p>
+                        
+                        <div style="background-color: #18181b; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #8b5cf6;">
+                            <h3 style="margin-top: 0; color: #ffffff; font-size: 18px; text-transform: uppercase; letter-spacing: 1px;">Deine Missionsdaten</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">🎮 Spiel:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${gameName}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">📅 Datum:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${date}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">⏰ Startzeit:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${time} Uhr</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">⏳ Dauer:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${duration} Minuten</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">👥 Teamgröße:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${playerCount} Players</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa; border-top: 1px solid #27272a;">💰 Gesamtbetrag:</td><td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right; border-top: 1px solid #27272a;">${(totalAmount / 100).toFixed(2)} €</td></tr>
+                            </table>
+                        </div>
+                        
+                        ${isTopGamer ? `
+                        <div style="background-color: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+                            <p style="margin: 0; color: #60a5fa; font-weight: bold;">⚡ Top Gamer Bonus aktiviert! Du hast 20% Rabatt auf diese Mission erhalten.</p>
+                        </div>
+                        ` : ''}
 
-                    <p><strong>Standort:</strong><br/>${LOCATION_HTML}</p>
-                    <p>Wir freuen uns auf Sie!<br/>Ihr Spielnova Team</p>
+                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h4 style="margin: 0 0 10px 0; color: #fca5a5; font-size: 16px; text-transform: uppercase;">⚠️ Achtung: Timing ist alles!</h4>
+                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5;">
+                                Bitte sei unbedingt <strong>10 Minuten vor Spielbeginn</strong> bei uns! Dein Briefing startet pünktlich. Bei Verspätung verlierst du leider wertvolle Spielzeit.
+                            </p>
+                        </div>
+
+                        <p style="color: #a1a1aa; font-size: 14px; text-align: center;">
+                            <strong>Basecamp / Standort:</strong><br/>
+                            ${LOCATION_HTML}
+                        </p>
+
+                        <hr style="border: none; border-top: 1px solid #27272a; margin: 30px 0;" />
+                        
+                        <p style="text-align: center; color: #71717a; font-size: 14px; margin: 0;">
+                            Wir sehen uns im Grid!<br/>
+                            <strong style="color: #a1a1aa;">Dein Spielnova Team</strong>
+                        </p>
+                    </div>
                 </div>
             `,
         });
@@ -94,22 +122,37 @@ export async function sendRescheduleConfirmation(details: RescheduleDetails) {
         const { data, error } = await resend.emails.send({
             from: `Spielnova <${FROM_EMAIL}>`,
             to: [details.customerEmail],
-            subject: 'Ihre Buchung wurde umgebucht – Spielnova',
+            subject: 'Ihre Mission wurde verlegt – Spielnova',
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                    <h1 style="color: #000;">Hallo ${details.customerName},</h1>
-                    <p>Ihre Buchung bei <strong>Spielnova</strong> wurde auf Ihren Wunsch hin umgebucht.</p>
-                    <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                        <h2 style="margin-top: 0; color: #000;">Neue Buchungsdetails:</h2>
-                        <ul style="list-style: none; padding: 0;">
-                            <li><strong>Spiel:</strong> ${details.gameName}</li>
-                            <li><strong>Neues Datum:</strong> ${details.newDate}</li>
-                            <li><strong>Neue Uhrzeit:</strong> ${details.newTime} Uhr</li>
-                        </ul>
-                        <p style="color: #888; font-size: 0.9em;">Alter Termin: ${details.oldDate} um ${details.oldTime} Uhr</p>
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
+                    <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px 20px; text-align: center;">
+                        <img src="${LOGO_URL}" alt="Spielnova Logo" style="max-width: 200px; height: auto; margin: 0 auto; display: block;" />
                     </div>
-                    <p>Bei Fragen wenden Sie sich bitte an unser Team.</p>
-                    <p>Wir freuen uns auf Sie!<br/>Ihr Spielnova Team</p>
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #ffffff; font-size: 24px; margin-top: 0;">Hey ${details.customerName.split(' ')[0]}, Koordinaten-Update! 🛰️</h2>
+                        <p style="font-size: 16px; line-height: 1.6; color: #a1a1aa;">
+                            Deine Missionsdaten wurden auf deinen Wunsch hin im System aktualisiert. Bitte notiere dir die neuen Startbedingungen.
+                        </p>
+                        
+                        <div style="background-color: #18181b; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #f59e0b;">
+                            <h3 style="margin-top: 0; color: #ffffff; font-size: 18px; text-transform: uppercase;">Neue Missionsdaten</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">🎮 Spiel:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${details.gameName}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">📅 Neues Datum:</td><td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right;">${details.newDate}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">⏰ Neue Startzeit:</td><td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right;">${details.newTime} Uhr</td></tr>
+                            </table>
+                            <p style="color: #52525b; font-size: 0.85em; margin-top: 15px; text-align: right;">(Alter Termin: ${details.oldDate} um ${details.oldTime} Uhr)</p>
+                        </div>
+
+                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5; text-align: center;">
+                                WICHTIG: Bitte sei unbedingt <strong>10 Minuten vor dem neuen Spielbeginn</strong> bei uns!
+                            </p>
+                        </div>
+                        
+                        <hr style="border: none; border-top: 1px solid #27272a; margin: 30px 0;" />
+                        <p style="text-align: center; color: #71717a; font-size: 14px; margin: 0;">Wir sehen uns im Grid!<br/><strong style="color: #a1a1aa;">Dein Spielnova Team</strong></p>
+                    </div>
                 </div>
             `,
         });
@@ -140,23 +183,37 @@ export async function sendReminderEmail(details: ReminderDetails) {
         const { data, error } = await resend.emails.send({
             from: `Spielnova <${FROM_EMAIL}>`,
             to: [details.customerEmail],
-            subject: 'Erinnerung: Ihre Buchung bei Spielnova',
+            subject: 'Bereit? Deine Mission bei Spielnova startet bald!',
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                    <h1 style="color: #000;">Hallo ${details.customerName},</h1>
-                    <p>Dies ist eine freundliche Erinnerung an Ihre bevorstehende Buchung bei <strong>Spielnova</strong>.</p>
-                    <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                        <h2 style="margin-top: 0; color: #000;">Ihre Buchungsdetails:</h2>
-                        <ul style="list-style: none; padding: 0;">
-                            <li><strong>Spiel:</strong> ${details.gameName}</li>
-                            <li><strong>Datum:</strong> ${details.date}</li>
-                            <li><strong>Uhrzeit:</strong> ${details.time} Uhr</li>
-                            <li><strong>Dauer:</strong> ${details.duration} Minuten</li>
-                            <li><strong>Spieler:</strong> ${details.playerCount}</li>
-                        </ul>
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
+                    <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px 20px; text-align: center;">
+                        <img src="${LOGO_URL}" alt="Spielnova Logo" style="max-width: 200px; height: auto; margin: 0 auto; display: block;" />
                     </div>
-                    <p><strong>Standort:</strong><br/>${LOCATION_HTML}</p>
-                    <p>Wir freuen uns auf Sie!<br/>Ihr Spielnova Team</p>
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #ffffff; font-size: 24px; margin-top: 0;">Hey ${details.customerName.split(' ')[0]}, mach dich bereit! ⚡</h2>
+                        <p style="font-size: 16px; line-height: 1.6; color: #a1a1aa;">
+                            Der Countdown läuft! Deine Mission im VR-Grid steht kurz bevor. Hier ist nochmal ein kurzer System-Check deiner Daten:
+                        </p>
+                        
+                        <div style="background-color: #18181b; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #3b82f6;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">🎮 Spiel:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${details.gameName}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">📅 Datum:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${details.date}</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">⏰ Startzeit:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${details.time} Uhr</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa;">👥 Teamgröße:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${details.playerCount} Players</td></tr>
+                            </table>
+                        </div>
+
+                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h4 style="margin: 0 0 10px 0; color: #fca5a5; font-size: 16px; text-transform: uppercase;">⚠️ Erinnerung: Timing ist alles!</h4>
+                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5;">
+                                Wir brauchen dich <strong>10 Minuten vor dem Start</strong> im Basecamp. Das Briefing wartet nicht!
+                            </p>
+                        </div>
+                        
+                        <hr style="border: none; border-top: 1px solid #27272a; margin: 30px 0;" />
+                        <p style="text-align: center; color: #71717a; font-size: 14px; margin: 0;">Wir sehen uns im Grid!<br/><strong style="color: #a1a1aa;">Dein Spielnova Team</strong></p>
+                    </div>
                 </div>
             `,
         });
