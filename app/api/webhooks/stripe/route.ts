@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { supabase } from '@/lib/supabase';
 import { sendBookingConfirmation } from '@/lib/email';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+
+// Create a Supabase admin client to bypass RLS for webhook operations
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: Request) {
     const body = await request.text();
@@ -36,8 +42,8 @@ export async function POST(request: Request) {
         if (bookingId) {
             console.log(`Payment successful for booking ${bookingId}`);
 
-            // 1. Update the booking status in Supabase
-            const { data: bookingData, error: updateError } = await supabase
+            // 1. Update the booking status in Supabase using the Admin client
+            const { data: bookingData, error: updateError } = await supabaseAdmin
                 .from('bookings')
                 .update({
                     status: 'confirmed',
