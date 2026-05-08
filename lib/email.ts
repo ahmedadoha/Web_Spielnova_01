@@ -69,10 +69,10 @@ export async function sendBookingConfirmation(details: BookingDetails) {
                         </div>
                         ` : ''}
 
-                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                            <h4 style="margin: 0 0 10px 0; color: #fca5a5; font-size: 16px; text-transform: uppercase;">⚠️ Achtung: Timing ist alles!</h4>
-                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5;">
-                                Bitte sei unbedingt <strong>10 Minuten vor Spielbeginn</strong> bei uns! Dein Briefing startet pünktlich. Bei Verspätung verlierst du leider wertvolle Spielzeit.
+                        <div style="background-color: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h4 style="margin: 0 0 10px 0; color: #c4b5fd; font-size: 16px; text-transform: uppercase;">⏱️ Wichtiges zum Timing</h4>
+                            <p style="margin: 0; color: #d4d4d8; font-size: 15px; line-height: 1.5;">
+                                Bitte sei <strong>10 Minuten vor Spielbeginn</strong> bei uns! So haben wir genug Zeit für das Briefing und du verlierst keine wertvolle Spielzeit.
                             </p>
                         </div>
 
@@ -145,9 +145,10 @@ export async function sendRescheduleConfirmation(details: RescheduleDetails) {
                             <p style="color: #52525b; font-size: 0.85em; margin-top: 15px; text-align: right;">(Alter Termin: ${details.oldDate} um ${details.oldTime} Uhr)</p>
                         </div>
 
-                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5; text-align: center;">
-                                WICHTIG: Bitte sei unbedingt <strong>10 Minuten vor dem neuen Spielbeginn</strong> bei uns!
+                        <div style="background-color: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h4 style="margin: 0 0 10px 0; color: #c4b5fd; font-size: 16px; text-transform: uppercase;">⏱️ Wichtiges zum Timing</h4>
+                            <p style="margin: 0; color: #d4d4d8; font-size: 15px; line-height: 1.5;">
+                                Bitte sei <strong>10 Minuten vor deinem neuen Spielbeginn</strong> bei uns, damit wir pünktlich mit dem Briefing starten können!
                             </p>
                         </div>
                         
@@ -205,10 +206,10 @@ export async function sendReminderEmail(details: ReminderDetails) {
                             </table>
                         </div>
 
-                        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                            <h4 style="margin: 0 0 10px 0; color: #fca5a5; font-size: 16px; text-transform: uppercase;">⚠️ Erinnerung: Timing ist alles!</h4>
-                            <p style="margin: 0; color: #fecaca; font-size: 15px; line-height: 1.5;">
-                                Wir brauchen dich <strong>10 Minuten vor dem Start</strong> im Basecamp. Das Briefing wartet nicht!
+                        <div style="background-color: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h4 style="margin: 0 0 10px 0; color: #c4b5fd; font-size: 16px; text-transform: uppercase;">⏱️ Wichtiges zum Timing</h4>
+                            <p style="margin: 0; color: #d4d4d8; font-size: 15px; line-height: 1.5;">
+                                Wir erwarten dich <strong>10 Minuten vor dem Start</strong> im Basecamp. Das Briefing wartet schon auf dich!
                             </p>
                         </div>
                         
