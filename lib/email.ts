@@ -7,8 +7,9 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build'
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 const LOCATION_HTML = `Spielnova im West Park<br/>Am Westpark 6<br/>85057 Ingolstadt`
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-const LOGO_URL = `${BASE_URL}/logo.png`;
+// Ensure the logo is always fetched from the public production domain.
+// Vercel deployment URLs are password protected, which breaks images in emails.
+const LOGO_URL = 'https://www.spielnova.de/logo.png';
 
 // ---------------------------------------------------------------------------
 // Booking Confirmation (sent after successful payment via Stripe webhook)
