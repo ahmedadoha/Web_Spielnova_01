@@ -49,8 +49,15 @@ export default function ArcadePage() {
                         duration={game.duration}
                         players={game.players}
                         href={game.href}
+                        hideFooter={true}
                     />
                 ))}
+            </div>
+
+            <div className="mt-12 text-center">
+                <p className="text-xl font-medium text-muted-foreground bg-primary/10 inline-block px-6 py-3 rounded-full border border-primary/20">
+                    ℹ️ Bezahlung und Spielen vor Ort — keine Vorab-Buchung erforderlich
+                </p>
             </div>
         </div>
     );
