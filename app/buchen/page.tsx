@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
+import { GAMES_BY_MODE } from "@/lib/games"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -27,21 +28,8 @@ import { SectionHeader } from "@/components/section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { de } from "date-fns/locale"
 
-// Mock games data (should ideally come from DB or config)
-const games = {
-    shooter: [
-        { slug: "zombie-apocalypse", title: "Zombie Apocalypse VR" },
-        { slug: "robot-warfare", title: "Robot Warfare" },
-        { slug: "space-marines", title: "Space Marines" },
-        { slug: "wild-west", title: "Wild West Shootout" },
-    ],
-    escape: [
-        { slug: "escape-pyramids", title: "Escape the Pyramids" },
-        { slug: "space-station", title: "Space Station Tiberia" },
-        { slug: "alice-wonderland", title: "Alice in Wonderland" },
-        { slug: "horror-house", title: "Horror House" },
-    ],
-}
+// Game catalog is managed centrally in lib/games.ts
+const games = GAMES_BY_MODE
 
 interface TimeSlot {
     time: string
