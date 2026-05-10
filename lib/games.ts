@@ -64,7 +64,7 @@ export const GAMES: Game[] = [
         longDescription: `mit atemberaubender VR-Grafik sowie VR-Kampfmechaniken und Waffen der nächsten Generation. 
 Stelle dich den Untoten allein oder gemeinsam mit bis zu drei weiteren Überlebenden in einem postapokalyptischen Südwesten der USA, der von Zombies überrannt wurde.
 In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu überleben. Deckt euch gegenseitig den Rücken, teilt Munition und findet den Weg durch die verlassene Stadt zur Evakuierungszone.`,
-        imageSrc: 'public/Arizona1.avif',
+        imageSrc: '/Arizona1.avif',
         duration: '30–60 Minuten',
         players: '1–4 Spieler',
         difficulty: 'Mittel',
@@ -90,7 +90,7 @@ Set in the ice-covered ruins of LA nearly 20 years after the apocalypse, After t
 2005, LA. A generation has passed since a mysterious outbreak caused by the excessive use of designer drugs birthed the terrible Snowbreed, infesting our cities and collapsing civilization.
 You, one of the survivors seemingly immune to the side-effects of the substances, are humanity's last hope of resurgence. 
 Explore the remains of a civilization ground to a halt in an alternate 1980s, craft deadly weapons and wield devastating powers with real-life movements as you develop your combat style, and join forces with players worldwide as you go head to head with relentless hordes and larger-than-life bosses in a bid to take back the city. It?s time.`,
-        imageSrc: 'public/After_the_fall1.jpg',
+        imageSrc: '/After_the_fall1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         difficulty: 'Mittel',
@@ -120,7 +120,7 @@ Jede Ecke des Herrenhauses birgt ein neues Geheimnis. Die Spieler müssen kommun
 Mit seinem immersiven Setting und seiner spannungsgeladenen Atmosphäre bietet „Mansion of Death“ eine einzigartige Mischung aus Horror und kniffligen Herausforderungen.
         
 Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, die nach ihrem nächsten unvergesslichen Abenteuer suchen.`,
-        imageSrc: 'public/mansion1.jpg',
+        imageSrc: '/mansion1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         difficulty: 'Mittel',
@@ -141,7 +141,7 @@ Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, 
         longDescription: `Willkommen, Abenteurer, bei „Riddle of Ruins: VR Adventure“! Schlüpft in die Rolle wagemutiger Teilnehmer, die sich Woche für Woche in einen uralten Tempel wagen, um ihren Verstand und ihr Glück auf die Probe zu stellen.
 Löst knifflige Rätsel, deckt verborgene Geheimnisse auf und jagt nach verlorenen Schätzen – in einem vollkommen immersiven Virtual-Reality-Erlebnis.
 Seid ihr bereit, die Herausforderung anzunehmen und zum ultimativen Tempelforscher zu werden? Schließt euch uns an und findet es heraus! `,
-        imageSrc: 'public/riddle2.png',
+        imageSrc: '/riddle2.png',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         difficulty: 'Mittel',
