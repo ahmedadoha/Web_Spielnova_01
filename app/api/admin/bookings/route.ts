@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
         customer_name, customer_email, customer_phone,
-        game_name, date, time, duration_minutes,
+        game_name, game_slug, date, time, duration_minutes,
         player_count, arenas_count, payment_method, staff_notes
     } = body
 
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
             end_time: endTime.toISOString(),
             arena_id: 'arena-1', // walk-ins default to arena-1 (staff manages arena assignment)
             game_mode: 'walk-in',
-            game_slug: game_name,
+            game_slug: game_slug || game_name,
             // Admin-specific flat columns
             game_name: game_name,
             date: date,
