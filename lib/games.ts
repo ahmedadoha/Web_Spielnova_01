@@ -24,6 +24,9 @@
  *    - features:        List of up to 4 bullet points shown on the detail page
  *    - category:        "shooter" or "escape" — determines which listing page it appears on
  *    - bookingMode:     Always match category: "shooter" or "escape"
+ *    - trailerUrl:      (optional) YouTube link for the game trailer, e.g.
+ *                       "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+ *                       Leave out the field entirely if there is no trailer yet.
  *
  * 3. Save the file. The change appears instantly on the website.
  *
@@ -47,6 +50,7 @@ export interface Game {
     features: string[]
     category: 'shooter' | 'escape'
     bookingMode: 'shooter' | 'escape'
+    trailerUrl?: string
 }
 
 export const GAMES: Game[] = [
