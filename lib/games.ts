@@ -64,6 +64,7 @@ export const GAMES: Game[] = [
         category: 'shooter',
         bookingMode: 'shooter',
         title: 'Arizona Sunshine',
+        trailerUrl: 'https://www.youtube.com/watch?v=O2ErTEHPSCg',
         description: 'Das Remake von Arizona Sunshine® hebt das preisgekrönte Originalspiel auf ein neues Niveau – komplett neu aufgebaut',
         longDescription: `mit atemberaubender VR-Grafik sowie VR-Kampfmechaniken und Waffen der nächsten Generation. 
 Stelle dich den Untoten allein oder gemeinsam mit bis zu drei weiteren Überlebenden in einem postapokalyptischen Südwesten der USA, der von Zombies überrannt wurde.
