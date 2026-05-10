@@ -68,6 +68,7 @@ export default function BookingPage() {
 
     const [customerName, setCustomerName] = React.useState("")
     const [customerEmail, setCustomerEmail] = React.useState("")
+    const [agbAccepted, setAgbAccepted] = React.useState(false)
     const [loading, setLoading] = React.useState(false)
     const [success, setSuccess] = React.useState(false)
     const [bookingError, setBookingError] = React.useState<string | null>(null)
@@ -132,6 +133,10 @@ export default function BookingPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!agbAccepted) {
+            setBookingError("Bitte akzeptiere die Allgemeinen Geschäftsbedingungen, um fortzufahren.")
+            return
+        }
         setLoading(true)
 
         // Determine arena allocation logic
@@ -461,17 +466,50 @@ export default function BookingPage() {
                                         />
                                     </div>
 
-                                    <div className="pt-4">
+                                    {/* AGB consent checkbox */}
+                                    <div className="flex items-start gap-3 pt-2">
+                                        <input
+                                            id="agb"
+                                            type="checkbox"
+                                            checked={agbAccepted}
+                                            onChange={(e) => setAgbAccepted(e.target.checked)}
+                                            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-white/20 bg-black/30 accent-primary cursor-pointer"
+                                        />
+                                        <label htmlFor="agb" className="text-sm text-muted-foreground leading-snug cursor-pointer">
+                                            Ich habe die{' '}
+                                            <a
+                                                href="/agb"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary underline underline-offset-2 hover:text-primary/80"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Allgemeinen Geschäftsbedingungen
+                                            </a>
+                                            {' '}gelesen und stimme ihnen zu. Ich bestätige, dass mit Abschluss der Buchung kein Widerrufsrecht besteht.
+                                        </label>
+                                    </div>
+
+                                    <div className="pt-2">
                                         {bookingError && (
                                             <div className="mb-3 rounded-md bg-red-500/15 border border-red-500/40 px-4 py-3 text-sm text-red-400">
                                                 {bookingError}
                                             </div>
                                         )}
-                                        <Button type="submit" size="lg" className="w-full font-bold text-lg" disabled={loading}>
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            className="w-full font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                                            disabled={loading || !agbAccepted}
+                                        >
                                             {loading ? <Loader2 className="animate-spin mr-2" /> : null}
                                             Jetzt Buchen & Bezahlen
                                         </Button>
-
+                                        {!agbAccepted && (
+                                            <p className="mt-2 text-center text-xs text-muted-foreground/60">
+                                                Bitte akzeptiere die AGB, um fortzufahren.
+                                            </p>
+                                        )}
                                     </div>
                                 </form>
 
