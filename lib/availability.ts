@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabaseAdmin as supabase } from './supabase-admin'
 
 export const TOTAL_ARENAS = 2
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { generateSlots, TOTAL_ARENAS } from '@/lib/availability'
 
 export const dynamic = 'force-dynamic'

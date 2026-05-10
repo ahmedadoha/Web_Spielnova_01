@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
 import { checkSlotAvailability } from '@/lib/availability'
 
