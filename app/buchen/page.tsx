@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { useSearchParams } from "next/navigation"
 import { format } from "date-fns"
+
 import { Calendar as CalendarIcon, Check, Loader2, Users } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -27,6 +29,23 @@ import { Label } from "@/components/ui/label"
 import { SectionHeader } from "@/components/section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { de } from "date-fns/locale"
+
+// useSearchParams must live in its own component wrapped by <Suspense>
+function SessionExpiredBanner() {
+    const searchParams = useSearchParams()
+    if (searchParams.get('session_expired') !== '1') return null
+    return (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-xl px-5 py-4 flex items-start gap-3">
+            <span className="text-xl mt-0.5">⏱</span>
+            <div>
+                <p className="font-semibold">Buchungssitzung abgelaufen</p>
+                <p className="text-sm text-amber-300/80 mt-0.5">
+                    Deine Reservierung ist nach 15 Minuten abgelaufen. Bitte wähle einen neuen Zeitslot und starte die Buchung erneut.
+                </p>
+            </div>
+        </div>
+    )
+}
 
 // Game catalog is managed centrally in lib/games.ts
 const games = GAMES_BY_MODE
@@ -179,6 +198,10 @@ export default function BookingPage() {
     return (
         <div className="container py-20 px-4 md:px-6 max-w-4xl mx-auto">
             <SectionHeader title="Erlebnis Buchen" subtitle={`Schritt ${step} von 4`} />
+
+            <React.Suspense fallback={null}>
+                <SessionExpiredBanner />
+            </React.Suspense>
 
             <div className="mb-6 bg-primary/10 border border-primary/30 p-4 rounded-xl flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(0,240,255,0.1)]">
                 <span className="text-2xl">🎮</span>
