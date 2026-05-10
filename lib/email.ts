@@ -104,6 +104,78 @@ export async function sendBookingConfirmation(details: BookingDetails) {
 }
 
 // ---------------------------------------------------------------------------
+// Contact Form (forwarded to info@spielnova.de with reply-to set to sender)
+// ---------------------------------------------------------------------------
+
+interface ContactDetails {
+    senderName: string;
+    senderEmail: string;
+    subject: string;
+    message: string;
+}
+
+export async function sendContactEmail(details: ContactDetails) {
+    try {
+        const { senderName, senderEmail, subject, message } = details;
+
+        const { data, error } = await resend.emails.send({
+            from: `Spielnova Kontakt <${FROM_EMAIL}>`,
+            to: ['info@spielnova.de'],
+            replyTo: senderEmail,
+            subject: `Kontaktanfrage: ${subject}`,
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
+                    <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
+                        <img src="${LOGO_URL}" alt="Spielnova Logo" style="max-width: 180px; height: auto; margin: 0 auto; display: block;" />
+                    </div>
+
+                    <div style="padding: 36px 30px;">
+                        <h2 style="color: #ffffff; font-size: 22px; margin-top: 0;">📬 Neue Kontaktanfrage</h2>
+
+                        <div style="background-color: #18181b; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #3b82f6;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #a1a1aa; width: 120px;">👤 Name:</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${senderName}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #a1a1aa;">📧 E-Mail:</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #60a5fa;">
+                                        <a href="mailto:${senderEmail}" style="color: #60a5fa;">${senderEmail}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #a1a1aa;">📌 Betreff:</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${subject}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div style="background-color: #18181b; padding: 20px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+                            <h3 style="margin-top: 0; color: #c4b5fd; font-size: 15px; text-transform: uppercase; letter-spacing: 1px;">Nachricht</h3>
+                            <p style="color: #d4d4d8; font-size: 15px; line-height: 1.7; margin: 0; white-space: pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                        </div>
+
+                        <p style="color: #52525b; font-size: 13px; margin-top: 28px; text-align: center;">
+                            Du kannst direkt auf diese E-Mail antworten — die Antwort geht an ${senderEmail}
+                        </p>
+                    </div>
+                </div>
+            `,
+        });
+
+        if (error) {
+            console.error('Resend Error (contact):', error);
+            return { success: false, error };
+        }
+        return { success: true, data };
+    } catch (err) {
+        console.error('Failed to send contact email:', err);
+        return { success: false, error: err };
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Reschedule Confirmation (sent automatically when staff reschedules)
 // ---------------------------------------------------------------------------
 

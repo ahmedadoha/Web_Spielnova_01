@@ -51,6 +51,7 @@ export default function BookingPage() {
     const [customerEmail, setCustomerEmail] = React.useState("")
     const [loading, setLoading] = React.useState(false)
     const [success, setSuccess] = React.useState(false)
+    const [bookingError, setBookingError] = React.useState<string | null>(null)
 
     // Fetch availability when date changes
     React.useEffect(() => {
@@ -154,10 +155,21 @@ export default function BookingPage() {
         setLoading(false)
 
         if (data.success && data.url) {
-            // Redirect to Stripe
             window.location.href = data.url;
         } else {
-            alert("Fehler bei der Buchung: " + (data.error || "Unbekannter Fehler"))
+            const slotTaken = res.status === 409;
+            setBookingError(
+                slotTaken
+                    ? "Dieser Zeitslot wurde gerade von jemand anderem gebucht. Bitte wähle einen anderen Slot."
+                    : (data.error || "Unbekannter Fehler. Bitte versuche es erneut.")
+            );
+            if (slotTaken && date) {
+                // Refresh availability so the now-taken slot immediately turns grey
+                setSelectedTime(null);
+                fetch(`/api/availability?date=${format(date, "yyyy-MM-dd")}`)
+                    .then(r => r.json())
+                    .then(d => setAvailableSlots(d.availability || {}));
+            }
         }
     }
 
@@ -215,14 +227,14 @@ export default function BookingPage() {
                                             <Button
                                                 variant={duration === "30" ? "default" : "outline"}
                                                 className="h-16 text-lg font-bold"
-                                                onClick={() => setDuration("30")}
+                                                onClick={() => { setDuration("30"); setSelectedTime(null); }}
                                             >
                                                 30 Minuten
                                             </Button>
                                             <Button
                                                 variant={duration === "60" ? "default" : "outline"}
                                                 className="h-16 text-lg font-bold relative overflow-hidden"
-                                                onClick={() => setDuration("60")}
+                                                onClick={() => { setDuration("60"); setSelectedTime(null); }}
                                             >
                                                 <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5">BELIEBT</div>
                                                 60 Minuten
@@ -304,19 +316,32 @@ export default function BookingPage() {
                                             ) : (
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-2">
                                                     {Object.entries(availableSlots).length > 0 ? (
-                                                        Object.entries(availableSlots).map(([time, status]) => {
+                                                        Object.entries(availableSlots).map(([time]) => {
                                                             const needsBothArenas = parseInt(playerCount) > 4;
                                                             const isToday = date ? format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') : false;
                                                             const isPast = isToday && time <= format(new Date(), 'HH:mm');
-                                                            const isAvailable = !isPast && (needsBothArenas
-                                                                ? (status.arena1 && status.arena2)
-                                                                : (status.arena1 || status.arena2));
+
+                                                            // Check every 30-min chunk the session occupies, not just the start.
+                                                            // A 60-min session at 14:30 needs both 14:30 and 15:00 to be free.
+                                                            const durationChunks = parseInt(duration) / 30;
+                                                            const isFullDurationFree = Array.from({ length: durationChunks }, (_, i) => {
+                                                                const [h, m] = time.split(':').map(Number);
+                                                                const totalMin = h * 60 + m + i * 30;
+                                                                const chunkTime = `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:${String(totalMin % 60).padStart(2, '0')}`;
+                                                                const chunk = availableSlots[chunkTime];
+                                                                if (!chunk) return false; // chunk is outside opening hours
+                                                                return needsBothArenas
+                                                                    ? (chunk.arena1 && chunk.arena2)
+                                                                    : (chunk.arena1 || chunk.arena2);
+                                                            }).every(Boolean);
+
+                                                            const isAvailable = !isPast && isFullDurationFree;
                                                             return (
                                                                 <Button
                                                                     key={time}
                                                                     variant={selectedTime === time ? "default" : isAvailable ? "outline" : "ghost"}
                                                                     disabled={!isAvailable}
-                                                                    onClick={() => setSelectedTime(time)}
+                                                                    onClick={() => { setSelectedTime(time); setBookingError(null); }}
                                                                     className={cn(!isAvailable && "opacity-50")}
                                                                 >
                                                                     {time}
@@ -414,6 +439,11 @@ export default function BookingPage() {
                                     </div>
 
                                     <div className="pt-4">
+                                        {bookingError && (
+                                            <div className="mb-3 rounded-md bg-red-500/15 border border-red-500/40 px-4 py-3 text-sm text-red-400">
+                                                {bookingError}
+                                            </div>
+                                        )}
                                         <Button type="submit" size="lg" className="w-full font-bold text-lg" disabled={loading}>
                                             {loading ? <Loader2 className="animate-spin mr-2" /> : null}
                                             Jetzt Buchen & Bezahlen
