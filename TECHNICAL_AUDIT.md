@@ -830,34 +830,39 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 ## N. Recommended Next Priorities
 
+> **Status legend:** ✅ **FIXED** — implemented and pushed | 🔲 **OPEN** — not yet done
+
+---
+
 ### 🔴 Critical — Before Going Live
 
-1. **Fix "Erlebnis nicht gefunden" — add 5 missing game definitions** (see §D.1)
-   Add the missing 5 entries to `gamesData` in `app/experience/[slug]/page.tsx`:
-   `space-marines`, `wild-west`, `space-station`, `alice-wonderland`, `horror-house`.
-   This is a single-file change that instantly unbreaks 5 of 8 game pages.
+1. ✅ **FIXED** — **"Erlebnis nicht gefunden" — 5 missing game detail pages** (see §D.1)
+   Resolved by creating `lib/games.ts` as a single centralized catalog (all 8 games).
+   All four pages that previously maintained independent game lists now import from one file.
+   Adding, renaming, or removing a game now requires editing exactly one file.
 
-2. **Fix slot availability display for groups of 5+ players** (see §D.2 Bug A)
-   Replace the static `isAvailable = status.arena1 || status.arena2` with:
-   ```javascript
-   const needsBothArenas = parseInt(playerCount) > 4;
-   const isAvailable = needsBothArenas
-     ? (status.arena1 && status.arena2)
-     : (status.arena1 || status.arena2);
-   ```
+2. ✅ **FIXED** — **Slot availability display ignored player count for groups of 5+** (see §D.2 Bug A)
+   Resolved by replacing the static `arena1 || arena2` check with a player-count-aware check:
+   groups ≤ 4 require at least one free arena; groups ≥ 5 require both arenas to be free.
+   Additionally, changing player count now clears any already-selected time slot.
 
-3. **Fix past slot visibility on today's date** (see §D.2 Bug B)
-   Add a time comparison check in the slot rendering to grey out and disable any slot whose time has already passed today.
+3. ✅ **FIXED** — **Past time slots shown as bookable on today's date** (see §D.2 Bug B)
+   Resolved by adding an `isPast` guard: when the selected date is today, any slot whose
+   start time is at or before the current clock time is disabled in the slot grid.
 
-4. **Fix max players — extend public booking form from 6 to 8** (see §D.3)
-   Add `SelectItem` values for 7 and 8 in `buchen/page.tsx`. Add `MAX_PLAYERS = 8` to `lib/constants.ts`.
+4. ✅ **FIXED** — **Max players capped at 6 on public booking form — real capacity is 8** (see §D.3)
+   Resolved by:
+   - Adding `PLAYERS_PER_ARENA = 4` and `MAX_PLAYERS = 8` to `lib/constants.ts`
+   - Replacing the hardcoded 6-item dropdown with a dynamic list driven by `MAX_PLAYERS`
+   - The dropdown now shows 2–8 players and automatically labels groups > 4 as needing 2 arenas
+   - Future capacity changes require updating only one constant in `lib/constants.ts`
 
-5. **Configure the Stripe Webhook**
+5. 🔲 **Configure the Stripe Webhook**
    - Register `/api/webhooks/stripe` in the Stripe Dashboard
    - Add the real signing secret to Vercel: `STRIPE_WEBHOOK_SECRET=whsec_...`
    - Test with `stripe trigger checkout.session.completed`
 
-6. **Fix the DELETE booking manager-only bug**
+6. 🔲 **Fix the DELETE booking manager-only bug**
    ```typescript
    // In app/api/admin/bookings/[id]/route.ts — DELETE handler:
    if (!isManager(employee)) {
@@ -866,37 +871,45 @@ The route `/test-email` renders email template previews with hardcoded customer 
    ```
    Also hide the delete button in `BookingDetailPanel.tsx` when `!isManager`.
 
-7. **Restrict Supabase RLS on bookings table**
-   Replace `SELECT USING (true)` with a policy that exposes only non-PII columns (start_time, end_time, arenas_count, status) publicly, and requires employee authentication for full access.
+7. 🔲 **Restrict Supabase RLS on bookings table**
+   Replace `SELECT USING (true)` with a policy that exposes only non-PII columns
+   (start_time, end_time, arenas_count, status) publicly, and requires employee
+   authentication for full access.
 
-8. **Add email to the confirm endpoint**
-   Call `sendBookingConfirmation()` in `GET /api/bookings/confirm` so customers get an email via the fallback path.
+8. 🔲 **Add email to the confirm endpoint**
+   Call `sendBookingConfirmation()` in `GET /api/bookings/confirm` so customers
+   get an email via the fallback path.
 
-9. **Remove "Demo Mode" text**
-   Delete the line containing `"Zahlung derzeit nur vor Ort (Demo Mode) oder via Stripe (wenn konfiguriert)."` from `app/buchen/page.tsx`.
+9. 🔲 **Remove "Demo Mode" text**
+   Delete the line containing `"Zahlung derzeit nur vor Ort (Demo Mode) oder via Stripe
+   (wenn konfiguriert)."` from `app/buchen/page.tsx`.
 
-10. **Switch to Live Stripe Keys**
+10. 🔲 **Switch to Live Stripe Keys**
     Swap test keys for live keys in Vercel environment variables.
+
+---
 
 ### 🟠 High — Within First Week
 
-11. Fix the contact form — add a submit handler using Resend or forward to business email
-12. Replace placeholder images with real photography assets
-13. Add reschedule availability check to `PATCH /api/admin/bookings/[id]`
-14. Add `pending_payment` booking expiry (Vercel Cron or Supabase pg_cron, run every 30 min)
-15. Fix the opening hours display to show 14:30 (or change slots to start at 14:00)
-16. Remove or secure the `/test-email` page
+11. 🔲 Fix the contact form — add a submit handler using Resend or forward to business email
+12. 🔲 Replace placeholder images with real photography assets
+13. 🔲 Add reschedule availability check to `PATCH /api/admin/bookings/[id]`
+14. 🔲 Add `pending_payment` booking expiry (Vercel Cron or Supabase pg_cron, run every 30 min)
+15. 🔲 Fix the opening hours display to show 14:30 (or change slots to start at 14:00)
+16. 🔲 Remove or secure the `/test-email` page
+
+---
 
 ### 🟡 Medium — First Month
 
-17. Remove `console.log` statements from admin dashboard
-18. Replace `alert()` calls with Radix Toast notifications
-19. Add `middleware.ts` to protect all `/admin/*` routes at the request level
-20. Centralize game data into a single config file or database table
-21. Add rate limiting (e.g., Upstash Ratelimit on Vercel)
-22. Fix WalkInForm to filter time slots by day of week
-23. Add security headers to `next.config.ts`
-24. Consider proper UTC timezone storage
+17. 🔲 Remove `console.log` statements from admin dashboard
+18. 🔲 Replace `alert()` calls with Radix Toast notifications
+19. 🔲 Add `middleware.ts` to protect all `/admin/*` routes at the request level
+20. ✅ **FIXED** — Centralize game data into a single config file (`lib/games.ts`)
+21. 🔲 Add rate limiting (e.g., Upstash Ratelimit on Vercel)
+22. 🔲 Fix WalkInForm to filter time slots by day of week
+23. 🔲 Add security headers to `next.config.ts`
+24. 🔲 Consider proper UTC timezone storage
 
 ---
 
@@ -904,15 +917,15 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 ### Phase 1: Go-Live Blockers (1–3 days)
 
-- [ ] **Fix "Erlebnis nicht gefunden" — add 5 missing game entries** (§D.1) — single file change
-- [ ] **Fix slot availability display for 5+ player groups** (§D.2 Bug A) — one-line logic change
-- [ ] **Hide past time slots on today's date** (§D.2 Bug B) — add time comparison filter
-- [ ] **Extend max players to 8 on public booking form** (§D.3) — add two SelectItems + constant
-- [ ] Configure Stripe webhook secret + register endpoint in Stripe Dashboard
-- [ ] Fix DELETE booking manager check (4-line code change)
-- [ ] Remove "Demo Mode" text from payment button
-- [ ] Add `sendBookingConfirmation()` to `/api/bookings/confirm`
-- [ ] Switch to live Stripe keys in Vercel
+- [x] ✅ **Fix "Erlebnis nicht gefunden" — centralized game catalog** (§D.1) — `lib/games.ts` created
+- [x] ✅ **Fix slot availability display for 5+ player groups** (§D.2 Bug A) — player-count-aware check implemented
+- [x] ✅ **Hide past time slots on today's date** (§D.2 Bug B) — `isPast` guard added
+- [x] ✅ **Extend max players to 8 on public booking form** (§D.3) — `MAX_PLAYERS` constant + dynamic dropdown
+- [ ] 🔲 Configure Stripe webhook secret + register endpoint in Stripe Dashboard
+- [ ] 🔲 Fix DELETE booking manager check (4-line code change)
+- [ ] 🔲 Remove "Demo Mode" text from payment button
+- [ ] 🔲 Add `sendBookingConfirmation()` to `/api/bookings/confirm`
+- [ ] 🔲 Switch to live Stripe keys in Vercel
 
 ### Phase 2: Safety Hardening (3–7 days)
 

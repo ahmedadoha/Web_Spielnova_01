@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon, Check, Loader2, Users } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
-import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
+import { TOP_GAMER_DISCOUNT_PERCENT, MAX_PLAYERS, PLAYERS_PER_ARENA } from "@/lib/constants"
 import { GAMES_BY_MODE } from "@/lib/games"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -274,11 +274,11 @@ export default function BookingPage() {
                                             <SelectValue placeholder="Anzahl Spieler" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="2">2 Spieler</SelectItem>
-                                            <SelectItem value="3">3 Spieler</SelectItem>
-                                            <SelectItem value="4">4 Spieler</SelectItem>
-                                            <SelectItem value="5">5 Spieler (Benötigt 2 Arenen)</SelectItem>
-                                            <SelectItem value="6">6 Spieler (Benötigt 2 Arenen)</SelectItem>
+                                            {Array.from({ length: MAX_PLAYERS - 1 }, (_, i) => i + 2).map(n => (
+                                                <SelectItem key={n} value={String(n)}>
+                                                    {n} Spieler{n > PLAYERS_PER_ARENA ? ' (Benötigt 2 Arenen)' : ''}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {parseInt(playerCount) > 4 && (
@@ -306,9 +306,11 @@ export default function BookingPage() {
                                                     {Object.entries(availableSlots).length > 0 ? (
                                                         Object.entries(availableSlots).map(([time, status]) => {
                                                             const needsBothArenas = parseInt(playerCount) > 4;
-                                                            const isAvailable = needsBothArenas
+                                                            const isToday = date ? format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') : false;
+                                                            const isPast = isToday && time <= format(new Date(), 'HH:mm');
+                                                            const isAvailable = !isPast && (needsBothArenas
                                                                 ? (status.arena1 && status.arena2)
-                                                                : (status.arena1 || status.arena2);
+                                                                : (status.arena1 || status.arena2));
                                                             return (
                                                                 <Button
                                                                     key={time}
