@@ -98,6 +98,9 @@ export async function PATCH(
             playerCount: oldBooking.player_count,
         })
 
+        // Mark the booking so the nightly cron skips it
+        await supabase.from('bookings').update({ reminder_sent: true }).eq('id', id)
+
         // Log the action
         await supabase.from('audit_log').insert({
             employee_id: user!.id,
