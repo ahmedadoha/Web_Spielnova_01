@@ -13,8 +13,10 @@
  *    - title:           Display name shown to customers
  *    - description:     One-sentence teaser (shown on listing cards)
  *    - longDescription: Full story/description (shown on the detail page)
- *    - imageSrc:        Path to the image in /public/, e.g. "/my-game-poster.jpg"
- *                       → Upload the image file to the /public/ folder first
+ *    - imageSrc:        Either a path to an image in /public/ (e.g. "/my-game-poster.jpg")
+ *                       or an https:// URL from the internet.
+ *                       → If using /public/: upload the file there first.
+ *                       → If using a URL: the domain must be listed in next.config.ts → images → remotePatterns.
  *    - duration:        e.g. "30 Minuten", "30–60 Minuten"
  *    - players:         e.g. "2–4 Spieler", "2–8 Spieler"
  *    - difficulty:      "Leicht" | "Mittel" | "Schwer" | "Extrem"
@@ -62,7 +64,7 @@ export const GAMES: Game[] = [
         longDescription: `Die Welt steht am Abgrund. Ein tödliches Virus hat den Großteil der Menschheit in blutrünstige Zombies verwandelt. Ihr seid die letzte Hoffnung.
 
 In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu überleben. Deckt euch gegenseitig den Rücken, teilt Munition und findet den Weg durch die verlassene Stadt zur Evakuierungszone.`,
-        imageSrc: '/Shooter_games.jpg',
+        imageSrc: 'https://picsum.photos/seed/zombies/1920/1080',
         duration: '30–60 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Mittel',
@@ -82,7 +84,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Robot Warfare',
         description: 'Tretet als Elite-Einheit gegen eine Armee von KI-Robotern an. Nutzt futuristische Waffen und taktisches Vorgehen, um den Kern zu zerstören.',
         longDescription: 'Die Maschinen haben die Kontrolle übernommen. Dringt in das Hauptquartier der KI ein und deaktiviert den Kern. Doch Vorsicht: Die Roboter sind schwer bewaffnet und taktisch klug. Nur präzises Teamwork führt euch zum Sieg.',
-        imageSrc: '/Shooter_games.jpg',
+        imageSrc: 'https://picsum.photos/seed/robotics/1920/1080',
         duration: '30 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Schwer',
@@ -102,7 +104,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Space Marines',
         description: 'Verteidigt eure Raumstation gegen Alien-Invasoren. Schwerelosigkeit und intensive Feuergefechte erwarten euch.',
         longDescription: 'Die Aliens haben die Raumstation übernommen. Als Elite-Squad der Space Marines seid ihr die letzte Hoffnung der Menschheit. Kämpft euch durch schwebende Korridore und gewichtslose Kampfzonen in einem der intensivsten VR-Erlebnisse, das wir anbieten. Kommunikation und Deckung sind alles.',
-        imageSrc: '/Shooter_games.jpg',
+        imageSrc: 'https://picsum.photos/seed/spacecraft/1920/1080',
         duration: '45 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Extrem',
@@ -122,7 +124,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Wild West Shootout',
         description: 'Ein klassisches Duell im Wilden Westen. Wer zieht am schnellsten? Lustiger und kompetitiver Shooter für Gruppen.',
         longDescription: 'Lasst uns sehen, wer der schnellste Schütze im Wilden Westen ist. In diesem kompetitiven VR-Shooter messt ihr euch in schnellen Duellen, schießt Flaschen von Zäunen und verteidigt eure Stadt gegen Banditen. Ideal für Gruppen, die Spaß und freundlichen Wettbewerb suchen — perfekt auch für Einsteiger.',
-        imageSrc: '/Shooter_games.jpg',
+        imageSrc: 'https://picsum.photos/seed/desert-west/1920/1080',
         duration: '20 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Leicht',
@@ -146,7 +148,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Escape the Pyramids',
         description: 'Erkundet eine alte Pyramide und findet den Schatz des Pharaos, bevor die Luft ausgeht. Ein klassisches Abenteuer für Rätselfreunde.',
         longDescription: 'Ihr seid ein Team von Archäologen, die eine bislang unentdeckte Pyramide erforschen. Doch kaum habt ihr die Grabkammer betreten, fällt die Tür hinter euch ins Schloss. Ihr habt 60 Minuten Zeit, um die Rätsel des Pharaos zu lösen und zu entkommen.',
-        imageSrc: '/adventure1.jpg',
+        imageSrc: 'https://picsum.photos/seed/pyramids/1920/1080',
         duration: '60 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Mittel',
@@ -166,7 +168,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Space Station Tiberia',
         description: 'Ihr seid auf einer verlassenen Raumstation gefangen. Stellt die Energie wieder her und entkommt, bevor der Meteorit einschlägt.',
         longDescription: 'Der Reaktor der Raumstation Tiberia ist ausgefallen. In 60 Minuten wird ein Meteorit einschlagen. Als gestrandete Astronauten müsst ihr zusammenarbeiten, die Energiezellen aktivieren und das Rettungskapsel starten, bevor es zu spät ist. Jede Sekunde zählt.',
-        imageSrc: '/adventure1.jpg',
+        imageSrc: 'https://picsum.photos/seed/cosmos/1920/1080',
         duration: '60 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Schwer',
@@ -186,7 +188,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Alice in Wonderland',
         description: 'Folgt dem weißen Kaninchen in eine verrückte Welt voller Magie und seltsamer Rätsel. Perfekt für Familien und Einsteiger.',
         longDescription: 'Folgt Alice durch den Kaninchenbau in eine Welt, in der nichts so ist, wie es scheint. Trinkt die Zaubertränke, löst die verrückten Rätsel der Herzkönigin und findet den Weg zurück in die reale Welt. Das perfekte Erlebnis für Familien und Gruppen, die etwas Besonderes suchen.',
-        imageSrc: '/adventure1.jpg',
+        imageSrc: 'https://picsum.photos/seed/wonderland/1920/1080',
         duration: '45 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Leicht',
@@ -206,7 +208,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         title: 'Horror House',
         description: 'Nichts für schwache Nerven. Entkommt aus dem Spukhaus und löst das Geheimnis der verschwundenen Familie.',
         longDescription: 'Das alte Haus am Ende der Straße birgt ein dunkles Geheimnis. Eine Familie ist vor 20 Jahren spurlos verschwunden. Wagt euch hinein, löst die gruseligen Rätsel und entkommt, bevor der Geist der Familie euch für immer hält. Unser gruseligstes und atmosphärischstes Erlebnis — nur für Mutige.',
-        imageSrc: '/adventure1.jpg',
+        imageSrc: 'https://picsum.photos/seed/haunted/1920/1080',
         duration: '60 Minuten',
         players: '2–8 Spieler',
         difficulty: 'Schwer',

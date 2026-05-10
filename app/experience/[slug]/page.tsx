@@ -1,8 +1,10 @@
 import { ExperienceDetail } from "@/components/experience-detail";
 import { GAME_BY_SLUG } from "@/lib/games";
 
-export default function ExperiencePage({ params }: { params: { slug: string } }) {
-    const game = GAME_BY_SLUG[params.slug];
+// Next.js 15+ passes params as a Promise — must be awaited in async page components.
+export default async function ExperiencePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const game = GAME_BY_SLUG[slug];
 
     if (!game) {
         return (
