@@ -6,7 +6,8 @@ import { Calendar as CalendarIcon, Check, Loader2, Users } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
-import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
+import { TOP_GAMER_DISCOUNT_PERCENT, MAX_PLAYERS, PLAYERS_PER_ARENA } from "@/lib/constants"
+import { GAMES_BY_MODE } from "@/lib/games"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -27,21 +28,8 @@ import { SectionHeader } from "@/components/section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { de } from "date-fns/locale"
 
-// Mock games data (should ideally come from DB or config)
-const games = {
-    shooter: [
-        { slug: "zombie-apocalypse", title: "Zombie Apocalypse VR" },
-        { slug: "robot-warfare", title: "Robot Warfare" },
-        { slug: "space-marines", title: "Space Marines" },
-        { slug: "wild-west", title: "Wild West Shootout" },
-    ],
-    escape: [
-        { slug: "escape-pyramids", title: "Escape the Pyramids" },
-        { slug: "space-station", title: "Space Station Tiberia" },
-        { slug: "alice-wonderland", title: "Alice in Wonderland" },
-        { slug: "horror-house", title: "Horror House" },
-    ],
-}
+// Game catalog is managed centrally in lib/games.ts
+const games = GAMES_BY_MODE
 
 interface TimeSlot {
     time: string
@@ -281,16 +269,16 @@ export default function BookingPage() {
                             >
                                 <div className="space-y-4">
                                     <h3 className="text-xl font-bold">Wie viele Spieler?</h3>
-                                    <Select value={playerCount} onValueChange={setPlayerCount}>
+                                    <Select value={playerCount} onValueChange={(val) => { setPlayerCount(val); setSelectedTime(null); }}>
                                         <SelectTrigger className="w-full md:w-[200px]">
                                             <SelectValue placeholder="Anzahl Spieler" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="2">2 Spieler</SelectItem>
-                                            <SelectItem value="3">3 Spieler</SelectItem>
-                                            <SelectItem value="4">4 Spieler</SelectItem>
-                                            <SelectItem value="5">5 Spieler (Benötigt 2 Arenen)</SelectItem>
-                                            <SelectItem value="6">6 Spieler (Benötigt 2 Arenen)</SelectItem>
+                                            {Array.from({ length: MAX_PLAYERS - 1 }, (_, i) => i + 2).map(n => (
+                                                <SelectItem key={n} value={String(n)}>
+                                                    {n} Spieler{n > PLAYERS_PER_ARENA ? ' (Benötigt 2 Arenen)' : ''}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {parseInt(playerCount) > 4 && (
@@ -317,7 +305,12 @@ export default function BookingPage() {
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-2">
                                                     {Object.entries(availableSlots).length > 0 ? (
                                                         Object.entries(availableSlots).map(([time, status]) => {
-                                                            const isAvailable = status.arena1 || status.arena2;
+                                                            const needsBothArenas = parseInt(playerCount) > 4;
+                                                            const isToday = date ? format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') : false;
+                                                            const isPast = isToday && time <= format(new Date(), 'HH:mm');
+                                                            const isAvailable = !isPast && (needsBothArenas
+                                                                ? (status.arena1 && status.arena2)
+                                                                : (status.arena1 || status.arena2));
                                                             return (
                                                                 <Button
                                                                     key={time}

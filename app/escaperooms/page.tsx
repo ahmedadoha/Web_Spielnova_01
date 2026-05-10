@@ -1,49 +1,6 @@
 import { SectionHeader } from "@/components/section-header";
 import { GameCard } from "@/components/game-card";
-
-// Mock Data for Escape Rooms
-const escapeRooms = [
-    {
-        id: "escape-1",
-        title: "Escape the Pyramids",
-        description: "Erkundet eine alte Pyramide und findet den Schatz des Pharaos, bevor die Luft ausgeht. Ein klassisches Abenteuer für Rätselfreunde.",
-        imageSrc: "/placeholder-pyramid.jpg",
-        duration: "60 Min",
-        players: "2-4 Spieler",
-        difficulty: "Mittel",
-        slug: "escape-pyramids",
-    },
-    {
-        id: "escape-2",
-        title: "Space Station Tiberia",
-        description: "Ihr seid auf einer verlassenen Raumstation gefangen. Stellt die Energie wieder her und entkommt, bevor der Meteorit einschlägt.",
-        imageSrc: "/placeholder-station.jpg",
-        duration: "60 Min",
-        players: "2-4 Spieler",
-        difficulty: "Schwer",
-        slug: "space-station",
-    },
-    {
-        id: "escape-3",
-        title: "Alice in Wonderland",
-        description: "Folgt dem weißen Kaninchen in eine verrückte Welt voller Magie und seltsamer Rätsel. Perfekt für Familien und Einsteiger.",
-        imageSrc: "/placeholder-alice.jpg",
-        duration: "45 Min",
-        players: "2-5 Spieler",
-        difficulty: "Leicht",
-        slug: "alice-wonderland",
-    },
-    {
-        id: "escape-4",
-        title: "Horror House",
-        description: "Nichts für schwache Nerven. Entkommt aus dem Spukhaus und löst das Geheimnis der verschwundenen Familie.",
-        imageSrc: "/placeholder-horror.jpg",
-        duration: "60 Min",
-        players: "2-4 Spieler",
-        difficulty: "Schwer",
-        slug: "horror-house",
-    },
-];
+import { ESCAPE_GAMES } from "@/lib/games";
 
 export default function EscapeRoomsPage() {
     return (
@@ -54,9 +11,9 @@ export default function EscapeRoomsPage() {
             />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {escapeRooms.map((game) => (
+                {ESCAPE_GAMES.map((game) => (
                     <GameCard
-                        key={game.id}
+                        key={game.slug}
                         title={game.title}
                         description={game.description}
                         imageSrc={game.imageSrc}

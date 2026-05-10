@@ -212,6 +212,10 @@ The UI is split into two distinct worlds:
 | Native `alert()` calls for errors | `buchen/page.tsx` | **Medium** — jarring UX, should use toast/modal |
 | "Demo Mode" text on payment button | `buchen/page.tsx` line 429 | **HIGH** — customers see this in production |
 | Placeholder images that don't exist | `shooter_games`, `arcade`, `experience/[slug]` | **Medium** — broken images in production |
+| **5 of 8 game detail pages show "Erlebnis nicht gefunden"** | `experience/[slug]/page.tsx` | **🔴 HIGH** — confirmed customer-facing bug (see §D.1 below) |
+| **Slot availability display ignores player count** | `buchen/page.tsx` line 320 | **🔴 HIGH** — 5–6 player groups see false "available" slots (see §D.2) |
+| **No filtering of past time slots on today's date** | `buchen/page.tsx` | **🟠 Medium** — past slots appear bookable, fail on submit (see §D.2) |
+| **Max players hardcoded to 6, real capacity is 8** | `buchen/page.tsx` SelectItem list | **🟠 Medium** — business logic error, mismatches walk-in form (see §D.3) |
 | Opening hours show 14:00 but slots start 14:30 | `oeffnungszeiten/page.tsx` | **Medium** — customer confusion |
 | Contact form has no submit handler | `kontakt/page.tsx` | **High** — customers can't contact the business |
 | Birthday party phone: "[Insert Phone Number Here]" | `Pricing.md` | **Medium** |
@@ -231,9 +235,99 @@ The UI is split into two distinct worlds:
 - Multiple test files (`test_emails.ts`, `test_payload.js`, `schema-check.js`) left in the project root
 - `bash_events/` directory full of debugging output artefacts present in the workspace
 
+---
+
+### §D.1 — Confirmed Bug: "Erlebnis nicht gefunden" (5 of 8 games broken)
+
+> **Reported by:** Customer feedback. **Status:** Confirmed via code inspection.
+
+The `gamesData` dictionary in `app/experience/[slug]/page.tsx` only defines **3 games**. The listing pages and the booking flow reference **8 games** (4 shooters + 4 escape rooms). When a customer clicks on any of the 5 undefined slugs, they see a blank error page.
+
+**Full slug mismatch map:**
+
+| Game | Slug | Listed in `/shooter_games` or `/escaperooms` | Has detail page | Result |
+|---|---|---|---|---|
+| Zombie Apocalypse VR | `zombie-apocalypse` | ✅ | ✅ | Works |
+| Robot Warfare | `robot-warfare` | ✅ | ✅ | Works |
+| Space Marines | `space-marines` | ✅ | ❌ Missing | **"Erlebnis nicht gefunden"** |
+| Wild West Shootout | `wild-west` | ✅ | ❌ Missing | **"Erlebnis nicht gefunden"** |
+| Escape the Pyramids | `escape-pyramids` | ✅ | ✅ | Works |
+| Space Station Tiberia | `space-station` | ✅ | ❌ Missing | **"Erlebnis nicht gefunden"** |
+| Alice in Wonderland | `alice-wonderland` | ✅ | ❌ Missing | **"Erlebnis nicht gefunden"** |
+| Horror House | `horror-house` | ✅ | ❌ Missing | **"Erlebnis nicht gefunden"** |
+
+**Root cause:** Three separate hardcoded game lists exist in the codebase and are not synchronized. When the listing pages were updated with more games, the detail page dictionary was not updated to match.
+
+**Fix required:** Add the 5 missing game objects to `gamesData` in `app/experience/[slug]/page.tsx`.
+
+> **Note:** This also invalidates the audit entry in Section K that marks `experience/[slug]` as ✅ Complete. It is **partially broken** — 3 of 8 detail pages work, 5 do not.
+
+---
+
+### §D.2 — Confirmed Bug: Slot Display Does Not Reflect Player Count or Current Time
+
+> **Reported by:** Customer feedback ("cannot see booked and available slots"). **Status:** Confirmed via code inspection — two root causes.
+
+**Bug A — Slot availability ignores the selected player count:**
+
+The availability check in the booking UI is:
+```javascript
+const isAvailable = status.arena1 || status.arena2;
+```
+This returns `true` if **any** arena is free. It is correct for groups of 1–4 players (1 arena needed). However, for groups of **5–6 players** (2 arenas required), a slot with only one free arena appears as available (outlined, clickable) even though the group cannot actually book it.
+
+**Customer experience:** The customer with 5+ players selects a slot, fills in their details, and clicks "Jetzt Buchen & Bezahlen" — only to receive an error: *"This time slot is no longer available."* The slot looked available; they cannot understand why it failed. This erodes trust.
+
+**Fix required:** Replace the static `isAvailable` with a player-count-aware check:
+```javascript
+const needsBothArenas = parseInt(playerCount) > 4;
+const isAvailable = needsBothArenas
+  ? (status.arena1 && status.arena2)   // needs both free
+  : (status.arena1 || status.arena2);  // needs at least one free
+```
+
+**Bug B — Past time slots are shown as available on today's date:**
+
+There is no logic to filter out time slots that have already passed when the selected date is today. If a customer opens the booking page at 18:00 on a weekday, they see `14:30`, `15:00`, `15:30`, `16:00`, `16:30`, `17:00`, `17:30` all rendered as available outlined buttons (because no one has a booking in the past). Clicking any of them will fail at the backend (the time has passed).
+
+**Fix required:** Add a filter in the slot rendering loop:
+```javascript
+const now = new Date();
+const isToday = format(date, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
+const isPast = isToday && time < format(now, 'HH:mm');
+const isAvailable = !isPast && (needsBothArenas ? ... : ...);
+```
+
+---
+
+### §D.3 — Confirmed Business Logic Error: Max Players Capped at 6 (Should Be 8)
+
+> **Reported by:** Business owner. **Status:** Confirmed via code inspection.
+
+The public booking form (`app/buchen/page.tsx`) offers player counts up to **6**:
+```jsx
+<SelectItem value="5">5 Spieler (Benötigt 2 Arenen)</SelectItem>
+<SelectItem value="6">6 Spieler (Benötigt 2 Arenen)</SelectItem>  ← hardcoded maximum
+```
+
+The **admin walk-in form** (`components/admin/WalkInForm.tsx`) correctly allows up to **8**:
+```javascript
+{[1, 2, 3, 4, 5, 6, 7, 8].map(n => (...))}
+```
+
+The actual physical capacity is **4 players per arena × 2 arenas = 8 players**. The backend has no hard cap — it would correctly process 7 or 8 players. The restriction exists only in the frontend dropdown.
+
+**Impact:** Groups of 7 or 8 players cannot book online and must call or visit in person, causing lost revenue and a poor booking experience for the exact group sizes the two-arena setup was designed to serve.
+
+**Fix required:**
+1. Add `<SelectItem value="7">7 Spieler (Benötigt 2 Arenen)</SelectItem>` and `value="8"` to `buchen/page.tsx`
+2. Add `export const MAX_PLAYERS = 8` and `export const PLAYERS_PER_ARENA = 4` to `lib/constants.ts` so both the public booking page and the walk-in form use the same source of truth
+
+---
+
 ### Frontend Verdict
 
-The public-facing design is genuinely polished and aesthetically appropriate for a premium VR arcade. The booking flow is functional. However, it is **not production-ready** due to the demo notice, non-functional contact form, broken placeholder images, and native alert UX patterns.
+The public-facing design is genuinely polished and aesthetically appropriate for a premium VR arcade. The booking flow is functional. However, it is **not production-ready** due to the demo notice, non-functional contact form, broken placeholder images, and native alert UX patterns. Three newly identified confirmed bugs (§D.1, §D.2, §D.3) directly cause customer-facing failures in the primary booking workflow.
 
 ---
 
@@ -622,6 +716,10 @@ The route `/test-email` renders email template previews with hardcoded customer 
 |---|---|---|---|
 | Customer pays but booking not confirmed (webhook broken) | **Critical** | **Guaranteed** | Every online payment has this risk right now |
 | Customer data leaked via public Supabase API | **Critical** | **Guaranteed** | Anon key is in the public bundle |
+| **5 of 8 games show error page ("Erlebnis nicht gefunden")** | **High** | **Guaranteed** | Any customer clicking Space Marines, Wild West, Space Station, Alice, Horror House — see §D.1 |
+| **5–6 player groups see misleading "available" slots** | **High** | **Guaranteed** | Any group ≥5 selecting a slot where only 1 arena is free sees a false green — see §D.2 |
+| **Groups of 7–8 players cannot book online at all** | **Medium** | **Guaranteed** | Maximum capacity (8) is unreachable from public booking form — see §D.3 |
+| **Past time slots shown as bookable on today's date** | **Medium** | **Guaranteed** | Every customer visiting after opening time on the same day — see §D.2 |
 | Double-booking under concurrent load | **High** | Medium | Under popular weekend slots |
 | Abandoned checkout permanently blocks slot | **High** | **High** | Every abandoned Stripe checkout |
 | Non-manager employee deletes booking | **Medium** | Low | Requires malicious/careless employee |
@@ -640,12 +738,12 @@ The route `/test-email` renders email template previews with hardcoded customer 
 |---|---|
 | Public landing page with hero, game categories, booking CTA | ✅ Complete |
 | Individual experience pages (VR Shooter, Escape Room, Simulators, Arcade) | ✅ Complete |
-| Individual game detail pages (`/experience/[slug]`) | ✅ Complete |
+| Individual game detail pages (`/experience/[slug]`) | ⚠️ **Partially broken** — 3 of 8 games work; 5 show "Erlebnis nicht gefunden" (see §D.1) |
 | Legal pages (AGB, Datenschutz/DSGVO, Impressum, Epilepsie-Warnung) | ✅ Complete |
 | Opening hours page | ✅ Complete |
 | Pricing page with correct pricing table | ✅ Complete |
-| Booking flow (3-step wizard) | ✅ Complete |
-| Live slot availability from database | ✅ Complete |
+| Booking flow (3-step wizard) | ⚠️ **Partially broken** — slot display ignores player count; past slots shown; max capped at 6 (see §D.2, §D.3) |
+| Live slot availability from database | ⚠️ **Partially broken** — available/booked distinction fails for 5+ player groups (see §D.2) |
 | Weekend vs weekday pricing logic | ✅ Complete |
 | Team packet pricing (groups of 4) | ✅ Complete |
 | Multi-arena allocation for groups > 4 players | ✅ Complete |
@@ -676,6 +774,10 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 | Feature | Status | Notes |
 |---|---|---|
+| **Game detail pages (5 of 8)** | ❌ **Bug** | `space-marines`, `wild-west`, `space-station`, `alice-wonderland`, `horror-house` show "Erlebnis nicht gefunden" — see §D.1 |
+| **Slot display for 5–6 player groups** | ❌ **Bug** | Shows false "available" slots that cannot be booked — see §D.2 |
+| **Past slot filtering on today's date** | ❌ **Bug** | Expired slots appear bookable, fail on submit — see §D.2 |
+| **Max players on public booking form** | ❌ **Bug** | Capped at 6; real capacity is 8 (4 per arena × 2 arenas) — see §D.3 |
 | Stripe webhook configured | ❌ Broken | `STRIPE_WEBHOOK_SECRET` is a placeholder |
 | Confirmation email after payment | ❌ Broken | Neither webhook path nor confirm path sends email |
 | Contact form submit handler | ❌ Missing | Form renders but does nothing |
@@ -728,14 +830,39 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 ## N. Recommended Next Priorities
 
+> **Status legend:** ✅ **FIXED** — implemented and pushed | 🔲 **OPEN** — not yet done
+
+---
+
 ### 🔴 Critical — Before Going Live
 
-1. **Configure the Stripe Webhook**
+1. ✅ **FIXED** — **"Erlebnis nicht gefunden" — 5 missing game detail pages** (see §D.1)
+   Resolved by creating `lib/games.ts` as a single centralized catalog (all 8 games).
+   All four pages that previously maintained independent game lists now import from one file.
+   Adding, renaming, or removing a game now requires editing exactly one file.
+
+2. ✅ **FIXED** — **Slot availability display ignored player count for groups of 5+** (see §D.2 Bug A)
+   Resolved by replacing the static `arena1 || arena2` check with a player-count-aware check:
+   groups ≤ 4 require at least one free arena; groups ≥ 5 require both arenas to be free.
+   Additionally, changing player count now clears any already-selected time slot.
+
+3. ✅ **FIXED** — **Past time slots shown as bookable on today's date** (see §D.2 Bug B)
+   Resolved by adding an `isPast` guard: when the selected date is today, any slot whose
+   start time is at or before the current clock time is disabled in the slot grid.
+
+4. ✅ **FIXED** — **Max players capped at 6 on public booking form — real capacity is 8** (see §D.3)
+   Resolved by:
+   - Adding `PLAYERS_PER_ARENA = 4` and `MAX_PLAYERS = 8` to `lib/constants.ts`
+   - Replacing the hardcoded 6-item dropdown with a dynamic list driven by `MAX_PLAYERS`
+   - The dropdown now shows 2–8 players and automatically labels groups > 4 as needing 2 arenas
+   - Future capacity changes require updating only one constant in `lib/constants.ts`
+
+5. 🔲 **Configure the Stripe Webhook**
    - Register `/api/webhooks/stripe` in the Stripe Dashboard
    - Add the real signing secret to Vercel: `STRIPE_WEBHOOK_SECRET=whsec_...`
    - Test with `stripe trigger checkout.session.completed`
 
-2. **Fix the DELETE booking manager-only bug**
+6. 🔲 **Fix the DELETE booking manager-only bug**
    ```typescript
    // In app/api/admin/bookings/[id]/route.ts — DELETE handler:
    if (!isManager(employee)) {
@@ -744,37 +871,45 @@ The route `/test-email` renders email template previews with hardcoded customer 
    ```
    Also hide the delete button in `BookingDetailPanel.tsx` when `!isManager`.
 
-3. **Restrict Supabase RLS on bookings table**
-   Replace `SELECT USING (true)` with a policy that exposes only non-PII columns (start_time, end_time, arenas_count, status) publicly, and requires employee authentication for full access.
+7. 🔲 **Restrict Supabase RLS on bookings table**
+   Replace `SELECT USING (true)` with a policy that exposes only non-PII columns
+   (start_time, end_time, arenas_count, status) publicly, and requires employee
+   authentication for full access.
 
-4. **Add email to the confirm endpoint**
-   Call `sendBookingConfirmation()` in `GET /api/bookings/confirm` so customers get an email via the fallback path.
+8. 🔲 **Add email to the confirm endpoint**
+   Call `sendBookingConfirmation()` in `GET /api/bookings/confirm` so customers
+   get an email via the fallback path.
 
-5. **Remove "Demo Mode" text**
-   Delete the line containing `"Zahlung derzeit nur vor Ort (Demo Mode) oder via Stripe (wenn konfiguriert)."` from `app/buchen/page.tsx`.
+9. 🔲 **Remove "Demo Mode" text**
+   Delete the line containing `"Zahlung derzeit nur vor Ort (Demo Mode) oder via Stripe
+   (wenn konfiguriert)."` from `app/buchen/page.tsx`.
 
-6. **Switch to Live Stripe Keys**
-   Swap test keys for live keys in Vercel environment variables.
+10. 🔲 **Switch to Live Stripe Keys**
+    Swap test keys for live keys in Vercel environment variables.
+
+---
 
 ### 🟠 High — Within First Week
 
-7. Fix the contact form — add a submit handler using Resend or forward to business email
-8. Replace placeholder images with real photography assets
-9. Add reschedule availability check to `PATCH /api/admin/bookings/[id]`
-10. Add `pending_payment` booking expiry (Vercel Cron or Supabase pg_cron, run every 30 min)
-11. Fix the opening hours display to show 14:30 (or change slots to start at 14:00)
-12. Remove or secure the `/test-email` page
+11. 🔲 Fix the contact form — add a submit handler using Resend or forward to business email
+12. 🔲 Replace placeholder images with real photography assets
+13. 🔲 Add reschedule availability check to `PATCH /api/admin/bookings/[id]`
+14. 🔲 Add `pending_payment` booking expiry (Vercel Cron or Supabase pg_cron, run every 30 min)
+15. 🔲 Fix the opening hours display to show 14:30 (or change slots to start at 14:00)
+16. 🔲 Remove or secure the `/test-email` page
+
+---
 
 ### 🟡 Medium — First Month
 
-13. Remove `console.log` statements from admin dashboard
-14. Replace `alert()` calls with Radix Toast notifications
-15. Add `middleware.ts` to protect all `/admin/*` routes at the request level
-16. Centralize game data into a single config file or database table
-17. Add rate limiting (e.g., Upstash Ratelimit on Vercel)
-18. Fix WalkInForm to filter time slots by day of week
-19. Add security headers to `next.config.ts`
-20. Consider proper UTC timezone storage
+17. 🔲 Remove `console.log` statements from admin dashboard
+18. 🔲 Replace `alert()` calls with Radix Toast notifications
+19. 🔲 Add `middleware.ts` to protect all `/admin/*` routes at the request level
+20. ✅ **FIXED** — Centralize game data into a single config file (`lib/games.ts`)
+21. 🔲 Add rate limiting (e.g., Upstash Ratelimit on Vercel)
+22. 🔲 Fix WalkInForm to filter time slots by day of week
+23. 🔲 Add security headers to `next.config.ts`
+24. 🔲 Consider proper UTC timezone storage
 
 ---
 
@@ -782,11 +917,15 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 ### Phase 1: Go-Live Blockers (1–3 days)
 
-- [ ] Configure Stripe webhook secret + register endpoint in Stripe Dashboard
-- [ ] Fix DELETE booking manager check (4-line code change)
-- [ ] Remove "Demo Mode" text from payment button
-- [ ] Add `sendBookingConfirmation()` to `/api/bookings/confirm`
-- [ ] Switch to live Stripe keys in Vercel
+- [x] ✅ **Fix "Erlebnis nicht gefunden" — centralized game catalog** (§D.1) — `lib/games.ts` created
+- [x] ✅ **Fix slot availability display for 5+ player groups** (§D.2 Bug A) — player-count-aware check implemented
+- [x] ✅ **Hide past time slots on today's date** (§D.2 Bug B) — `isPast` guard added
+- [x] ✅ **Extend max players to 8 on public booking form** (§D.3) — `MAX_PLAYERS` constant + dynamic dropdown
+- [ ] 🔲 Configure Stripe webhook secret + register endpoint in Stripe Dashboard
+- [ ] 🔲 Fix DELETE booking manager check (4-line code change)
+- [ ] 🔲 Remove "Demo Mode" text from payment button
+- [ ] 🔲 Add `sendBookingConfirmation()` to `/api/bookings/confirm`
+- [ ] 🔲 Switch to live Stripe keys in Vercel
 
 ### Phase 2: Safety Hardening (3–7 days)
 
@@ -823,18 +962,20 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 ## Top 10 Highest-Risk Issues
 
+> ℹ️ Updated to include three confirmed customer-reported bugs (§D.1, §D.2, §D.3).
+
 | # | Issue | Risk Type | Consequence |
 |---|---|---|---|
-| 1 | **Stripe webhook secret is a placeholder** | Operational | No confirmation emails ever sent; booking status tracking unreliable |
+| 1 | **Stripe webhook secret is a placeholder** | Operational | No confirmation emails ever sent; booking lifecycle unreliable |
 | 2 | **Customer PII publicly readable via Supabase anon key** | Security / GDPR | Full customer name/email/phone exposed to any internet user |
-| 3 | **Public INSERT on bookings table** | Security / Operational | Slot-blocking attacks; data pollution; fake bookings |
-| 4 | **Race condition in booking creation (TOCTOU)** | Data Integrity | Double-bookings under concurrent load |
-| 5 | **DELETE booking endpoint not manager-only (API bug)** | Business Logic / Auth | Any employee can permanently delete bookings |
-| 6 | **Contact form has no handler — all messages lost** | Business / Revenue | Customer inquiries, party requests silently discarded |
-| 7 | **"Demo Mode" text shown on live payment button** | Customer Trust | Customers see a developer artefact, reducing conversion and trust |
-| 8 | **Pending payment bookings never expire** | Operational | Abandoned checkouts permanently block slots; revenue loss |
-| 9 | **Reschedule bypasses availability check** | Data Integrity | Staff can reschedule a booking into an already-occupied slot |
-| 10 | **No security headers configured** | Security | XSS, clickjacking, content sniffing vulnerabilities |
+| 3 | **5 of 8 game detail pages show "Erlebnis nicht gefunden"** | Customer Experience | Majority of game pages return an error — confirmed by real customers (see §D.1) |
+| 4 | **Slot display ignores player count for 5+ player groups** | Booking Integrity / UX | Groups ≥5 see false "available" slots, get silently rejected on checkout (see §D.2) |
+| 5 | **Public INSERT on bookings table** | Security / Operational | Slot-blocking attacks; data pollution; fake bookings |
+| 6 | **Race condition in booking creation (TOCTOU)** | Data Integrity | Double-bookings under concurrent load |
+| 7 | **DELETE booking endpoint not manager-only (API bug)** | Business Logic / Auth | Any employee can permanently delete bookings |
+| 8 | **Contact form has no handler — all messages lost** | Business / Revenue | Customer inquiries, group bookings, party requests silently discarded |
+| 9 | **Max players capped at 6 on public form — real capacity is 8** | Revenue / UX | Groups of 7–8 cannot book online; lost revenue for the largest group bookings (see §D.3) |
+| 10 | **Pending payment bookings never expire** | Operational | Abandoned checkouts permanently block slots; revenue loss |
 
 ---
 
