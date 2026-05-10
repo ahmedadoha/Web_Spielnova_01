@@ -121,7 +121,7 @@ export async function sendContactEmail(details: ContactDetails) {
         const { data, error } = await resend.emails.send({
             from: `Spielnova Kontakt <${FROM_EMAIL}>`,
             to: ['info@spielnova.de'],
-            reply_to: senderEmail,
+            replyTo: senderEmail,
             subject: `Kontaktanfrage: ${subject}`,
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
