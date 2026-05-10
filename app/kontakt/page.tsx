@@ -1,6 +1,7 @@
 "use client"
 
-import { Mail, MapPin, Phone, Clock } from "lucide-react"
+import React from "react"
+import { Mail, MapPin, Phone, Clock, Loader2, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,6 +13,46 @@ import { Card, CardContent } from "@/components/ui/card"
 const CONTACT_PHONE = "+49 15754497518"
 
 export default function ContactPage() {
+    const [name, setName] = React.useState("")
+    const [email, setEmail] = React.useState("")
+    const [subject, setSubject] = React.useState("")
+    const [message, setMessage] = React.useState("")
+    const [loading, setLoading] = React.useState(false)
+    const [success, setSuccess] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError(null)
+
+        // Basic client-side validation
+        if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
+            setError("Bitte fülle alle Felder aus.")
+            return
+        }
+
+        setLoading(true)
+
+        try {
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, subject, message }),
+            })
+            const data = await res.json()
+
+            if (data.success) {
+                setSuccess(true)
+            } else {
+                setError(data.error || "Unbekannter Fehler. Bitte versuche es erneut.")
+            }
+        } catch {
+            setError("Verbindungsfehler. Bitte überprüfe deine Internetverbindung.")
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <div className="container py-20 px-4 md:px-6">
             <SectionHeader
@@ -81,30 +122,88 @@ export default function ContactPage() {
 
                 {/* Contact Form */}
                 <div className="bg-card/30 p-8 rounded-xl border border-white/10 backdrop-blur-sm">
-                    <h3 className="text-2xl font-bold mb-6">Schreib uns eine Nachricht</h3>
-                    <form className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input id="name" placeholder="Dein Name" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="deine@email.de" />
-                            </div>
+                    {success ? (
+                        <div className="flex flex-col items-center justify-center h-full py-12 text-center space-y-4">
+                            <CheckCircle className="h-16 w-16 text-green-500" />
+                            <h3 className="text-2xl font-bold">Nachricht gesendet!</h3>
+                            <p className="text-muted-foreground max-w-sm">
+                                Vielen Dank, {name.split(" ")[0]}! Wir haben deine Nachricht erhalten und melden uns bald bei dir.
+                            </p>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setSuccess(false)
+                                    setName(""); setEmail(""); setSubject(""); setMessage("")
+                                }}
+                            >
+                                Neue Nachricht schreiben
+                            </Button>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="subject">Betreff</Label>
-                            <Input id="subject" placeholder="Worum geht es?" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="message">Nachricht</Label>
-                            <Textarea id="message" placeholder="Deine Nachricht an uns..." className="min-h-[150px]" />
-                        </div>
-                        <Button className="w-full bg-primary text-primary-foreground font-bold hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]">
-                            Nachricht Senden
-                        </Button>
-                    </form>
+                    ) : (
+                        <>
+                            <h3 className="text-2xl font-bold mb-6">Schreib uns eine Nachricht</h3>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name">Name</Label>
+                                        <Input
+                                            id="name"
+                                            placeholder="Dein Name"
+                                            value={name}
+                                            onChange={e => setName(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="deine@email.de"
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="subject">Betreff</Label>
+                                    <Input
+                                        id="subject"
+                                        placeholder="Worum geht es?"
+                                        value={subject}
+                                        onChange={e => setSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="message">Nachricht</Label>
+                                    <Textarea
+                                        id="message"
+                                        placeholder="Deine Nachricht an uns..."
+                                        className="min-h-[150px]"
+                                        value={message}
+                                        onChange={e => setMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                {error && (
+                                    <div className="rounded-md bg-red-500/15 border border-red-500/40 px-4 py-3 text-sm text-red-400">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-primary text-primary-foreground font-bold hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
+                                    disabled={loading}
+                                >
+                                    {loading ? <><Loader2 className="animate-spin mr-2 h-4 w-4" />Wird gesendet...</> : "Nachricht Senden"}
+                                </Button>
+                            </form>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
