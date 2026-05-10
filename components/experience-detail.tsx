@@ -31,12 +31,13 @@ export function ExperienceDetail({
     return (
         <div className="flex flex-col min-h-screen">
             {/* Hero Section of Detail Page */}
-            <div className="relative h-[50vh] min-h-[400px] w-full overflow-hidden">
+            <div className="relative h-[50vh] min-h-[400px] max-h-[560px] w-full overflow-hidden">
                 <Image
                     src={imageSrc}
                     alt={title}
                     fill
-                    className="object-cover"
+                    sizes="100vw"
+                    className="object-cover object-center"
                     priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
