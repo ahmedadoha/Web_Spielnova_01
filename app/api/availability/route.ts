@@ -34,9 +34,9 @@ export async function GET(request: Request) {
     const startOfDay = `${date}T00:00:00.000Z`
     const endOfDay = `${date}T23:59:59.999Z`
 
-    const { data: bookings, error } = await supabase
+    const { data: raw, error } = await supabase
         .from('bookings')
-        .select('start_time, end_time, arenas_count, status')
+        .select('start_time, end_time, arenas_count, status, created_at')
         .gte('end_time', startOfDay) // Intersects with today
         .lte('start_time', endOfDay)
         .not('status', 'in', '("cancelled","deleted")') // IGNORE cancelled/deleted!
@@ -44,6 +44,15 @@ export async function GET(request: Request) {
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    // Lazy expiry: ignore pending_payment bookings older than 15 min so that
+    // abandoned checkouts do not permanently block slots on the calendar.
+    const PENDING_EXPIRY_MS = 15 * 60 * 1000
+    const now = Date.now()
+    const bookings = (raw ?? []).filter(b =>
+        b.status !== 'pending_payment' ||
+        now - new Date(b.created_at).getTime() < PENDING_EXPIRY_MS
+    )
 
     // 3. Calculate availability per slot
     const availability: Record<string, { arena1: boolean, arena2: boolean }> = {}
@@ -55,15 +64,13 @@ export async function GET(request: Request) {
 
         let arenasOccupied = 0
 
-        if (bookings) {
-            for (const booking of bookings) {
-                const bStart = new Date(booking.start_time).getTime()
-                const bEnd = new Date(booking.end_time).getTime()
+        for (const booking of bookings) {
+            const bStart = new Date(booking.start_time).getTime()
+            const bEnd = new Date(booking.end_time).getTime()
 
-                // Overlap logic: StartA < EndB AND StartB < EndA
-                if (bStart < chunkEnd && chunkStart < bEnd) {
-                    arenasOccupied += booking.arenas_count || 1
-                }
+            // Overlap logic: StartA < EndB AND StartB < EndA
+            if (bStart < chunkEnd && chunkStart < bEnd) {
+                arenasOccupied += booking.arenas_count || 1
             }
         }
 

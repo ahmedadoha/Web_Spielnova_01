@@ -110,6 +110,10 @@ export async function POST(request: Request) {
         }
 
         // Create Stripe Checkout Session
+        // expires_at: 15 minutes from now — after this Stripe refuses payment and
+        // redirects the customer to cancel_url so our cron job can free the slot cleanly.
+        const sessionExpiresAt = Math.floor(Date.now() / 1000) + 15 * 60
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card', 'paypal'], // PayPal requires config, keeping simple
             line_items: [
@@ -126,8 +130,9 @@ export async function POST(request: Request) {
                 },
             ],
             mode: 'payment',
+            expires_at: sessionExpiresAt,
             success_url: `${request.headers.get('origin')}/buchen/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${request.headers.get('origin')}/buchen?error=cancelled`,
+            cancel_url: `${request.headers.get('origin')}/buchen?session_expired=1`,
             client_reference_id: bookingId,
             customer_email: customerEmail,
         })
