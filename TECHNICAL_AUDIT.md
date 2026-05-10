@@ -857,10 +857,14 @@ The route `/test-email` renders email template previews with hardcoded customer 
    - The dropdown now shows 2–8 players and automatically labels groups > 4 as needing 2 arenas
    - Future capacity changes require updating only one constant in `lib/constants.ts`
 
-5. 🔲 **Configure the Stripe Webhook**
-   - Register `/api/webhooks/stripe` in the Stripe Dashboard
-   - Add the real signing secret to Vercel: `STRIPE_WEBHOOK_SECRET=whsec_...`
-   - Test with `stripe trigger checkout.session.completed`
+5. ✅ **ALREADY DONE** — **Stripe Webhook is configured and working**
+   Verified via Stripe API: endpoint `https://www.spielnova.de/api/webhooks/stripe` is
+   registered, enabled, and listening for `checkout.session.completed`.
+   `STRIPE_WEBHOOK_SECRET` is correctly set in Vercel environment variables.
+   Confirmed working: Ahmed and a test user both received confirmation emails after payment.
+   Note: `.env.local` still shows a placeholder — this only affects local development,
+   not the production site. The original audit finding was based on `.env.local` and was
+   incorrect for the production environment.
 
 6. 🔲 **Fix the DELETE booking manager-only bug**
    ```typescript
@@ -921,7 +925,7 @@ The route `/test-email` renders email template previews with hardcoded customer 
 - [x] ✅ **Fix slot availability display for 5+ player groups** (§D.2 Bug A) — player-count-aware check implemented
 - [x] ✅ **Hide past time slots on today's date** (§D.2 Bug B) — `isPast` guard added
 - [x] ✅ **Extend max players to 8 on public booking form** (§D.3) — `MAX_PLAYERS` constant + dynamic dropdown
-- [ ] 🔲 Configure Stripe webhook secret + register endpoint in Stripe Dashboard
+- [x] ✅ Stripe webhook already configured — `spielnova.de/api/webhooks/stripe` enabled in Stripe, secret set in Vercel
 - [ ] 🔲 Fix DELETE booking manager check (4-line code change)
 - [ ] 🔲 Remove "Demo Mode" text from payment button
 - [ ] 🔲 Add `sendBookingConfirmation()` to `/api/bookings/confirm`
@@ -966,7 +970,7 @@ The route `/test-email` renders email template previews with hardcoded customer 
 
 | # | Issue | Risk Type | Consequence |
 |---|---|---|---|
-| 1 | **Stripe webhook secret is a placeholder** | Operational | No confirmation emails ever sent; booking lifecycle unreliable |
+| 1 | ~~**Stripe webhook secret is a placeholder**~~ | ~~Operational~~ | ✅ **RESOLVED** — Webhook was already configured in Stripe + Vercel. Emails confirmed working. Audit finding was based on `.env.local` only and did not reflect production state. |
 | 2 | **Customer PII publicly readable via Supabase anon key** | Security / GDPR | Full customer name/email/phone exposed to any internet user |
 | 3 | **5 of 8 game detail pages show "Erlebnis nicht gefunden"** | Customer Experience | Majority of game pages return an error — confirmed by real customers (see §D.1) |
 | 4 | **Slot display ignores player count for 5+ player groups** | Booking Integrity / UX | Groups ≥5 see false "available" slots, get silently rejected on checkout (see §D.2) |
