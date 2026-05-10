@@ -269,7 +269,7 @@ export default function BookingPage() {
                             >
                                 <div className="space-y-4">
                                     <h3 className="text-xl font-bold">Wie viele Spieler?</h3>
-                                    <Select value={playerCount} onValueChange={setPlayerCount}>
+                                    <Select value={playerCount} onValueChange={(val) => { setPlayerCount(val); setSelectedTime(null); }}>
                                         <SelectTrigger className="w-full md:w-[200px]">
                                             <SelectValue placeholder="Anzahl Spieler" />
                                         </SelectTrigger>
@@ -305,7 +305,10 @@ export default function BookingPage() {
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-2">
                                                     {Object.entries(availableSlots).length > 0 ? (
                                                         Object.entries(availableSlots).map(([time, status]) => {
-                                                            const isAvailable = status.arena1 || status.arena2;
+                                                            const needsBothArenas = parseInt(playerCount) > 4;
+                                                            const isAvailable = needsBothArenas
+                                                                ? (status.arena1 && status.arena2)
+                                                                : (status.arena1 || status.arena2);
                                                             return (
                                                                 <Button
                                                                     key={time}
