@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
+import { generateSlots, isValidSlotTime } from '@/lib/availability'
 
 export async function POST(request: Request) {
     try {
@@ -26,6 +27,35 @@ export async function POST(request: Request) {
         const startTime = new Date(`${date}T${time}:00`)
         const bookingDuration = duration || 60
         const endTime = new Date(startTime.getTime() + bookingDuration * 60000)
+
+        // --- Server-side business rules validation ---
+
+        // 1. Valid parseable date + time
+        if (isNaN(startTime.getTime())) {
+            return NextResponse.json({ error: 'Ungültiges Datum oder Uhrzeit.' }, { status: 400 })
+        }
+
+        // 2. Must be in the future
+        if (startTime <= new Date()) {
+            return NextResponse.json({ error: 'Der Buchungszeitpunkt muss in der Zukunft liegen.' }, { status: 400 })
+        }
+
+        // 3. Time must be on a :00 or :30 mark
+        if (!isValidSlotTime(time)) {
+            return NextResponse.json({ error: 'Ungültige Uhrzeit. Nur :00 und :30 Zeiten sind gültig.' }, { status: 400 })
+        }
+
+        // 4. Date must be an open business day with the requested time within opening hours.
+        //    generateSlots returns [] for Sundays and public holidays.
+        const validSlots = await generateSlots(date, new Date(date).getUTCDay())
+        if (validSlots.length === 0) {
+            return NextResponse.json({ error: 'An dem gewählten Datum ist Spielnova geschlossen.' }, { status: 400 })
+        }
+        if (!validSlots.includes(time)) {
+            return NextResponse.json({ error: 'Die gewählte Uhrzeit liegt außerhalb der Öffnungszeiten.' }, { status: 400 })
+        }
+
+        // --- End validation ---
 
         // Calculate arenas needed
         const arenasCount = playerCount > 4 ? 2 : 1

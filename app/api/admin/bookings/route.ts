@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/supabase-server'
 import { checkSlotAvailability } from '@/lib/availability'
+import { sendBookingConfirmation } from '@/lib/email'
 
 // Converts a raw Supabase booking row (which uses start_time/end_time timestamps)
 // into the flat { date, time, duration_minutes, ... } shape the admin UI expects.
@@ -146,6 +147,27 @@ export async function POST(request: NextRequest) {
         new_value: booking,
         notes: `Walk-in: ${customer_name}, ${game_name}, ${player_count} Spieler, ${payment_method}`,
     })
+
+    // Send confirmation email if the customer provided an address.
+    // Fired async — failure is non-fatal, the booking is already saved.
+    if (customer_email) {
+        const paymentLabel =
+            payment_method === 'card'  ? 'Kartenzahlung (vor Ort)' :
+            payment_method === 'free'  ? 'Gratis (Freikarte)'      :
+                                         'Barzahlung (vor Ort)'
+
+        sendBookingConfirmation({
+            customerName:  customer_name,
+            customerEmail: customer_email,
+            date,
+            time,
+            gameName:    game_name,
+            duration:    dur,
+            playerCount: player_count,
+            totalAmount: 0,
+            paymentNote: paymentLabel,
+        }).catch(err => console.error('Walk-in confirmation email failed:', err))
+    }
 
     return NextResponse.json({ booking: normalizeBooking(booking) })
 }

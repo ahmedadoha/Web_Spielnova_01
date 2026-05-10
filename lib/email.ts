@@ -25,13 +25,14 @@ interface BookingDetails {
     playerCount: number;
     totalAmount: number;
     isTopGamer?: boolean;
+    paymentNote?: string; // overrides amount display, e.g. "Barzahlung (vor Ort)"
 }
 
 export async function sendBookingConfirmation(details: BookingDetails) {
     try {
         const {
             customerName, customerEmail, date, time,
-            gameName, duration, playerCount, totalAmount, isTopGamer
+            gameName, duration, playerCount, totalAmount, isTopGamer, paymentNote
         } = details;
 
         const { data, error } = await resend.emails.send({
@@ -59,7 +60,7 @@ export async function sendBookingConfirmation(details: BookingDetails) {
                                 <tr><td style="padding: 8px 0; color: #a1a1aa;">⏰ Startzeit:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${time} Uhr</td></tr>
                                 <tr><td style="padding: 8px 0; color: #a1a1aa;">⏳ Dauer:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${duration} Minuten</td></tr>
                                 <tr><td style="padding: 8px 0; color: #a1a1aa;">👥 Teamgröße:</td><td style="padding: 8px 0; font-weight: bold; color: #ffffff; text-align: right;">${playerCount} Players</td></tr>
-                                <tr><td style="padding: 8px 0; color: #a1a1aa; border-top: 1px solid #27272a;">💰 Gesamtbetrag:</td><td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right; border-top: 1px solid #27272a;">${(totalAmount / 100).toFixed(2)} €</td></tr>
+                                <tr><td style="padding: 8px 0; color: #a1a1aa; border-top: 1px solid #27272a;">💰 Zahlung:</td><td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right; border-top: 1px solid #27272a;">${paymentNote ?? `${(totalAmount / 100).toFixed(2)} €`}</td></tr>
                             </table>
                         </div>
                         
