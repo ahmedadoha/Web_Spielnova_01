@@ -85,9 +85,9 @@ export async function checkSlotAvailability(
     const startOfDay = `${dateStr}T00:00:00.000Z`
     const endOfDay = `${dateStr}T23:59:59.999Z`
 
-    const { data: bookings, error } = await supabase
+    const { data: raw, error } = await supabase
         .from('bookings')
-        .select('start_time, end_time, arenas_count, status')
+        .select('start_time, end_time, arenas_count, status, created_at')
         .gte('end_time', startOfDay) // Overlaps with today
         .lte('start_time', endOfDay)
         .not('status', 'in', '("cancelled","deleted")')
@@ -97,7 +97,18 @@ export async function checkSlotAvailability(
         return false // Safe default on error
     }
 
-    if (!bookings || bookings.length === 0) return true
+    if (!raw || raw.length === 0) return true
+
+    // Lazy expiry: treat pending_payment bookings older than 15 min as gone.
+    // This frees slots immediately without requiring a cron job.
+    const PENDING_EXPIRY_MS = 15 * 60 * 1000
+    const now = Date.now()
+    const bookings = raw.filter(b =>
+        b.status !== 'pending_payment' ||
+        now - new Date(b.created_at).getTime() < PENDING_EXPIRY_MS
+    )
+
+    if (bookings.length === 0) return true
 
     // Check exactly the requested interval for overlaps
     let maxOverlappingArenas = 0
