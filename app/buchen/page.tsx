@@ -448,9 +448,7 @@ export default function BookingPage() {
                                             {loading ? <Loader2 className="animate-spin mr-2" /> : null}
                                             Jetzt Buchen & Bezahlen
                                         </Button>
-                                        <p className="text-center text-xs text-muted-foreground mt-2">
-                                            Zahlung derzeit nur vor Ort (Demo Mode) oder via Stripe (wenn konfiguriert).
-                                        </p>
+
                                     </div>
                                 </form>
 
