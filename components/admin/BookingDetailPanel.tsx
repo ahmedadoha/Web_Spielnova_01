@@ -127,14 +127,17 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             </div>
                         )}
 
-                        {/* Cancel */}
-                        <button
-                            id="admin-cancel-btn"
-                            onClick={() => { if (confirm('Buchung stornieren?')) doAction('cancel') }}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border/40 hover:border-red-400/40 hover:bg-red-500/5 transition-all text-sm font-medium"
-                        >
-                            <XCircle className="h-4 w-4 text-red-400" /> Stornieren
-                        </button>
+                        {/* Cancel — employees can cancel unpaid bookings only; managers can cancel any */}
+                        {(isManager || !['confirmed', 'completed'].includes(booking.status as string))
+                            && booking.status !== 'cancelled' && (
+                            <button
+                                id="admin-cancel-btn"
+                                onClick={() => { if (confirm('Buchung stornieren?')) doAction('cancel') }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border/40 hover:border-red-400/40 hover:bg-red-500/5 transition-all text-sm font-medium"
+                            >
+                                <XCircle className="h-4 w-4 text-red-400" /> Stornieren
+                            </button>
+                        )}
 
                         {/* Note */}
                         <div className="space-y-2">
@@ -160,8 +163,8 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             <Mail className="h-4 w-4 text-blue-400" /> Erinnerung senden
                         </button>
 
-                        {/* Refund */}
-                        {isOnline && (
+                        {/* Refund — manager only */}
+                        {isManager && isOnline && (
                             <div className="space-y-2">
                                 <button
                                     id="admin-refund-btn"
@@ -194,15 +197,17 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             </div>
                         )}
 
-                        {/* Delete */}
-                        <button
-                            id="admin-delete-btn"
-                            onClick={handleDelete}
-                            disabled={loading}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-900/40 hover:bg-red-950/30 transition-all text-sm text-red-600"
-                        >
-                            <Trash2 className="h-4 w-4" /> Buchung löschen
-                        </button>
+                        {/* Delete — manager only */}
+                        {isManager && (
+                            <button
+                                id="admin-delete-btn"
+                                onClick={handleDelete}
+                                disabled={loading}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-900/40 hover:bg-red-950/30 transition-all text-sm text-red-600"
+                            >
+                                <Trash2 className="h-4 w-4" /> Buchung löschen
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

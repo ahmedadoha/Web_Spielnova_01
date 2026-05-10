@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
-import { checkSlotAvailability } from '@/lib/availability'
 
 export async function POST(request: Request) {
     try {
@@ -31,38 +30,38 @@ export async function POST(request: Request) {
         // Calculate arenas needed
         const arenasCount = playerCount > 4 ? 2 : 1
 
-        // Check if slot is strictly valid and free
-        const isAvailable = await checkSlotAvailability(date, time, bookingDuration, arenasCount)
-        
-        if (!isAvailable) {
-            return NextResponse.json({ error: 'This time slot is no longer available.' }, { status: 409 })
-        }
+        // Atomically check availability and insert in a single DB transaction.
+        // pg_advisory_xact_lock inside the function serialises concurrent requests
+        // for the same time slot — prevents double-booking race conditions.
+        const { data: rpcResult, error: rpcError } = await supabase.rpc(
+            'create_booking_if_available',
+            {
+                p_start_time:     startTime.toISOString(),
+                p_end_time:       endTime.toISOString(),
+                p_arena_id:       arenaId,
+                p_arenas_count:   arenasCount,
+                p_game_mode:      gameMode,
+                p_game_slug:      gameSlug,
+                p_player_count:   playerCount,
+                p_customer_name:  customerName,
+                p_customer_email: customerEmail,
+            }
+        )
 
-        // Insert Booking with 'pending_payment' status
-        const { data, error } = await supabase
-            .from('bookings')
-            .insert([
-                {
-                    start_time: startTime.toISOString(),
-                    end_time: endTime.toISOString(),
-                    arena_id: arenaId, // keeping for legacy reasons, but arenas_count handles logic now
-                    arenas_count: arenasCount, // Add explicit arenas_count
-                    game_mode: gameMode,
-                    game_slug: gameSlug,
-                    player_count: playerCount,
-                    customer_name: customerName,
-                    customer_email: customerEmail,
-                    status: 'pending_payment',
-                }
-            ])
-            .select()
-
-        if (error) {
-            console.error('Supabase Error:', error)
+        if (rpcError) {
+            console.error('Booking RPC error:', rpcError)
             return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
         }
 
-        const bookingId = data[0].id
+        if (rpcResult?.error === 'slot_unavailable') {
+            return NextResponse.json({ error: 'This time slot is no longer available.' }, { status: 409 })
+        }
+
+        const bookingId = rpcResult?.booking_id
+        if (!bookingId) {
+            return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
+        }
+
 
         // Import stripe dynamically to avoid issues if init fails
         const { stripe } = await import('@/lib/stripe')
