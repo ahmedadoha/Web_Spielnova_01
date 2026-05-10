@@ -60,6 +60,14 @@ export async function PATCH(
     }
 
     if (action === 'cancel' || status === 'cancelled') {
+        // Cancelling a confirmed/paid booking is a manager-only action
+        const paidStatuses = ['confirmed', 'completed']
+        if (paidStatuses.includes(oldBooking.status) && !isManager(employee)) {
+            return NextResponse.json(
+                { error: 'Nur Manager können bestätigte Buchungen stornieren.' },
+                { status: 403 }
+            )
+        }
         updates.status = 'cancelled'
         auditAction = 'cancelled'
         auditNotes = `Cancelled by ${employee.name}`
@@ -138,6 +146,12 @@ export async function DELETE(
     const { id } = await params
     const { employee, user, supabase } = await getAdminSession()
     if (!employee) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isManager(employee)) {
+        return NextResponse.json(
+            { error: 'Nur Manager können Buchungen löschen.' },
+            { status: 403 }
+        )
+    }
 
     const { data: booking } = await supabase.from('bookings').select('*').eq('id', id).single()
 
