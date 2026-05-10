@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Menu, Zap } from "lucide-react"
+import Image from "next/image"
+import { Menu } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -25,10 +26,14 @@ export function Navbar() {
         <div className="border-b border-white/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
             <div className="w-full max-w-full flex h-16 items-center px-4 md:px-6">
                 <Link href="/" className="mr-6 flex items-center space-x-2">
-                    {/* Replaced generic icon with Logo Image or styled text */}
-                    <div className="relative h-8 w-8">
-                        {/* Fallback to Icon if logo fails, but we'll try to use text mostly or the image if valid */}
-                        <Zap className="h-6 w-6 text-primary" />
+                    <div className="relative h-8 w-8 flex-shrink-0">
+                        <Image
+                            src="/icon.jpg"
+                            alt="Spielnova Logo"
+                            fill
+                            className="object-contain rounded-sm"
+                            priority
+                        />
                     </div>
                     <span className="hidden font-mono text-lg font-bold tracking-widest sm:inline-block">
                         SPIEL<span className="text-secondary">NOVA</span>
