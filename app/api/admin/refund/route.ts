@@ -6,6 +6,12 @@ import Stripe from 'stripe'
 export async function POST(request: NextRequest) {
     const { employee, user, supabase } = await getAdminSession()
     if (!employee) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!isManager(employee)) {
+        return NextResponse.json(
+            { error: 'Nur Manager können Rückerstattungen ausstellen.' },
+            { status: 403 }
+        )
+    }
 
     const { booking_id, refund_type, amount_cents, reason } = await request.json()
 
