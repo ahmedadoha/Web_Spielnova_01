@@ -2,14 +2,7 @@
 
 import { useState } from 'react'
 import { X } from 'lucide-react'
-
-const GAMES = [
-    'VR Arena – Shooter',
-    'VR Escape Room',
-    'VR Paraglider (Simulator)',
-    'Super Fighter (Simulator)',
-    'Arcade Spiele',
-]
+import { GAMES } from '@/lib/games'
 
 // 30-min slots matching real opening hours: Mon-Thu 14:00-20:00, Fri-Sat 10:00-20:00
 function generate30MinSlots(): string[] {
@@ -57,7 +50,8 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
         customer_name: '',
         customer_email: '',
         customer_phone: '',
-        game_name: GAMES[0],
+        game_name: GAMES[0].title,
+        game_slug: GAMES[0].slug,
         date: nextSlot.date,
         time: nextSlot.time,
         duration_minutes: 60,
@@ -70,6 +64,11 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
 
     function set(field: string, value: string | number) {
         setForm(f => ({ ...f, [field]: value }))
+    }
+
+    function handleGameChange(slug: string) {
+        const game = GAMES.find(g => g.slug === slug)
+        if (game) setForm(f => ({ ...f, game_slug: game.slug, game_name: game.title }))
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -143,11 +142,13 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
                         <Field label="Spiel / Erlebnis" id="walkin-game">
                             <select
                                 id="walkin-game"
-                                value={form.game_name}
-                                onChange={e => set('game_name', e.target.value)}
+                                value={form.game_slug}
+                                onChange={e => handleGameChange(e.target.value)}
                                 className={inputCls}
                             >
-                                {GAMES.map(g => <option key={g} value={g}>{g}</option>)}
+                                {GAMES.map(g => (
+                                    <option key={g.slug} value={g.slug}>{g.title}</option>
+                                ))}
                             </select>
                         </Field>
 
