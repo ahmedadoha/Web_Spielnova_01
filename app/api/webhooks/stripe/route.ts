@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { sendBookingConfirmation } from '@/lib/email';
+import { GAME_BY_SLUG } from '@/lib/games';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -96,12 +97,19 @@ export async function POST(request: Request) {
                     timeZone: 'UTC' // Since we stored local time naive in UTC
                 });
 
+                // Resolve the human-readable game title from the catalog.
+                // Falls back to slug then game_mode so the email always has something.
+                const gameName =
+                    GAME_BY_SLUG[bookingData.game_slug]?.title ||
+                    bookingData.game_slug ||
+                    bookingData.game_mode
+
                 const emailResult = await sendBookingConfirmation({
                     customerName: bookingData.customer_name,
                     customerEmail: bookingData.customer_email,
                     date: formattedDate,
                     time: formattedTime,
-                    gameName: bookingData.game_slug || bookingData.game_mode, // fallback
+                    gameName,
                     duration: durationMinutes,
                     playerCount: bookingData.player_count,
                     totalAmount: session.amount_total || 0, // In cents
