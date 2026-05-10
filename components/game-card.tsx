@@ -49,22 +49,40 @@ export function GameCard({
             transition={{ type: "spring", stiffness: 300 }}
         >
             <Card className="flex h-full flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)]">
-                <div 
-                    className={`relative aspect-video w-full overflow-hidden ${onClickImage ? 'cursor-pointer' : ''}`}
-                    onClick={onClickImage}
-                >
-                    <Image
-                        src={imageSrc}
-                        alt={title}
-                        fill
-                        className="object-cover transition-transform duration-500 hover:scale-110"
-                    />
-                    {category && (
-                        <Badge className="absolute right-3 top-3 bg-black/70 text-foreground hover:bg-black/90 backdrop-blur-md border-secondary/50">
-                            {category}
-                        </Badge>
-                    )}
-                </div>
+                {onClickImage ? (
+                    // Simulators: clicking image opens the video player
+                    <div
+                        className="relative aspect-video w-full overflow-hidden cursor-pointer group/img"
+                        onClick={onClickImage}
+                    >
+                        <Image
+                            src={imageSrc}
+                            alt={title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover/img:scale-110"
+                        />
+                        {category && (
+                            <Badge className="absolute right-3 top-3 bg-black/70 text-foreground hover:bg-black/90 backdrop-blur-md border-secondary/50">
+                                {category}
+                            </Badge>
+                        )}
+                    </div>
+                ) : (
+                    // All other pages: clicking the image navigates to the game detail page
+                    <Link href={href} className="relative aspect-video w-full overflow-hidden block group/img">
+                        <Image
+                            src={imageSrc}
+                            alt={title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover/img:scale-110"
+                        />
+                        {category && (
+                            <Badge className="absolute right-3 top-3 bg-black/70 text-foreground hover:bg-black/90 backdrop-blur-md border-secondary/50">
+                                {category}
+                            </Badge>
+                        )}
+                    </Link>
+                )}
                 <CardHeader>
                     <CardTitle className="line-clamp-1 text-xl font-bold tracking-wide">{title}</CardTitle>
                 </CardHeader>
