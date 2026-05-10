@@ -16,7 +16,7 @@ export default function ImpressumPage() {
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Kontakt</h3>
                     <p>Telefon: +49 123 456789</p>
-                    <p>E-Mail: info@spielnova.de</p>
+                    <p>E-Mail: support@spielnova.de</p>
                 </div>
 
                 <div>
