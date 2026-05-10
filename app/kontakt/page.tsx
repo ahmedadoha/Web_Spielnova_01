@@ -112,7 +112,7 @@ export default function ContactPage() {
                                 </a>
                             </Button>
                             <Button variant="outline" className="w-full gap-2" asChild>
-                                <a href="mailto:info@spielnova.de">
+                                <a href="mailto:support@spielnova.de">
                                     <Mail className="h-4 w-4" /> Email
                                 </a>
                             </Button>
