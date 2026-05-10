@@ -1,10 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
+
+// useSearchParams must live in its own component wrapped by <Suspense>
+function TimeoutBanner() {
+    const searchParams = useSearchParams()
+    if (searchParams.get('timeout') !== '1') return null
+    return (
+        <div className="mb-5 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm rounded-lg px-4 py-3 text-center">
+            🔒 Deine Sitzung ist nach 7 Stunden Inaktivität abgelaufen.<br />
+            Bitte melde dich erneut an.
+        </div>
+    )
+}
 
 export default function AdminLoginPage() {
     const supabase = createBrowserClient(
@@ -12,6 +24,7 @@ export default function AdminLoginPage() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const router = useRouter()
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -97,6 +110,10 @@ export default function AdminLoginPage() {
                     <h2 className="text-xl font-bold mb-6 text-center">
                         {view === 'login' ? 'Anmelden' : 'Passwort vergessen'}
                     </h2>
+
+                    <Suspense fallback={null}>
+                        <TimeoutBanner />
+                    </Suspense>
 
                     {view === 'login' ? (
                         <form onSubmit={handleLogin} className="space-y-5">
