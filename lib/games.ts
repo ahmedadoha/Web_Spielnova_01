@@ -56,21 +56,21 @@ export const GAMES: Game[] = [
     // ──────────────────────────────────────────────
 
     {
-        slug: 'zombie-apocalypse',
+        slug: 'arizona-ss',
         category: 'shooter',
         bookingMode: 'shooter',
-        title: 'Zombie Apocalypse VR',
-        description: 'Überlebe die Zombiehorden in diesem intensiven Koop-Shooter. Arbeitet zusammen, deckt euch gegenseitig und findet den Weg in die Sicherheit.',
-        longDescription: `Die Welt steht am Abgrund. Ein tödliches Virus hat den Großteil der Menschheit in blutrünstige Zombies verwandelt. Ihr seid die letzte Hoffnung.
-
+        title: 'Arizona Sunshine',
+        description: 'Das Remake von Arizona Sunshine® hebt das preisgekrönte Originalspiel auf ein neues Niveau – komplett neu aufgebaut',
+        longDescription: `mit atemberaubender VR-Grafik sowie VR-Kampfmechaniken und Waffen der nächsten Generation. 
+Stelle dich den Untoten allein oder gemeinsam mit bis zu drei weiteren Überlebenden in einem postapokalyptischen Südwesten der USA, der von Zombies überrannt wurde.
 In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu überleben. Deckt euch gegenseitig den Rücken, teilt Munition und findet den Weg durch die verlassene Stadt zur Evakuierungszone.`,
-        imageSrc: 'https://picsum.photos/seed/zombies/1920/1080',
+        imageSrc: 'public/Arizona1.avif',
         duration: '30–60 Minuten',
-        players: '2–8 Spieler',
+        players: '1–4 Spieler',
         difficulty: 'Mittel',
-        minAge: '16 Jahre',
+        minAge: '12 Jahre',
         features: [
-            'Freies Bewegen (Free Roam)',
+            'Intense Co-op VR Action',
             'Haptisches Feedback',
             'Team-basiertes Gameplay',
             'Realistische Waffenmechanik',
@@ -78,16 +78,22 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
     },
 
     {
-        slug: 'robot-warfare',
+        slug: 'after-the-fall',
         category: 'shooter',
         bookingMode: 'shooter',
-        title: 'Robot Warfare',
-        description: 'Tretet als Elite-Einheit gegen eine Armee von KI-Robotern an. Nutzt futuristische Waffen und taktisches Vorgehen, um den Kern zu zerstören.',
-        longDescription: 'Die Maschinen haben die Kontrolle übernommen. Dringt in das Hauptquartier der KI ein und deaktiviert den Kern. Doch Vorsicht: Die Roboter sind schwer bewaffnet und taktisch klug. Nur präzises Teamwork führt euch zum Sieg.',
-        imageSrc: 'https://picsum.photos/seed/robotics/1920/1080',
-        duration: '30 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Schwer',
+        title: 'After the Fall',
+        description: 'an epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.',
+        longDescription: `An epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.
+
+Set in the ice-covered ruins of LA nearly 20 years after the apocalypse, After the Fall combines a living, breathing VR world shared with players from all over the world, a cinematic and atmospheric campaign, action-packed solo and multiplayer gameplay, and endgame built from the ground up for VR.
+
+2005, LA. A generation has passed since a mysterious outbreak caused by the excessive use of designer drugs birthed the terrible Snowbreed, infesting our cities and collapsing civilization.
+You, one of the survivors seemingly immune to the side-effects of the substances, are humanity's last hope of resurgence. 
+Explore the remains of a civilization ground to a halt in an alternate 1980s, craft deadly weapons and wield devastating powers with real-life movements as you develop your combat style, and join forces with players worldwide as you go head to head with relentless hordes and larger-than-life bosses in a bid to take back the city. It?s time.`,
+        imageSrc: 'public/After_the_fall1.jpg',
+        duration: '30 - 60 Minuten',
+        players: '1–4 Spieler',
+        difficulty: 'Mittel',
         minAge: '12 Jahre',
         features: [
             'Sci-Fi Setting',
@@ -97,127 +103,54 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         ],
     },
 
-    {
-        slug: 'space-marines',
-        category: 'shooter',
-        bookingMode: 'shooter',
-        title: 'Space Marines',
-        description: 'Verteidigt eure Raumstation gegen Alien-Invasoren. Schwerelosigkeit und intensive Feuergefechte erwarten euch.',
-        longDescription: 'Die Aliens haben die Raumstation übernommen. Als Elite-Squad der Space Marines seid ihr die letzte Hoffnung der Menschheit. Kämpft euch durch schwebende Korridore und gewichtslose Kampfzonen in einem der intensivsten VR-Erlebnisse, das wir anbieten. Kommunikation und Deckung sind alles.',
-        imageSrc: 'https://picsum.photos/seed/spacecraft/1920/1080',
-        duration: '45 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Extrem',
-        minAge: '16 Jahre',
-        features: [
-            'Schwerelosigkeits-Mechanik',
-            'Alien-Gegner',
-            'Free Roam Arena',
-            'Intensives Team-Gameplay',
-        ],
-    },
-
-    {
-        slug: 'wild-west',
-        category: 'shooter',
-        bookingMode: 'shooter',
-        title: 'Wild West Shootout',
-        description: 'Ein klassisches Duell im Wilden Westen. Wer zieht am schnellsten? Lustiger und kompetitiver Shooter für Gruppen.',
-        longDescription: 'Lasst uns sehen, wer der schnellste Schütze im Wilden Westen ist. In diesem kompetitiven VR-Shooter messt ihr euch in schnellen Duellen, schießt Flaschen von Zäunen und verteidigt eure Stadt gegen Banditen. Ideal für Gruppen, die Spaß und freundlichen Wettbewerb suchen — perfekt auch für Einsteiger.',
-        imageSrc: 'https://picsum.photos/seed/desert-west/1920/1080',
-        duration: '20 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Leicht',
-        minAge: '10 Jahre',
-        features: [
-            'Kompetitives Gameplay',
-            'Wilder-Westen-Setting',
-            'Schnelle Runden — ideal zum Aufwärmen',
-            'Perfekt für Einsteiger',
-        ],
-    },
-
     // ──────────────────────────────────────────────
     // VR ESCAPE ROOMS
     // ──────────────────────────────────────────────
 
     {
-        slug: 'escape-pyramids',
+        slug: 'mansion',
         category: 'escape',
         bookingMode: 'escape',
-        title: 'Escape the Pyramids',
-        description: 'Erkundet eine alte Pyramide und findet den Schatz des Pharaos, bevor die Luft ausgeht. Ein klassisches Abenteuer für Rätselfreunde.',
-        longDescription: 'Ihr seid ein Team von Archäologen, die eine bislang unentdeckte Pyramide erforschen. Doch kaum habt ihr die Grabkammer betreten, fällt die Tür hinter euch ins Schloss. Ihr habt 60 Minuten Zeit, um die Rätsel des Pharaos zu lösen und zu entkommen.',
-        imageSrc: 'https://picsum.photos/seed/pyramids/1920/1080',
-        duration: '60 Minuten',
-        players: '2–8 Spieler',
+        title: 'Mansion of Death',
+        description: 'Escape the mansion… or join its secrets',
+        longDescription: `Mansion of Death ist ein Multiplayer-Virtual-Reality-Horrorspiel, das die Spieler tief in ein mysteriöses, verwunschenes Herrenhaus entführt.
+Als 45-minütiges Escape-Room-Erlebnis konzipiert, fordert es Gruppen dazu heraus, gemeinsam Rätsel zu lösen, Geheimnisse aufzudecken und die Schrecken im Inneren zu überleben.
+        
+Jede Ecke des Herrenhauses birgt ein neues Geheimnis. Die Spieler müssen kommunizieren, das Haus erkunden und blitzschnell denken, um zu entkommen, bevor die Zeit abläuft.
+Mit seinem immersiven Setting und seiner spannungsgeladenen Atmosphäre bietet „Mansion of Death“ eine einzigartige Mischung aus Horror und kniffligen Herausforderungen.
+        
+Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, die nach ihrem nächsten unvergesslichen Abenteuer suchen.`,
+        imageSrc: 'public/mansion1.jpg',
+        duration: '30 - 60 Minuten',
+        players: '1–4 Spieler',
         difficulty: 'Mittel',
-        minAge: '10 Jahre',
+        minAge: '12 Jahre',
         features: [
-            'Keine Gewalt',
-            'Knifflige Logikrätsel',
-            'Atmosphärische Umgebung',
+            'Ecape rooms',
+            'Thriller',
+            'Eine Atmosphäre voller Geheimnisse und Abenteuer',
+        ],
+    },
+
+    {
+        slug: 'riddle-of-ruins',
+        category: 'escape',
+        bookingMode: 'escape',
+        title: 'Riddle of Ruins',
+        description: 'Betritt den uralten Tempel, löse tödliche Rätsel, entdecke verborgene Schätze und beweise dich im ultimativen VR-Abenteuer.',
+        longDescription: `Willkommen, Abenteurer, bei „Riddle of Ruins: VR Adventure“! Schlüpft in die Rolle wagemutiger Teilnehmer, die sich Woche für Woche in einen uralten Tempel wagen, um ihren Verstand und ihr Glück auf die Probe zu stellen.
+Löst knifflige Rätsel, deckt verborgene Geheimnisse auf und jagt nach verlorenen Schätzen – in einem vollkommen immersiven Virtual-Reality-Erlebnis.
+Seid ihr bereit, die Herausforderung anzunehmen und zum ultimativen Tempelforscher zu werden? Schließt euch uns an und findet es heraus! `,
+        imageSrc: 'public/riddle2.png',
+        duration: '30 - 60 Minuten',
+        players: '1–4 Spieler',
+        difficulty: 'Mittel',
+        minAge: '7 Jahre',
+        features: [
+            'Abenteuer',
+            'Rätsel',
+            'Zeitdruck',
             'Teamwork erforderlich',
-        ],
-    },
-
-    {
-        slug: 'space-station',
-        category: 'escape',
-        bookingMode: 'escape',
-        title: 'Space Station Tiberia',
-        description: 'Ihr seid auf einer verlassenen Raumstation gefangen. Stellt die Energie wieder her und entkommt, bevor der Meteorit einschlägt.',
-        longDescription: 'Der Reaktor der Raumstation Tiberia ist ausgefallen. In 60 Minuten wird ein Meteorit einschlagen. Als gestrandete Astronauten müsst ihr zusammenarbeiten, die Energiezellen aktivieren und das Rettungskapsel starten, bevor es zu spät ist. Jede Sekunde zählt.',
-        imageSrc: 'https://picsum.photos/seed/cosmos/1920/1080',
-        duration: '60 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Schwer',
-        minAge: '14 Jahre',
-        features: [
-            'Sci-Fi Atmosphäre',
-            'Komplexe Rätsel',
-            'Extremer Zeitdruck',
-            'Starkes Teamwork erforderlich',
-        ],
-    },
-
-    {
-        slug: 'alice-wonderland',
-        category: 'escape',
-        bookingMode: 'escape',
-        title: 'Alice in Wonderland',
-        description: 'Folgt dem weißen Kaninchen in eine verrückte Welt voller Magie und seltsamer Rätsel. Perfekt für Familien und Einsteiger.',
-        longDescription: 'Folgt Alice durch den Kaninchenbau in eine Welt, in der nichts so ist, wie es scheint. Trinkt die Zaubertränke, löst die verrückten Rätsel der Herzkönigin und findet den Weg zurück in die reale Welt. Das perfekte Erlebnis für Familien und Gruppen, die etwas Besonderes suchen.',
-        imageSrc: 'https://picsum.photos/seed/wonderland/1920/1080',
-        duration: '45 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Leicht',
-        minAge: '8 Jahre',
-        features: [
-            'Familienfreundlich',
-            'Märchen-Setting',
-            'Farbenfrohe Umgebung',
-            'Keine Gewalt — ideal für alle Altersgruppen',
-        ],
-    },
-
-    {
-        slug: 'horror-house',
-        category: 'escape',
-        bookingMode: 'escape',
-        title: 'Horror House',
-        description: 'Nichts für schwache Nerven. Entkommt aus dem Spukhaus und löst das Geheimnis der verschwundenen Familie.',
-        longDescription: 'Das alte Haus am Ende der Straße birgt ein dunkles Geheimnis. Eine Familie ist vor 20 Jahren spurlos verschwunden. Wagt euch hinein, löst die gruseligen Rätsel und entkommt, bevor der Geist der Familie euch für immer hält. Unser gruseligstes und atmosphärischstes Erlebnis — nur für Mutige.',
-        imageSrc: 'https://picsum.photos/seed/haunted/1920/1080',
-        duration: '60 Minuten',
-        players: '2–8 Spieler',
-        difficulty: 'Schwer',
-        minAge: '16 Jahre',
-        features: [
-            'Horror-Atmosphäre',
-            'Immersives Storytelling',
-            'Gruselige Rätsel',
-            'Nur für Mutige — Mindestalter 16',
         ],
     },
 ]
