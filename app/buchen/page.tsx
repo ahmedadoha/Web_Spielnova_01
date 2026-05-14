@@ -357,9 +357,9 @@ export default function BookingPage() {
                                                                 const totalMin = h * 60 + m + i * 30;
                                                                 const chunkTime = `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:${String(totalMin % 60).padStart(2, '0')}`;
                                                                 const chunk = availableSlots[chunkTime];
-                                                                // Chunk beyond the last generated slot (e.g. 20:00 for a 19:30+60min session):
-                                                                // no bookings can start there, so no conflict — treat as free.
-                                                                if (!chunk) return true;
+                                                                // Chunk beyond the last generated slot means the session runs past
+                                                                // closing time (e.g. 20:00 for a 19:30+60min booking) — not allowed.
+                                                                if (!chunk) return false;
                                                                 return needsBothArenas
                                                                     ? (chunk.arena1 && chunk.arena2)
                                                                     : (chunk.arena1 || chunk.arena2);
