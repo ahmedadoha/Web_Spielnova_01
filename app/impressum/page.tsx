@@ -15,26 +15,26 @@ export default function ImpressumPage() {
 
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Kontakt</h3>
-                    <p>Telefon: +49 123 456789</p>
+                    <p>Telefon: +49 15754497518</p>
                     <p>E-Mail: support@spielnova.de</p>
                 </div>
 
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Vertretungsberechtigte Geschäftsführer</h3>
-                    <p>Max Mustermann (Beispiel)</p>
+                    <p>Wafaa Elshaarawi</p>
                 </div>
 
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Registereintrag</h3>
                     <p>Eintragung im Handelsregister.</p>
                     <p>Registergericht: Amtsgericht Ingolstadt</p>
-                    <p>Registernummer: HRB 12345</p>
+                    <p>Registernummer: HRB 12696</p>
                 </div>
 
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Umsatzsteuer-ID</h3>
                     <p>Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz:</p>
-                    <p>DE 123456789</p>
+                    <p>DE 459413303</p>
                 </div>
             </div>
         </div>

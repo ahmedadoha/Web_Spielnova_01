@@ -19,7 +19,6 @@
  *                       → If using a URL: the domain must be listed in next.config.ts → images → remotePatterns.
  *    - duration:        e.g. "30 Minuten", "30–60 Minuten"
  *    - players:         e.g. "2–4 Spieler", "2–8 Spieler"
- *    - difficulty:      "Leicht" | "Mittel" | "Schwer" | "Extrem"
  *    - minAge:          e.g. "10 Jahre", "16 Jahre"
  *    - features:        List of up to 4 bullet points shown on the detail page
  *    - category:        "shooter" or "escape" — determines which listing page it appears on
@@ -45,7 +44,6 @@ export interface Game {
     imageSrc: string
     duration: string
     players: string
-    difficulty: string
     minAge: string
     features: string[]
     category: 'shooter' | 'escape'
@@ -72,7 +70,6 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         imageSrc: '/ArizonaSS16x9.png',
         duration: '30–60 Minuten',
         players: '1–4 Spieler',
-        difficulty: '',
         minAge: '12 Jahre',
         features: [
             'Intense Co-op VR Action',
@@ -99,7 +96,6 @@ Explore the remains of a civilization ground to a halt in an alternate 1980s, cr
         imageSrc: '/After_the_fall1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: '',
         minAge: '12 Jahre',
         features: [
             'Sci-Fi Setting',
@@ -130,7 +126,6 @@ Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, 
         imageSrc: '/mansion1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: '',
         minAge: '12 Jahre',
         features: [
             'Ecape rooms',
@@ -152,7 +147,6 @@ Seid ihr bereit, die Herausforderung anzunehmen und zum ultimativen Tempelforsch
         imageSrc: '/riddle2.png',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: '',
         minAge: '7 Jahre',
         features: [
             'Abenteuer',

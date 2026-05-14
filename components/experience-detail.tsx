@@ -1,9 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, Users, ShieldCheck, Zap, CheckCircle } from "lucide-react"
+import { Clock, Users, ShieldCheck, CheckCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 interface ExperienceDetailProps {
     title: string
@@ -12,7 +11,6 @@ interface ExperienceDetailProps {
     imageSrc: string
     duration: string
     players: string
-    difficulty: string
     minAge: string
     features: string[]
     trailerUrl?: string
@@ -28,13 +26,6 @@ function toEmbedUrl(url: string): string | null {
     return null
 }
 
-const difficultyColor: Record<string, string> = {
-    Leicht:  'bg-green-500/20  text-green-400  border-green-500/30',
-    Mittel:  'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    Schwer:  'bg-orange-500/20 text-orange-400 border-orange-500/30',
-    Extrem:  'bg-red-500/20    text-red-400    border-red-500/30',
-}
-
 export function ExperienceDetail({
     title,
     description,
@@ -42,13 +33,11 @@ export function ExperienceDetail({
     imageSrc,
     duration,
     players,
-    difficulty,
     minAge,
     features,
     trailerUrl,
 }: ExperienceDetailProps) {
     const embedUrl = trailerUrl ? toEmbedUrl(trailerUrl) : null
-    const badgeCls = difficultyColor[difficulty] ?? 'bg-primary/20 text-primary border-primary/30'
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -69,9 +58,6 @@ export function ExperienceDetail({
                 {/* Hero content pinned to the bottom */}
                 <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-14">
                     <div className="container mx-auto px-4 md:px-6">
-                        <Badge className={`mb-4 border text-sm font-semibold px-3 py-1 ${badgeCls}`}>
-                            {difficulty}
-                        </Badge>
                         <h1 className="text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-2xl mb-4 leading-none">
                             {title}
                         </h1>
@@ -173,16 +159,6 @@ export function ExperienceDetail({
                                     <div>
                                         <div className="text-xs text-muted-foreground uppercase tracking-wide">Mindestalter</div>
                                         <div className="font-semibold">{minAge}</div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                        <Zap className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <div className="text-xs text-muted-foreground uppercase tracking-wide">Schwierigkeit</div>
-                                        <div className="font-semibold">{difficulty}</div>
                                     </div>
                                 </div>
                             </div>
