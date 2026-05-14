@@ -87,6 +87,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         category: 'shooter',
         bookingMode: 'shooter',
         title: 'After the Fall',
+        trailerUrl: 'https://youtu.be/C-alM4V4VmM?t=3',
         description: 'an epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.',
         longDescription: `An epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.
 
@@ -117,6 +118,7 @@ Explore the remains of a civilization ground to a halt in an alternate 1980s, cr
         category: 'escape',
         bookingMode: 'escape',
         title: 'Mansion of Death',
+        trailerUrl: 'https://www.youtube.com/watch?v=aUcChw5q7tY',
         description: 'Escape the mansion… or join its secrets',
         longDescription: `Mansion of Death ist ein Multiplayer-Virtual-Reality-Horrorspiel, das die Spieler tief in ein mysteriöses, verwunschenes Herrenhaus entführt.
 Als 45-minütiges Escape-Room-Erlebnis konzipiert, fordert es Gruppen dazu heraus, gemeinsam Rätsel zu lösen, Geheimnisse aufzudecken und die Schrecken im Inneren zu überleben.
@@ -142,6 +144,7 @@ Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, 
         category: 'escape',
         bookingMode: 'escape',
         title: 'Riddle of Ruins',
+        trailerUrl: 'https://www.youtube.com/watch?v=bhRei3Q9QSU',
         description: 'Betritt den uralten Tempel, löse tödliche Rätsel, entdecke verborgene Schätze und beweise dich im ultimativen VR-Abenteuer.',
         longDescription: `Willkommen, Abenteurer, bei „Riddle of Ruins: VR Adventure“! Schlüpft in die Rolle wagemutiger Teilnehmer, die sich Woche für Woche in einen uralten Tempel wagen, um ihren Verstand und ihr Glück auf die Probe zu stellen.
 Löst knifflige Rätsel, deckt verborgene Geheimnisse auf und jagt nach verlorenen Schätzen – in einem vollkommen immersiven Virtual-Reality-Erlebnis.
