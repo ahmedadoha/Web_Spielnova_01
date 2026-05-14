@@ -72,7 +72,7 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         imageSrc: '/Arizona1.avif',
         duration: '30–60 Minuten',
         players: '1–4 Spieler',
-        difficulty: 'Mittel',
+//        difficulty: 'Mittel',
         minAge: '12 Jahre',
         features: [
             'Intense Co-op VR Action',
@@ -99,7 +99,7 @@ Explore the remains of a civilization ground to a halt in an alternate 1980s, cr
         imageSrc: '/After_the_fall1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: 'Mittel',
+//        difficulty: 'Mittel',
         minAge: '12 Jahre',
         features: [
             'Sci-Fi Setting',
@@ -130,7 +130,7 @@ Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, 
         imageSrc: '/mansion1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: 'Mittel',
+//        difficulty: 'Mittel',
         minAge: '12 Jahre',
         features: [
             'Ecape rooms',
@@ -152,7 +152,7 @@ Seid ihr bereit, die Herausforderung anzunehmen und zum ultimativen Tempelforsch
         imageSrc: '/riddle2.png',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        difficulty: 'Mittel',
+//        difficulty: 'Mittel',
         minAge: '7 Jahre',
         features: [
             'Abenteuer',
