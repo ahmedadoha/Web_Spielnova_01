@@ -26,7 +26,6 @@ export default function Home() {
                 imageSrc="/Shooter_games.jpg"
                 duration="30-60 Min"
                 players="2-4 Spieler"
-                difficulty="Mittel - Schwer"
                 category="Beliebt"
                 href="/shooter_games"
               />
@@ -38,7 +37,6 @@ export default function Home() {
                 imageSrc="/adventure1.jpg"
                 duration="60 Min"
                 players="2-4 Spieler"
-                difficulty="Leicht - Schwer"
                 href="/escaperooms"
               />
             </div>

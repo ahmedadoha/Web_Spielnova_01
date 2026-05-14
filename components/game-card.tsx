@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, Users, Zap } from "lucide-react"
+import { Clock, Users } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,6 @@ interface GameCardProps {
     imageSrc: string
     duration?: string
     players?: string
-    difficulty?: string
     href: string
     category?: string
     buttonText?: string
@@ -36,7 +35,6 @@ export function GameCard({
     imageSrc,
     duration,
     players,
-    difficulty,
     href,
     category,
     buttonText,

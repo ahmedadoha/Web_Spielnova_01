@@ -19,7 +19,6 @@ export default function ShooterGamesPage() {
                         imageSrc={game.imageSrc}
                         duration={game.duration}
                         players={game.players}
-                        difficulty={game.difficulty}
                         href={`/experience/${game.slug}`}
                     />
                 ))}
