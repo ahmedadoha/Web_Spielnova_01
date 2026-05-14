@@ -6,26 +6,26 @@
  * HOW TO ADD OR CHANGE A GAME (no database or programming needed):
  *
  * 1. Copy any existing entry below and paste it at the end of
- *    the correct category (shooter or escape).
+ * the correct category (shooter or escape).
  *
  * 2. Fill in each field:
- *    - slug:            URL-safe unique ID, e.g. "my-new-game" (no spaces, no capitals)
- *    - title:           Display name shown to customers
- *    - description:     One-sentence teaser (shown on listing cards)
- *    - longDescription: Full story/description (shown on the detail page)
- *    - imageSrc:        Either a path to an image in /public/ (e.g. "/my-game-poster.jpg")
- *                       or an https:// URL from the internet.
- *                       → If using /public/: upload the file there first.
- *                       → If using a URL: the domain must be listed in next.config.ts → images → remotePatterns.
- *    - duration:        e.g. "30 Minuten", "30–60 Minuten"
- *    - players:         e.g. "2–4 Spieler", "2–8 Spieler"
- *    - minAge:          e.g. "10 Jahre", "16 Jahre"
- *    - features:        List of up to 4 bullet points shown on the detail page
- *    - category:        "shooter" or "escape" — determines which listing page it appears on
- *    - bookingMode:     Always match category: "shooter" or "escape"
- *    - trailerUrl:      (optional) YouTube link for the game trailer, e.g.
- *                       "https://www.youtube.com/watch?v=XXXXXXXXXXX"
- *                       Leave out the field entirely if there is no trailer yet.
+ * - slug:            URL-safe unique ID, e.g. "my-new-game" (no spaces, no capitals)
+ * - title:           Display name shown to customers
+ * - description:     One-sentence teaser (shown on listing cards)
+ * - longDescription: Full story/description (shown on the detail page)
+ * - imageSrc:        Either a path to an image in /public/ (e.g. "/my-game-poster.jpg")
+ * or an https:// URL from the internet.
+ * → If using /public/: upload the file there first.
+ * → If using a URL: the domain must be listed in next.config.ts → images → remotePatterns.
+ * - duration:        e.g. "30 Minuten", "30–60 Minuten"
+ * - players:         e.g. "2–4 Spieler", "2–8 Spieler"
+ * - minAge:          e.g. "10 Jahre", "16 Jahre"
+ * - features:        List of up to 4 bullet points shown on the detail page
+ * - category:        "shooter" or "escape" — determines which listing page it appears on
+ * - bookingMode:     Always match category: "shooter" or "escape"
+ * - trailerUrl:      (optional) YouTube link for the game trailer, e.g.
+ * "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+ * Leave out the field entirely if there is no trailer yet.
  *
  * 3. Save the file. The change appears instantly on the website.
  *
@@ -63,19 +63,17 @@ export const GAMES: Game[] = [
         bookingMode: 'shooter',
         title: 'Arizona Sunshine',
         trailerUrl: 'https://www.youtube.com/watch?v=O2ErTEHPSCg',
-        description: 'Das Remake von Arizona Sunshine® hebt das preisgekrönte Originalspiel auf ein neues Niveau – komplett neu aufgebaut',
-        longDescription: `mit atemberaubender VR-Grafik sowie VR-Kampfmechaniken und Waffen der nächsten Generation. 
-Stelle dich den Untoten allein oder gemeinsam mit bis zu drei weiteren Überlebenden in einem postapokalyptischen Südwesten der USA, der von Zombies überrannt wurde.
-In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu überleben. Deckt euch gegenseitig den Rücken, teilt Munition und findet den Weg durch die verlassene Stadt zur Evakuierungszone.`,
+        description: 'Das preisgekrönte VR-Zombie-Original, jetzt komplett neu aufgebaut! Überlebe die sengende Hitze der Post-Apokalypse mit atemberaubender Grafik und Next-Gen-Waffen-Action.',
+        longDescription: `Arizona Sunshine® Remake hebt das legendäre Survival-Erlebnis auf ein völlig neues Niveau. Die Welt wird von Untoten (den "Freds") überrannt, doch als du eine menschliche Stimme aus dem Radio hörst, keimt neue Hoffnung auf. Ausgerüstet mit durch echte Bewegungen gesteuerten Waffen und knapper Munition kämpfst du dich durch die post-apokalyptischen Landschaften des Grand Canyon State. Erlebe die komplette Story inklusive aller Erweiterungen (Dead Man DLC, The Damned DLC u.v.m.), entweder alleine oder im packenden Koop-Modus mit Freunden. Das brandneue Mutilations-System macht den Überlebenskampf intensiver, blutiger und realistischer als je zuvor!`,
         imageSrc: '/ArizonaSS16x9.png',
         duration: '30–60 Minuten',
         players: '1–4 Spieler',
         minAge: '12 Jahre',
         features: [
-            'Intense Co-op VR Action',
-            'Haptisches Feedback',
-            'Team-basiertes Gameplay',
-            'Realistische Waffenmechanik',
+            'Next-Gen Nah- und Fernkampf',
+            'Koop-Multiplayer bis 4 Spieler',
+            'Neues Mutilations- und Gore-System',
+            'Inklusive aller Original-DLCs',
         ],
     },
 
@@ -85,23 +83,17 @@ In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu übe
         bookingMode: 'shooter',
         title: 'After the Fall',
         trailerUrl: 'https://youtu.be/C-alM4V4VmM?t=3',
-        description: 'an epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.',
-        longDescription: `An epic multiplayer VR action FPS with seamless, co-operative gameplay at its core that pits up to four players against a vast, hostile VR world in a raging fight for survival.
-
-Set in the ice-covered ruins of LA nearly 20 years after the apocalypse, After the Fall combines a living, breathing VR world shared with players from all over the world, a cinematic and atmospheric campaign, action-packed solo and multiplayer gameplay, and endgame built from the ground up for VR.
-
-2005, LA. A generation has passed since a mysterious outbreak caused by the excessive use of designer drugs birthed the terrible Snowbreed, infesting our cities and collapsing civilization.
-You, one of the survivors seemingly immune to the side-effects of the substances, are humanity's last hope of resurgence. 
-Explore the remains of a civilization ground to a halt in an alternate 1980s, craft deadly weapons and wield devastating powers with real-life movements as you develop your combat style, and join forces with players worldwide as you go head to head with relentless hordes and larger-than-life bosses in a bid to take back the city. It?s time.`,
+        description: 'Tauche ein in die eisigen Ruinen eines dystopischen L.A. der 80er Jahre. Ein epischer VR-Action-Shooter, in dem du dich im 4-Spieler-Koop durch gnadenlose Horden kämpfst!',
+        longDescription: `Ein Vierteljahrhundert nach der Apokalypse hat eine verheerende Eiszeit Los Angeles in eine zugefrorene Hölle verwandelt. Ein mysteriöser Virus hat die Menschheit in mutierte, blutrünstige Monster verwandelt: die "Snowbreed". Als einer der wenigen immunen Überlebenden bist du die letzte Hoffnung der Menschheit. In "After the Fall" begibst du dich mit bis zu drei Freunden in ein nahtloses Multiplayer-Erlebnis. Erkunde die vereisten Ruinen der Stadt, crafte tödliche Waffen und nutze verheerende Kräfte, die mit deinen echten Körperbewegungen gesteuert werden. Stelle dich gigantischen Bossen und sichere das Überleben eures Squads in einem unerbittlichen Kampf um die Zukunft!`,
         imageSrc: '/After_the_fall1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         minAge: '12 Jahre',
         features: [
-            'Sci-Fi Setting',
-            'Laserwaffen',
-            'Bosskämpfe',
-            'Highscore-Jagd',
+            '4-Spieler Koop-Multiplayer',
+            'Eisiges 1980er L.A. Setting',
+            'Riesige Mutanten-Horden & kolossale Bosse',
+            'Umfangreiches Waffen-Crafting',
         ],
     },
 
@@ -115,22 +107,17 @@ Explore the remains of a civilization ground to a halt in an alternate 1980s, cr
         bookingMode: 'escape',
         title: 'Mansion of Death',
         trailerUrl: 'https://www.youtube.com/watch?v=aUcChw5q7tY',
-        description: 'Escape the mansion… or join its secrets',
-        longDescription: `Mansion of Death ist ein Multiplayer-Virtual-Reality-Horrorspiel, das die Spieler tief in ein mysteriöses, verwunschenes Herrenhaus entführt.
-Als 45-minütiges Escape-Room-Erlebnis konzipiert, fordert es Gruppen dazu heraus, gemeinsam Rätsel zu lösen, Geheimnisse aufzudecken und die Schrecken im Inneren zu überleben.
-        
-Jede Ecke des Herrenhauses birgt ein neues Geheimnis. Die Spieler müssen kommunizieren, das Haus erkunden und blitzschnell denken, um zu entkommen, bevor die Zeit abläuft.
-Mit seinem immersiven Setting und seiner spannungsgeladenen Atmosphäre bietet „Mansion of Death“ eine einzigartige Mischung aus Horror und kniffligen Herausforderungen.
-        
-Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, die nach ihrem nächsten unvergesslichen Abenteuer suchen.`,
+        description: 'Betritt eine von übernatürlichen Mächten heimgesuchte Villa. Löst im Team düstere Rätsel und entkommt, bevor ihr selbst zu den Geheimnissen des Hauses werdet!',
+        longDescription: `Mansion of Death ist das ultimative Horror-Escape-Room-Erlebnis in Virtual Reality. Du und dein Team taucht tief in ein altes, verlassenes Herrenhaus ein, das voller paranormaler Aktivitäten, versteckter Passagen und mysteriöser Geheimnisse steckt. In diesem rund 45-minütigen, kooperativen Abenteuer müsst ihr in schwach beleuchteten Korridoren Hinweise sammeln und zusammenarbeiten, um verschlossene Türen zu öffnen. Doch die Zeit drängt und düstere Geister lauern in jeder Ecke. Nur durch klare Kommunikation, wahren Teamgeist und Nerven aus Stahl könnt ihr die Rätsel lösen und dem Horror entfliehen!`,
         imageSrc: '/mansion1.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         minAge: '12 Jahre',
         features: [
-            'Ecape rooms',
-            'Thriller',
-            'Eine Atmosphäre voller Geheimnisse und Abenteuer',
+            'Spukhaus-Setting mit Schock-Faktor',
+            'Teamwork-basierte Logikrätsel',
+            'Kooperatives Erlebnis',
+            'Atmosphärischer Nervenkitzel',
         ],
     },
 
@@ -140,19 +127,17 @@ Dieses VR-Erlebnis ist perfekt für Nervenkitzel-Suchende und Escape-Room-Fans, 
         bookingMode: 'escape',
         title: 'Riddle of Ruins',
         trailerUrl: 'https://www.youtube.com/watch?v=bhRei3Q9QSU',
-        description: 'Betritt den uralten Tempel, löse tödliche Rätsel, entdecke verborgene Schätze und beweise dich im ultimativen VR-Abenteuer.',
-        longDescription: `Willkommen, Abenteurer, bei „Riddle of Ruins: VR Adventure“! Schlüpft in die Rolle wagemutiger Teilnehmer, die sich Woche für Woche in einen uralten Tempel wagen, um ihren Verstand und ihr Glück auf die Probe zu stellen.
-Löst knifflige Rätsel, deckt verborgene Geheimnisse auf und jagt nach verlorenen Schätzen – in einem vollkommen immersiven Virtual-Reality-Erlebnis.
-Seid ihr bereit, die Herausforderung anzunehmen und zum ultimativen Tempelforscher zu werden? Schließt euch uns an und findet es heraus! `,
+        description: 'Schlüpfe in die Rolle wagemutiger Tempelforscher! Entdecke vergessene Schätze in einem uralten Tempel voller versteckter Fallen und kniffliger Rätsel.',
+        longDescription: `Willkommen bei Riddle of Ruins, einem wunderschön gestalteten und fesselnden VR-Escape-Abenteuer! Du und dein Team betretet eine archäologische Ausgrabungsstätte, die tief in einem uralten, mystischen Tempel verborgen liegt. Um einen alten Fluch zu brechen und die verborgenen Schätze zu bergen, müsst ihr komplexe Umgebungsrätsel lösen und geheime Kammern öffnen. Diese immersive Welt erfordert scharfe Beobachtungsgabe, logisches Denken und exzellente Kommunikation innerhalb eures Teams. Perfekt für Rätsel-Liebhaber, Familien und alle, die ihr Teamwork auf die ultimative Probe stellen wollen. Werdet ihr das Rätsel der Ruinen lüften?`,
         imageSrc: '/riddle2.png',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
         minAge: '7 Jahre',
         features: [
-            'Abenteuer',
-            'Rätsel',
-            'Zeitdruck',
-            'Teamwork erforderlich',
+            'Abenteuerliches Tempel-Setting',
+            'Knifflige Umgebungs- & Logikrätsel',
+            'Kooperatives Gameplay',
+            'Fördert Kommunikation und Teamwork',
         ],
     },
 ]
