@@ -69,7 +69,7 @@ export const GAMES: Game[] = [
         longDescription: `mit atemberaubender VR-Grafik sowie VR-Kampfmechaniken und Waffen der nächsten Generation. 
 Stelle dich den Untoten allein oder gemeinsam mit bis zu drei weiteren Überlebenden in einem postapokalyptischen Südwesten der USA, der von Zombies überrannt wurde.
 In diesem intensiven VR-Shooter müsst ihr als Team zusammenarbeiten, um zu überleben. Deckt euch gegenseitig den Rücken, teilt Munition und findet den Weg durch die verlassene Stadt zur Evakuierungszone.`,
-        imageSrc: '/Arizona1.avif',
+        imageSrc: '/ArizonaSS16x9.png',
         duration: '30–60 Minuten',
         players: '1–4 Spieler',
 //        difficulty: 'Mittel',
