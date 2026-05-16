@@ -144,7 +144,7 @@ export async function POST(request: Request) {
         const sessionExpiresAt = Math.floor(Date.now() / 1000) + 15 * 60
 
         const session = await stripe.checkout.sessions.create({
-            automatic_payment_methods: { enabled: true },
+            payment_method_types: ['card'],
             line_items: [
                 {
                     price_data: {
