@@ -1,7 +1,26 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
+import { GAME_BY_SLUG } from '@/lib/games'
 
 export const dynamic = 'force-dynamic'
+
+// Enrich the raw DB booking row with derived display fields that the
+// success page expects but that are not stored as separate columns.
+function formatBooking(booking: Record<string, unknown>) {
+    const startDate = new Date(booking.start_time as string)
+    const endDate   = new Date(booking.end_time   as string)
+    return {
+        ...booking,
+        // "YYYY-MM-DD" — success page feeds this into new Date() with timeZone:'UTC'
+        date:             startDate.toISOString().split('T')[0],
+        // "HH:MM" — stored as local time naive-UTC
+        time:             startDate.toISOString().slice(11, 16),
+        duration_minutes: Math.round((endDate.getTime() - startDate.getTime()) / 60000),
+        game_name:        GAME_BY_SLUG[booking.game_slug as string]?.title
+                            || booking.game_slug
+                            || booking.game_mode,
+    }
+}
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -57,7 +76,7 @@ export async function GET(request: Request) {
 
         // Webhook already ran and confirmed the booking.
         if (booking?.status === 'confirmed') {
-            return NextResponse.json({ success: true, booking })
+            return NextResponse.json({ success: true, booking: formatBooking(booking) })
         }
 
         // Webhook already ran and cancelled it (slot conflict — belt-and-braces).
@@ -67,7 +86,7 @@ export async function GET(request: Request) {
 
         // Booking is still pending_payment — webhook hasn't processed yet.
         // Tell the client to retry in a moment.
-        return NextResponse.json({ success: true, booking, processing: true })
+        return NextResponse.json({ success: true, booking: formatBooking(booking), processing: true })
 
     } catch (err: any) {
         console.error('Verification Error', err)
