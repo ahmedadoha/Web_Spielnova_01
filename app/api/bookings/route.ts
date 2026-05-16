@@ -139,9 +139,9 @@ export async function POST(request: Request) {
         }
 
         // Create Stripe Checkout Session
-        // expires_at: 15 minutes from now — after this Stripe refuses payment and
-        // redirects the customer to cancel_url so our cron job can free the slot cleanly.
-        const sessionExpiresAt = Math.floor(Date.now() / 1000) + 15 * 60
+        // expires_at: 30 minutes from now (Stripe minimum) — after this Stripe refuses
+        // payment and redirects the customer to cancel_url so the slot is freed.
+        const sessionExpiresAt = Math.floor(Date.now() / 1000) + 30 * 60
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
