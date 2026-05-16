@@ -155,9 +155,7 @@ export async function POST(request: NextRequest) {
     // Fired async — failure is non-fatal, the booking is already saved.
     if (customer_email) {
         const paymentLabel =
-            payment_method === 'card'  ? 'Kartenzahlung (vor Ort)' :
-            payment_method === 'free'  ? 'Gratis (Freikarte)'      :
-                                         'Barzahlung (vor Ort)'
+            payment_method === 'card' ? 'Kartenzahlung (vor Ort)' : 'Barzahlung (vor Ort)'
 
         sendBookingConfirmation({
             customerName:  customer_name,
