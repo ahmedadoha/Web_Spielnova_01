@@ -144,7 +144,7 @@ export async function POST(request: Request) {
         const sessionExpiresAt = Math.floor(Date.now() / 1000) + 15 * 60
 
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card', 'paypal'], // PayPal requires config, keeping simple
+            automatic_payment_methods: { enabled: true },
             line_items: [
                 {
                     price_data: {
@@ -169,7 +169,9 @@ export async function POST(request: Request) {
         // Return the checkout URL
         return NextResponse.json({ success: true, url: session.url })
 
-    } catch (err) {
-        return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    } catch (err: unknown) {
+        console.error('Booking error:', err)
+        const message = err instanceof Error ? err.message : 'Unknown error'
+        return NextResponse.json({ error: `Buchungsfehler: ${message}` }, { status: 500 })
     }
 }

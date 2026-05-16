@@ -27,6 +27,7 @@ export default function BookingTable({ bookings, onSelect, onRefresh }: Props) {
 
     const filtered = bookings.filter(b => {
         if (b.status === 'deleted') return false
+        if (b.status === 'pending_payment') return false
         if (!search) return true
         const q = search.toLowerCase()
         return (

@@ -55,10 +55,13 @@ export async function GET(request: NextRequest) {
     const from = searchParams.get('from')
     const to = searchParams.get('to')
 
-    // Query using start_time since that's what the original schema uses
+    // Query using start_time since that's what the original schema uses.
+    // Exclude pending_payment bookings: they have no confirmed payment yet and
+    // should not appear in the admin board until payment is completed.
     let query = supabase
         .from('bookings')
         .select('*')
+        .neq('status', 'pending_payment')
         .order('start_time', { ascending: true })
 
     if (date) {
