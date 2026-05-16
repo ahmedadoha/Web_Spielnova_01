@@ -214,7 +214,6 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
                             >
                                 <option value="cash">💵 Barzahlung</option>
                                 <option value="card">💳 Kartenzahlung</option>
-                                <option value="free">🎟️ Gratis (Freikarte)</option>
                             </select>
                         </Field>
 
