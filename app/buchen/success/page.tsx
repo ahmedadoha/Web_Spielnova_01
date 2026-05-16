@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { Check, Loader2, XCircle } from "lucide-react"
+import { Check, Loader2, XCircle, CalendarX2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
 import Link from "next/link"
@@ -19,26 +19,43 @@ interface BookingSummary {
     total_amount?: number
 }
 
+const MAX_RETRIES = 10
+
 function SuccessContent() {
     const searchParams = useSearchParams()
     const sessionId = searchParams.get("session_id")
-    const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
+    const [status, setStatus] = useState<"loading" | "success" | "slot_taken" | "error">("loading")
     const [booking, setBooking] = useState<BookingSummary | null>(null)
 
     useEffect(() => {
         if (!sessionId) { setStatus("error"); return }
 
-        fetch(`/api/bookings/confirm?session_id=${sessionId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    setBooking(data.booking ?? null)
-                    setStatus("success")
-                } else {
-                    setStatus("error")
-                }
-            })
-            .catch(() => setStatus("error"))
+        let retries = 0
+
+        function poll() {
+            fetch(`/api/bookings/confirm?session_id=${sessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.slotTaken) {
+                        setStatus("slot_taken")
+                    } else if (data.success && !data.processing) {
+                        setBooking(data.booking ?? null)
+                        setStatus("success")
+                    } else if (data.success && data.processing && retries < MAX_RETRIES) {
+                        retries++
+                        setTimeout(poll, 2000)
+                    } else if (data.success) {
+                        // Max retries but payment was authorised — show success anyway
+                        setBooking(data.booking ?? null)
+                        setStatus("success")
+                    } else {
+                        setStatus("error")
+                    }
+                })
+                .catch(() => setStatus("error"))
+        }
+
+        poll()
     }, [sessionId])
 
     if (status === "loading") {
@@ -47,6 +64,34 @@ function SuccessContent() {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 <h1 className="text-2xl font-bold">Zahlung wird überprüft...</h1>
                 <p className="text-muted-foreground">Bitte schließe das Fenster nicht.</p>
+            </div>
+        )
+    }
+
+    if (status === "slot_taken") {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
+                <div className="h-24 w-24 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-500">
+                    <CalendarX2 className="h-12 w-12" />
+                </div>
+                <h1 className="text-3xl font-extrabold">Zeitfenster leider vergeben</h1>
+                <p className="text-muted-foreground max-w-md text-lg leading-relaxed">
+                    Dieses Zeitfenster wurde kurz vor Abschluss deiner Zahlung von jemand anderem gebucht.
+                </p>
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-5 py-4 max-w-md">
+                    <p className="text-amber-300 font-semibold">
+                        ✅ Deine Karte wurde <u>nicht</u> belastet.
+                    </p>
+                    <p className="text-muted-foreground text-sm mt-1">
+                        Die Reservierung deines Betrags wurde sofort storniert — es wurde kein Geld abgebucht.
+                    </p>
+                </div>
+                <p className="text-muted-foreground max-w-sm">
+                    Bitte wähle einen anderen freien Termin. Wir freuen uns, dich bald bei Spielnova begrüßen zu dürfen!
+                </p>
+                <Button asChild size="lg" className="px-8 font-bold mt-2 shadow-[0_0_20px_rgba(0,240,255,0.4)]">
+                    <Link href="/buchen">Anderen Termin wählen</Link>
+                </Button>
             </div>
         )
     }

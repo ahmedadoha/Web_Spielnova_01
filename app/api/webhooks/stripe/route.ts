@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { sendBookingConfirmation, sendSlotTakenEmail } from '@/lib/email';
+import { sendBookingConfirmation } from '@/lib/email';
 import { GAME_BY_SLUG } from '@/lib/games';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
@@ -67,19 +67,11 @@ export async function POST(request: Request) {
 
         if (conflict && conflict.length > 0) {
             // Slot taken — void the card authorisation. Nothing is charged.
+            // The customer is shown a German "slot taken" message on our website
+            // and directed back to the booking page to choose another slot.
             console.log(`Webhook: slot conflict for booking ${bookingId} — voiding PaymentIntent ${paymentIntentId}`);
             await stripe.paymentIntents.cancel(paymentIntentId).catch(console.error);
             await supabaseAdmin.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
-
-            if (booking.customer_email) {
-                const startDate = new Date(booking.start_time);
-                sendSlotTakenEmail({
-                    customerName:  booking.customer_name,
-                    customerEmail: booking.customer_email,
-                    date: startDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                    time: startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }),
-                }).catch(console.error);
-            }
             return NextResponse.json({ received: true });
         }
 

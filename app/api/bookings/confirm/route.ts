@@ -25,11 +25,15 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'No Booking ID on session' }, { status: 400 })
         }
 
-        // Accept the session as valid if the card was either already charged
-        // ('paid') or authorised and waiting for capture ('requires_capture').
-        // In both cases the webhook handles the DB update; we just return the
-        // booking data for the success page to display.
         const pi = session.payment_intent as { status: string } | null
+
+        // PaymentIntent voided by our webhook — the slot was taken by someone
+        // else and the card was never charged.
+        if (pi?.status === 'canceled') {
+            return NextResponse.json({ success: false, slotTaken: true })
+        }
+
+        // Session not authorised (customer didn't complete checkout).
         const isAuthorised =
             session.payment_status === 'paid' ||
             pi?.status === 'requires_capture'
@@ -38,7 +42,9 @@ export async function GET(request: Request) {
             return NextResponse.json({ success: false, status: session.payment_status })
         }
 
-        const { data, error } = await supabase
+        // Session is authorised — read the current booking status from the DB.
+        // The webhook updates it asynchronously, so we may need to poll.
+        const { data: booking, error } = await supabase
             .from('bookings')
             .select('*')
             .eq('id', bookingId)
@@ -49,7 +55,19 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Database error' }, { status: 500 })
         }
 
-        return NextResponse.json({ success: true, booking: data })
+        // Webhook already ran and confirmed the booking.
+        if (booking?.status === 'confirmed') {
+            return NextResponse.json({ success: true, booking })
+        }
+
+        // Webhook already ran and cancelled it (slot conflict — belt-and-braces).
+        if (booking?.status === 'cancelled') {
+            return NextResponse.json({ success: false, slotTaken: true })
+        }
+
+        // Booking is still pending_payment — webhook hasn't processed yet.
+        // Tell the client to retry in a moment.
+        return NextResponse.json({ success: true, booking, processing: true })
 
     } catch (err: any) {
         console.error('Verification Error', err)
