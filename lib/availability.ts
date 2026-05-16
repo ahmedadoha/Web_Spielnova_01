@@ -99,9 +99,10 @@ export async function checkSlotAvailability(
 
     if (!raw || raw.length === 0) return true
 
-    // Lazy expiry: treat pending_payment bookings older than 15 min as gone.
-    // This frees slots immediately without requiring a cron job.
-    const PENDING_EXPIRY_MS = 15 * 60 * 1000
+    // Lazy expiry: treat pending_payment bookings older than 30 min as gone.
+    // 30 min matches the Stripe Checkout Session lifetime so a slot is never
+    // shown as free while a customer is still in the payment flow.
+    const PENDING_EXPIRY_MS = 30 * 60 * 1000
     const now = Date.now()
     const bookings = raw.filter(b =>
         b.status !== 'pending_payment' ||

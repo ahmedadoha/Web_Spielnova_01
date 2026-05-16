@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const EXPIRY_MINUTES = 15
+const EXPIRY_MINUTES = 30 // matches Stripe Checkout Session lifetime
 
 export async function GET(request: Request) {
     // Verify the request comes from Vercel Cron (or an authorised caller)
