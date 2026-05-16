@@ -105,6 +105,66 @@ export async function sendBookingConfirmation(details: BookingDetails) {
 }
 
 // ---------------------------------------------------------------------------
+// Slot Taken (sent when a card authorisation is voided because another
+// customer confirmed the same slot first)
+// ---------------------------------------------------------------------------
+
+interface SlotTakenDetails {
+    customerName: string;
+    customerEmail: string;
+    date: string;
+    time: string;
+}
+
+export async function sendSlotTakenEmail(details: SlotTakenDetails) {
+    try {
+        const { customerName, customerEmail, date, time } = details;
+        const { data, error } = await resend.emails.send({
+            from: `Spielnova <${FROM_EMAIL}>`,
+            to: [customerEmail],
+            subject: 'Dein Zeitfenster wurde leider vergeben – Spielnova',
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
+                    <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 30px 20px; text-align: center;">
+                        <img src="${LOGO_URL}" alt="Spielnova Logo" style="max-width: 200px; height: auto; margin: 0 auto; display: block;" />
+                    </div>
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #ffffff; font-size: 24px; margin-top: 0;">Hey ${customerName.split(' ')[0]}, leider eine schlechte Nachricht 😔</h2>
+                        <p style="font-size: 16px; line-height: 1.6; color: #a1a1aa;">
+                            Dein Wunsch-Zeitfenster (<strong style="color:#ffffff;">${date} um ${time} Uhr</strong>) wurde kurz vor Abschluss deiner Zahlung von einer anderen Person gebucht.
+                        </p>
+                        <div style="background-color: #18181b; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ef4444;">
+                            <p style="margin: 0; color: #d4d4d8; font-size: 15px; line-height: 1.5;">
+                                ✅ <strong>Deine Karte wurde <u>nicht</u> belastet.</strong><br/>
+                                Die Reservierung deines Betrags wurde sofort storniert — es wurde kein Geld abgebucht.
+                            </p>
+                        </div>
+                        <p style="font-size: 15px; line-height: 1.6; color: #a1a1aa;">
+                            Bitte besuche unsere Buchungsseite und wähle einen anderen freien Termin. Wir freuen uns, dich bald bei Spielnova begrüßen zu dürfen!
+                        </p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="https://www.spielnova.de/buchen" style="background: linear-gradient(90deg, #3b82f6, #8b5cf6); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+                                Neuen Termin buchen
+                            </a>
+                        </div>
+                        <hr style="border: none; border-top: 1px solid #27272a; margin: 30px 0;" />
+                        <p style="text-align: center; color: #71717a; font-size: 14px; margin: 0;">
+                            Dein Spielnova Team<br/>
+                            ${LOCATION_HTML}
+                        </p>
+                    </div>
+                </div>
+            `,
+        });
+        if (error) console.error('Resend Error (slot-taken):', error);
+        return { success: !error, data };
+    } catch (err) {
+        console.error('Failed to send slot-taken email:', err);
+        return { success: false, error: err };
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Contact Form (forwarded to info@spielnova.de with reply-to set to sender)
 // ---------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const EXPIRY_MINUTES = 15
+const EXPIRY_MINUTES = 32 // matches Stripe session expires_at (30-min min + 2-min buffer)
 
 export async function GET(request: Request) {
     // Verify the request comes from Vercel Cron (or an authorised caller)

@@ -139,11 +139,18 @@ export async function POST(request: Request) {
         }
 
         // Create Stripe Checkout Session.
-        // No expires_at — Stripe's 30-min minimum is too tight given DB + network
-        // latency. Abandoned slots are freed by the 30-min lazy expiry in the
-        // availability logic and the cron job (/api/cron/expire-bookings).
+        // expires_at: 32 min gives a 2-min buffer above Stripe's 30-min minimum
+        //   while matching the lazy-expiry window — the slot and the session die
+        //   at the same moment so a customer can never pay for a freed slot.
+        // capture_method: 'manual' — the card is authorised but not charged here.
+        //   The webhook checks whether the slot is still free before capturing,
+        //   so a payment is never taken for an already-confirmed slot.
+        const sessionExpiresAt = Math.floor(Date.now() / 1000) + 32 * 60
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+            payment_intent_data: { capture_method: 'manual' },
+            expires_at: sessionExpiresAt,
             line_items: [
                 {
                     price_data: {

@@ -12,41 +12,47 @@ export async function GET(request: Request) {
     }
 
     try {
-        // Import stripe dynamically
         const { stripe } = await import('@/lib/stripe')
 
-        // 1. Retrieve the session from Stripe
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        // Retrieve the session and expand the payment_intent so we can inspect
+        // its status when capture_method is 'manual'.
+        const session = await stripe.checkout.sessions.retrieve(sessionId, {
+            expand: ['payment_intent'],
+        })
 
-        // 2. Check payment status
-        if (session.payment_status === 'paid') {
-            const bookingId = session.client_reference_id;
+        const bookingId = session.client_reference_id
+        if (!bookingId) {
+            return NextResponse.json({ error: 'No Booking ID on session' }, { status: 400 })
+        }
 
-            if (!bookingId) {
-                return NextResponse.json({ error: 'No Booking ID on session' }, { status: 400 })
-            }
+        // Accept the session as valid if the card was either already charged
+        // ('paid') or authorised and waiting for capture ('requires_capture').
+        // In both cases the webhook handles the DB update; we just return the
+        // booking data for the success page to display.
+        const pi = session.payment_intent as { status: string } | null
+        const isAuthorised =
+            session.payment_status === 'paid' ||
+            pi?.status === 'requires_capture'
 
-            // 3. Update Supabase Booking to 'confirmed'
-            // Ideally we check if it is already confirmed to avoid redundant writes
-
-            const { data, error } = await supabase
-                .from('bookings')
-                .update({ status: 'confirmed', payment_id: session.payment_intent as string })
-                .eq('id', bookingId)
-                .select()
-
-            if (error) {
-                console.error("Db Error", error)
-                return NextResponse.json({ error: 'Database update failed' }, { status: 500 })
-            }
-
-            return NextResponse.json({ success: true, booking: data[0] })
-        } else {
+        if (!isAuthorised) {
             return NextResponse.json({ success: false, status: session.payment_status })
         }
 
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('id', bookingId)
+            .single()
+
+        if (error) {
+            console.error('Confirm route DB error', error)
+            return NextResponse.json({ error: 'Database error' }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, booking: data })
+
     } catch (err: any) {
-        console.error("Verification Error", err)
+        console.error('Verification Error', err)
         return NextResponse.json({ error: err.message }, { status: 500 })
     }
 }

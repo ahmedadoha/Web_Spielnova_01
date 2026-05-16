@@ -45,9 +45,10 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Lazy expiry: ignore pending_payment bookings older than 15 min so that
+    // Lazy expiry: ignore pending_payment bookings older than 32 min so that
     // abandoned checkouts do not permanently block slots on the calendar.
-    const PENDING_EXPIRY_MS = 15 * 60 * 1000
+    // 32 min matches the Stripe session expires_at.
+    const PENDING_EXPIRY_MS = 32 * 60 * 1000
     const now = Date.now()
     const bookings = (raw ?? []).filter(b =>
         b.status !== 'pending_payment' ||
