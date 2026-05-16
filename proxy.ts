@@ -48,7 +48,14 @@ export async function proxy(request: NextRequest) {
         const now = Date.now()
         const lastActivityRaw = request.cookies.get(ACTIVITY_COOKIE)?.value
 
-        if (lastActivityRaw) {
+        // Belt-and-braces: if the user just signed in (within the last 5 min),
+        // skip the inactivity check entirely — they're definitely not idle.
+        // This also handles the edge case where cookie deletion is delayed.
+        const FIVE_MIN_MS = 5 * 60 * 1000
+        const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : 0
+        const justLoggedIn = now - lastSignIn < FIVE_MIN_MS
+
+        if (!justLoggedIn && lastActivityRaw) {
             const lastActivity = parseInt(lastActivityRaw, 10)
 
             if (!isNaN(lastActivity) && now - lastActivity > SEVEN_HOURS_MS) {
@@ -56,11 +63,21 @@ export async function proxy(request: NextRequest) {
                 const redirect = NextResponse.redirect(
                     new URL('/admin?timeout=1', request.url)
                 )
-                redirect.cookies.delete(ACTIVITY_COOKIE)
-                // Clear all Supabase session cookies so the browser session is gone
+                // Delete the activity cookie using the SAME path it was set with.
+                // cookies.delete() defaults to path:'/' which would leave the
+                // path:'/admin' cookie intact, causing the timeout loop on the
+                // next login attempt.
+                redirect.cookies.set(ACTIVITY_COOKIE, '', {
+                    path:     '/admin',
+                    maxAge:   0,
+                    httpOnly: true,
+                    secure:   process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                })
+                // Clear Supabase session cookies (set at path '/')
                 request.cookies.getAll().forEach(cookie => {
                     if (cookie.name.startsWith('sb-')) {
-                        redirect.cookies.delete(cookie.name)
+                        redirect.cookies.set(cookie.name, '', { maxAge: 0, path: '/' })
                     }
                 })
                 return redirect
