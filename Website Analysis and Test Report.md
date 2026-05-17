@@ -572,25 +572,47 @@ All 8 player counts × 2 durations × 2 day types = 32 combinations tested. **Al
 
 ## 13. Bugs Found
 
+Each bug is described with five lenses: what the bug is technically, the real-world business scenario where it causes a problem, exactly how it occurs, what the damage is if it happens, and how often you can expect to see it.
+
+---
+
 ### BUG-001 — Session expired banner says "15 Minuten" (should be "32 Minuten")
 
 **Severity:** Low  
-**File:** `app/buchen/page.tsx` line 43  
-**Description:** When a Stripe checkout session expires and the customer is redirected back to `/buchen?session_expired=1`, the UI displays:
+**File:** `app/buchen/page.tsx` line 43
+
+#### What the bug is
+When a Stripe checkout session expires and the customer is redirected back to `/buchen?session_expired=1`, the page displays:
 
 > "Deine Reservierung ist nach **15 Minuten** abgelaufen."
 
-The actual Stripe session expiry is **32 minutes** (set in `app/api/bookings/route.ts`: `sessionExpiresAt = now + 32 * 60`). The "15 Minuten" text is stale from an earlier version of the code.
+The actual Stripe session expiry is **32 minutes** (set in `app/api/bookings/route.ts`). The "15 Minuten" is leftover text from an older version of the code.
 
-**Fix:** Change `"nach 15 Minuten"` to `"nach 32 Minuten"` in the `SessionExpiredBanner` component.
+#### Business scenario — what could go wrong
+A customer starts the booking process, gets distracted (phone call, family member, checking their calendar), comes back after 20 minutes, and finds the Stripe payment page has expired. They are sent back to the booking page with the message that their reservation "expired after 15 minutes." The customer is confused and annoyed — they believe they had 15 minutes but they were actually gone for 20. They may contact you to complain that "the system is too fast" or that something is broken, when in reality they still had 12 more minutes and the message is simply wrong.
+
+In a worse case: a customer reads "15 minutes" before they start, deliberately works quickly, and still times out at 17 minutes — and cannot understand why, because the page told them 15 was the limit.
+
+#### How it occurs
+The customer opens the booking wizard, selects all options, fills in their details, clicks submit, and is redirected to Stripe. If they do not complete payment within 32 minutes, Stripe closes the session and redirects them back to `/buchen?session_expired=1`. The banner is shown with the hardcoded wrong number.
+
+#### Impact
+No money is lost, no booking is corrupted. The only damage is to customer trust and your support workload (confused messages or phone calls). For a business that depends on word-of-mouth, a customer who thinks "the website doesn't work properly" may not return and may tell others.
+
+#### Likelihood: 🟡 Occasional
+Most customers complete payment in under 5 minutes. However, it is realistic that several customers per month get distracted, especially families coordinating times or groups of friends checking their schedules mid-booking. Every one of those customers will see the wrong number.
+
+**Fix:** Change `"nach 15 Minuten"` to `"nach 32 Minuten"` in the `SessionExpiredBanner` component. One word, two minutes of work.
 
 ---
 
 ### BUG-002 — Webhook conflict check ignores `arenas_count`
 
 **Severity:** Medium  
-**File:** `app/api/webhooks/stripe/route.ts` lines 59–76  
-**Description:** The webhook safety-net conflict check uses:
+**File:** `app/api/webhooks/stripe/route.ts` lines 59–76
+
+#### What the bug is
+After a customer completes Stripe payment, the webhook fires a safety check to make sure no one else took the slot while the customer was on the Stripe page. That check looks for any confirmed booking in the same time window:
 
 ```javascript
 .eq('status', 'confirmed')
@@ -600,16 +622,25 @@ The actual Stripe session expiry is **32 minutes** (set in `app/api/bookings/rou
 .limit(1)
 ```
 
-This checks if **any** confirmed booking overlaps the time window. However, there are **2 arenas**. Scenario:
+The problem: the check returns "conflict found" as soon as it finds **any** overlapping confirmed booking, even if that booking only uses **1 of the 2 available arenas**. Because the venue has 2 arenas, one of them can still be free. The check does not ask "are there enough arenas left?" — it just asks "is there anyone there at all?"
 
-1. Customer A books 1 arena at 15:00 → `confirmed`, `arenas_count = 1`
-2. Customer B books 2 arenas at 15:00 (group of 6) → completes Stripe payment
-3. Webhook for B finds A as a "conflict" → voids B's payment intent
-4. **B is charged nothing but rejected, even though 1 arena was free**
+#### Business scenario — what could go wrong
+It is a busy Saturday at 15:00. Customer A (a couple) books 1 arena and pays — their booking is confirmed. Ten minutes later, a group of 6 friends (Customer B) selects the 15:00 slot, goes through the booking form, and pays on Stripe. The webhook fires for Customer B's payment. It finds Customer A's booking overlapping the same time. It concludes "conflict" and cancels Customer B's booking — voiding their payment authorisation without charging them. Customer B lands on the "Zeitfenster leider vergeben" screen. They had done nothing wrong. The second arena was completely free. Spielnova loses a €140+ group booking for no reason.
 
-The RPC correctly handles this with `SUM(arenas_count) > 2`, but the webhook safety net is too strict.
+#### How it occurs
+This can only happen when **both of the following are true at the same time**:
+1. Exactly one confirmed booking exists for a given slot (1 arena occupied, 1 free)
+2. A second group of more than 4 people tries to book the same slot (needing 2 arenas) **and** pays just as the first booking is being confirmed
 
-**Fix:** The webhook conflict check should sum arenas:
+The timing requirement (concurrent payments, overlapping time window) keeps this rare, but it is a real code path that runs on every payment.
+
+#### Impact
+A legitimate paying customer is turned away despite a free arena being available. They are not charged (correct), but they lose their time, their enthusiasm, and their trust. They will likely not try again immediately. For a large group, this represents €100–€200+ in lost revenue per incident. Additionally, because the customer sees "Zeitfenster vergeben," they may incorrectly believe that slot is full and look elsewhere, when in fact it still has one free arena.
+
+#### Likelihood: 🟠 Uncommon but realistic
+On busy days (Friday, Saturday) when both arenas are popular, this scenario can realistically occur once every few weeks. As the venue grows busier, the probability increases. It is unlikely on quiet weekday afternoons.
+
+**Fix:** The webhook should sum `arenas_count` across overlapping confirmed bookings and only cancel if the total exceeds 2:
 ```javascript
 const { data: overlapping } = await supabaseAdmin
     .from('bookings')
@@ -628,12 +659,33 @@ if (occupied + (booking.arenas_count || 1) > 2) { /* cancel */ }
 ### BUG-003 — No server-side validation of `gameMode` and `playerCount`
 
 **Severity:** Medium (data integrity)  
-**File:** `app/api/bookings/route.ts`  
-**Description:** The public booking API does not validate:
+**File:** `app/api/bookings/route.ts`
 
-- `gameMode` — any arbitrary string is accepted (e.g. `"admin"`, `"free"`, `""`)
-- `gameSlug` — any string is accepted (could insert `"internal"` slug from admin bookings)
-- `playerCount` — no min (1) or max (8) bounds check. A request with `playerCount = 0` creates a free booking; `playerCount = 999` creates an absurd arena calculation.
+#### What the bug is
+The public booking API accepts `gameMode`, `gameSlug`, and `playerCount` directly from the request body without checking whether the values are valid. Specifically:
+
+- `gameMode` — any string is accepted. The booking form only sends `"shooter"` or `"escape"`, but a direct API call can send anything: `""`, `"free"`, `"vip"`, `"admin"`.
+- `gameSlug` — any string is accepted, including slugs that belong to internal/admin-only categories.
+- `playerCount` — no minimum or maximum check. The booking form limits selection to 1–8, but a direct API call can send `0`, `-1`, or `999`.
+
+#### Business scenario — what could go wrong
+**Scenario A — zero-price booking via playerCount = 0:**
+The pricing formula is `Math.floor(0 / 4) × teamRate + (0 % 4) × singleRate = 0`. A crafted API call with `playerCount: 0` creates a booking and a Stripe session for **€0.00**. Stripe will process a €0 payment intent — which succeeds automatically without any card details. The booking is confirmed. A slot has been taken for free.
+
+**Scenario B — junk data pollutes admin reporting:**
+A curious person (or a competitor) submits bookings with `gameMode: "test123"` and `gameSlug: "hack"`. These bookings appear in the admin dashboard, create Stripe checkout sessions for garbage games, and skew any analytics or reporting. Even if they are abandoned and expire, they clutter the database and may cause confusion for staff ("what is this booking for 'hack'?").
+
+**Scenario C — playerCount = 999 causes unexpected pricing:**
+`playerCount: 999` → `teamCount = 249`, `singleCount = 3`. The calculated price would be `249 × €90 + 3 × €24.90 = €22,410 + €74.70 = €22,484.70`. Stripe would attempt to create a checkout session for that amount. Stripe does have maximum amount limits (€99,999.99), so most absurd values would fail at Stripe — but the failure occurs after the booking row is already written to the database with `status = 'pending_payment'`, creating a ghost record that must be cleaned up by the cron job.
+
+#### How it occurs
+A normal customer using the website cannot trigger this — the booking wizard dropdown limits their choices. This requires someone to send a crafted HTTP request directly to `/api/bookings`, which is publicly accessible. No login, no special tools needed — a basic `curl` command or Postman is sufficient.
+
+#### Impact
+**For playerCount = 0:** Revenue loss (a free confirmed booking blocks a slot). **For junk gameMode/slug:** Database pollution, admin confusion, wasted slots. **For extreme playerCount:** Failed Stripe sessions, abandoned `pending_payment` rows in the DB, potential confusion for staff if they see unexpectedly large amounts. None of these are catastrophic, but all are avoidable with three lines of validation code.
+
+#### Likelihood: 🟡 Low for accidental, medium for intentional
+An ordinary customer will never hit this. Someone deliberately probing the API would find it within minutes of looking at the network requests in their browser's developer tools. As the venue grows more visible, the probability of someone experimenting with the API increases.
 
 **Fix:**
 ```typescript
@@ -651,61 +703,138 @@ if (!playerCount || playerCount < 1 || playerCount > 8) {
 ### BUG-004 — Contact form email fields not HTML-escaped
 
 **Severity:** Low  
-**File:** `lib/email.ts`, `sendContactEmail()`  
-**Description:** The `senderName` and `subject` fields are injected directly into HTML without escaping:
+**File:** `lib/email.ts`, `sendContactEmail()`
+
+#### What the bug is
+When someone submits the contact form, the `senderName` and `subject` fields are pasted directly into the HTML of the internal email sent to `info@spielnova.de` without sanitisation:
 ```javascript
 <td>${senderName}</td>
 <td>${subject}</td>
 ```
-If a sender submits `<b>Hello</b>` or `<img src=x onerror=alert(1)>`, the HTML is rendered in the internal email. Since only `info@spielnova.de` receives this, the practical risk is low, but it is a code quality issue.
+The `message` body is correctly sanitised (the code replaces `<` and `>`). The name and subject are not.
 
-The `message` field is correctly escaped (replaces `<` and `>`). ✅
+#### Business scenario — what could go wrong
+Someone submits a contact enquiry with a name like `<b style="color:red">URGENT REFUND</b>` or a subject of `<h1>Your account has been suspended</h1>`. The internal email received by your staff renders the injected HTML, potentially making a fake or misleading message look official. A more sophisticated attacker could inject an `<img>` tag pointing to their own server to track when the email is opened (pixel tracking), or attempt to confuse staff with fake invoices or warnings styled to look legitimate.
 
-**Fix:** Apply the same escaping to `senderName` and `subject`.
+#### How it occurs
+A person opens the contact form at `/kontakt`, fills in a name and subject containing HTML tags, and submits the form. No account, no login, no special tools required.
+
+#### Impact
+The email is only ever sent to `info@spielnova.de` (your internal inbox), never to a customer. This significantly limits the blast radius. The realistic worst case is a misleading or visually confusing internal email that causes a staff member to take a wrong action (e.g., believing a fake refund request is legitimate). A broader web attack (XSS against customers) is not possible here because the injected content never reaches a browser — only an email client. Modern email clients also strip most dangerous tags automatically.
+
+#### Likelihood: 🟢 Rare
+Most contact form submissions are genuine enquiries. However, spam bots that abuse contact forms are very common, and many inject HTML or script tags automatically. You will likely receive such submissions eventually as the website becomes more indexed by search engines.
+
+**Fix:** Apply the same escaping used on `message` to `senderName` and `subject`:
+```javascript
+const escape = (s: string) => s.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+// Then in the template:
+<td>${escape(senderName)}</td>
+<td>${escape(subject)}</td>
+```
 
 ---
 
-### BUG-005 — `RESEND_API_KEY` missing causes silent failure
+### BUG-005 — `RESEND_API_KEY` missing causes silent email failure
 
 **Severity:** Low  
-**File:** `lib/email.ts` line 5  
-**Description:**
+**File:** `lib/email.ts` line 5
+
+#### What the bug is
+The Resend email client is initialised with a fallback dummy key if the real environment variable is not set:
 ```javascript
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build')
 ```
-If the environment variable is missing in production, all emails silently fail. The error is caught and logged but does not propagate or alert.
+This means that if `RESEND_API_KEY` is missing or accidentally deleted from the Vercel environment, the code does not crash. It initialises silently with a fake key. Every email attempt then fails with an authentication error from Resend — but that error is caught, logged, and swallowed. The booking process continues as if nothing went wrong.
 
-**Fix:** Add a startup check (similar to the Stripe key check):
+#### Business scenario — what could go wrong
+You redeploy the website, or a developer rotates environment variables and accidentally forgets to re-add `RESEND_API_KEY`. From that moment on:
+
+- Every customer who pays for a booking receives **no confirmation email**. They have no receipt, no date/time reminder, and no proof of booking. They will call or email to ask if their booking went through, or simply not show up because they are not sure.
+- Every contact form submission is silently lost. Enquiries from potential customers go unanswered with no trace.
+- The day-before reminder cron job runs but sends nothing, so customers with bookings the next day receive no reminder and are more likely to forget or arrive late.
+
+None of this triggers an alert. You would only discover the problem when customers start complaining — potentially days or weeks later.
+
+#### How it occurs
+Vercel environment variables must be set manually per-project and per-environment (Production / Preview / Development). They can be accidentally omitted during:
+- A project migration to a new Vercel account or team
+- A variable rotation or key renewal
+- Cloning the project or deploying a new branch environment
+- A Vercel account transfer
+
+#### Impact
+Customer experience damage: paying customers have no confirmation. Support workload spikes (phone calls, emails from worried customers). Potential no-shows because customers have no reminder. If undetected for a week, dozens of bookings may have gone unconfirmed by email. Recovery requires manually re-sending confirmations to all affected customers — which is not currently possible from the admin panel (it can send reminders but not re-send original confirmations).
+
+#### Likelihood: 🟡 Low but happens to every project eventually
+Environment variable accidents are one of the most common deployment mistakes in web development. It is a matter of when, not if.
+
+**Fix:** Add a startup warning (the Stripe key already has this pattern):
 ```javascript
 if (!process.env.RESEND_API_KEY) {
-    console.error('[FATAL] RESEND_API_KEY is not set. Emails will fail.')
+    console.error('[FATAL] RESEND_API_KEY is not set. All emails will fail silently.')
 }
 ```
+Better still: add a health-check endpoint (`/api/health`) that verifies all required environment variables are present, and monitor it.
 
 ---
 
-### BUG-006 — `arena_id` assignment for large groups is misleading
+### BUG-006 — `arena_id` stored as `"arena-1"` for large groups that use both arenas
 
-**Severity:** Low (cosmetic / data quality)  
-**File:** `app/buchen/page.tsx` lines 150–151  
-**Description:** For groups > 4 players (requiring 2 arenas), the submitted `arenaId` is still just `"arena-1"`:
+**Severity:** Low (data quality)  
+**File:** `app/buchen/page.tsx` lines 150–151
+
+#### What the bug is
+When a customer books for more than 4 people (which requires both arenas), the code that selects which arena to assign still only picks one:
 ```javascript
 if (availableSlots[selectedTime].arena1) assignedArena = "arena-1"
 else if (availableSlots[selectedTime].arena2) assignedArena = "arena-2"
 ```
-The booking is stored in the DB with `arena_id = 'arena-1'` even though 2 arenas are booked. The actual availability logic correctly uses `arenas_count = 2`, so no double-booking occurs, but the `arena_id` column becomes meaningless for large groups.
+The booking is saved to the database with `arena_id = 'arena-1'` and `arenas_count = 2`. So the record says: "this booking is in Arena 1" — even though Arena 2 is also fully occupied by the same group.
 
-**Fix:** For groups > 4, set `arenaId = "both"` or `"arena-1+arena-2"` to accurately reflect the booking.
+#### Business scenario — what could go wrong
+A staff member looks at the admin dashboard and sees two bookings at 15:00: one for 3 people in Arena 1, and one for 6 people — also showing Arena 1. They try to plan the afternoon setup and conclude Arena 2 is free. In reality, the 6-person group is using both arenas, and Arena 2 is already taken. The staff prepares only one arena for that group.
+
+Alternatively, if you ever export booking data to a spreadsheet for capacity planning or business analysis, the arena column will show misleading data: it appears all large-group bookings happen in Arena 1, and Arena 2 is empty.
+
+#### How it occurs
+Every time a customer selects more than 4 players and completes a booking. The availability display correctly checks that both arenas are free (it uses `arena1 && arena2` for large groups), but the final value submitted to the server is always just `"arena-1"` (or occasionally `"arena-2"` if arena-1 is already taken). The double-booking protection is not affected — it operates on `arenas_count`, not `arena_id` — but the stored label is wrong.
+
+#### Impact
+No customer is ever double-booked or incorrectly rejected. The availability logic is correct. This is purely a **data quality** and **staff communication** issue. If Spielnova ever expands to 3+ arenas, this bug would cause real operational problems. Today it is cosmetic but worth fixing before it causes a real misunderstanding during a busy shift.
+
+#### Likelihood: 🟡 Happens on every large-group booking
+Every booking for 5 or more players stores an incorrect `arena_id`. If large groups are, say, 20% of bookings, this affects 20% of all records in the database from the day the site launched.
+
+**Fix:** Assign a meaningful value for groups using both arenas:
+```javascript
+const arenasNeeded = parseInt(playerCount) > 4 ? 2 : 1
+const assignedArena = arenasNeeded === 2
+    ? "arena-1+arena-2"
+    : availableSlots[selectedTime].arena1 ? "arena-1" : "arena-2"
+```
 
 ---
 
-### BUG-007 — Cron `expire-bookings` runs at 03:00 UTC — misses slots booked late afternoon
+### BUG-007 — Cron `expire-bookings` runs at 03:00 UTC, not in real-time
 
-**Severity:** Low (operational)  
-**File:** `vercel.json`  
-**Description:** The expire-bookings cron runs at 03:00 UTC (= 04:00 CET / 05:00 CEST). This is fine for cleanup. However, `pending_payment` rows are also cleaned up lazily in the availability API and the RPC function, so slots are effectively freed for new bookings within 32 minutes regardless of the cron. The cron only matters for DB cleanliness.
+**Severity:** Informational  
+**File:** `vercel.json`
 
-No action needed — just informational.
+#### What the bug is
+The database cleanup cron job — which cancels abandoned `pending_payment` bookings — runs once per day at 03:00 UTC (04:00 CET / 05:00 CEST). It is not real-time.
+
+#### Business scenario — what could go wrong
+A customer abandons their booking at 18:00. Their `pending_payment` row sits in the database until 03:00 the following morning when the cron cancels it. During those 9 hours, the database has a "zombie" booking row with status `pending_payment`.
+
+#### How it occurs
+The cron is simply scheduled at a fixed time. Between cron runs, abandoned bookings are not immediately marked `cancelled` in the database.
+
+#### Impact
+**In practice: none.** This is why the severity is informational. The availability API and the atomic booking RPC both implement **lazy expiry**: they ignore any `pending_payment` row older than 32 minutes when calculating free slots. So a slot is freed for new bookings exactly 32 minutes after abandonment, regardless of when the cron runs. The cron only matters for database hygiene — keeping the `bookings` table clean. Customers are never affected by the 9-hour gap.
+
+#### Likelihood: 🟢 Happens constantly, but harmlessly
+Every abandoned booking creates this situation. It is by design. No action needed.
 
 ---
 
