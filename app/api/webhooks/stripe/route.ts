@@ -52,24 +52,50 @@ export async function POST(request: Request) {
         }
 
         // ── Slot conflict check ───────────────────────────────────────────────
-        // Verify no other confirmed booking already occupies the same slot.
-        // This is the safety net for the edge case where the Stripe session was
-        // still alive (within 32 min) while a second customer also completed
-        // checkout for the same time window.
-        const { data: conflict } = await supabaseAdmin
+        // Sum the arenas already confirmed in this time window and cancel only
+        // if adding this booking's arenas would exceed the venue's 2-arena capacity.
+        //
+        // This is the safety net for the race condition where the Stripe session
+        // was still alive (≤ 32 min) while another customer also completed checkout
+        // for the same time window.
+        //
+        // Why we SUM arenas_count instead of checking for any overlap:
+        //   Two small groups (≤ 4 players, 1 arena each) are both valid for the
+        //   same slot — the venue has 2 arenas. The previous check used .limit(1)
+        //   and cancelled on ANY overlap, which incorrectly rejected the second
+        //   small group even though a free arena was available.
+        //
+        // Combinations (venue capacity = 2 arenas):
+        //   occupied=0 + needed=1 → total=1 ≤ 2 → CONFIRM ✅
+        //   occupied=0 + needed=2 → total=2 ≤ 2 → CONFIRM ✅
+        //   occupied=1 + needed=1 → total=2 ≤ 2 → CONFIRM ✅  (was wrongly cancelled)
+        //   occupied=1 + needed=2 → total=3 > 2 → CANCEL  ✅
+        //   occupied=2 + needed=1 → total=3 > 2 → CANCEL  ✅
+        //   occupied=2 + needed=2 → total=4 > 2 → CANCEL  ✅
+        const { data: overlapping } = await supabaseAdmin
             .from('bookings')
-            .select('id')
+            .select('arenas_count')
             .eq('status', 'confirmed')
             .neq('id', bookingId)
             .lt('start_time', booking.end_time)
-            .gt('end_time', booking.start_time)
-            .limit(1);
+            .gt('end_time', booking.start_time);
 
-        if (conflict && conflict.length > 0) {
-            // Slot taken — void the card authorisation. Nothing is charged.
-            // The customer is shown a German "slot taken" message on our website
-            // and directed back to the booking page to choose another slot.
-            console.log(`Webhook: slot conflict for booking ${bookingId} — voiding PaymentIntent ${paymentIntentId}`);
+        const arenasOccupied = (overlapping ?? []).reduce(
+            (sum: number, b: { arenas_count: number | null }) => sum + (b.arenas_count || 1),
+            0
+        );
+        const arenasNeeded = booking.arenas_count || 1;
+        const VENUE_ARENAS = 2;
+
+        if (arenasOccupied + arenasNeeded > VENUE_ARENAS) {
+            // Capacity exceeded — void the card authorisation. Nothing is charged.
+            // The customer is shown "Zeitfenster leider vergeben" and directed back
+            // to the booking page to choose another slot.
+            console.log(
+                `Webhook: capacity exceeded for booking ${bookingId} ` +
+                `(confirmed=${arenasOccupied} + needed=${arenasNeeded} > ${VENUE_ARENAS}) ` +
+                `— voiding PaymentIntent ${paymentIntentId}`
+            );
             await stripe.paymentIntents.cancel(paymentIntentId).catch(console.error);
             await supabaseAdmin.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
             return NextResponse.json({ received: true });
