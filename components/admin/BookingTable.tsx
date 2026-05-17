@@ -79,7 +79,11 @@ export default function BookingTable({ bookings, onSelect, onRefresh }: Props) {
                             <tr
                                 key={booking.id as string}
                                 onClick={() => onSelect(booking)}
-                                className="hover:bg-white/[0.03] cursor-pointer transition-colors group"
+                                className={`cursor-pointer transition-colors group ${
+                                    booking.game_mode === 'internal'
+                                        ? 'bg-orange-500/5 hover:bg-orange-500/10 border-l-2 border-l-orange-500/40'
+                                        : 'hover:bg-white/[0.03]'
+                                }`}
                             >
                                 <td className="px-4 py-3 font-medium">{booking.date as string}</td>
                                 <td className="px-4 py-3 text-primary font-bold">{booking.time as string}</td>
@@ -88,12 +92,20 @@ export default function BookingTable({ bookings, onSelect, onRefresh }: Props) {
                                 <td className="px-4 py-3">{booking.game_name as string}</td>
                                 <td className="px-4 py-3 text-center">{booking.player_count as number}</td>
                                 <td className="px-4 py-3">
-                                    <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${STATUS_STYLES[booking.status as string] || ''}`}>
-                                        {STATUS_LABELS[booking.status as string] || booking.status as string}
-                                    </span>
+                                    {booking.game_mode === 'internal' ? (
+                                        <span className="text-xs font-medium border px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border-orange-500/30">
+                                            🔒 Gesperrt
+                                        </span>
+                                    ) : (
+                                        <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${STATUS_STYLES[booking.status as string] || ''}`}>
+                                            {STATUS_LABELS[booking.status as string] || booking.status as string}
+                                        </span>
+                                    )}
                                 </td>
                                 <td className="px-4 py-3 text-xs text-muted-foreground capitalize">
-                                    {(booking.walk_in ? (booking.payment_method as string) : 'Online') || 'Online'}
+                                    {booking.game_mode === 'internal'
+                                        ? 'Intern'
+                                        : (booking.walk_in ? (booking.payment_method as string) : 'Online') || 'Online'}
                                 </td>
                             </tr>
                         ))}

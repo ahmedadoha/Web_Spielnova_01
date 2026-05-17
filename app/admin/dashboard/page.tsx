@@ -5,9 +5,10 @@ import { createBrowserClient } from '@supabase/ssr'
 import BookingTable from '@/components/admin/BookingTable'
 import BookingDetailPanel from '@/components/admin/BookingDetailPanel'
 import WalkInForm from '@/components/admin/WalkInForm'
+import BlockSlotForm from '@/components/admin/BlockSlotForm'
 import TeamManagement from '@/components/admin/TeamManagement'
 import HolidaySettings from '@/components/admin/HolidaySettings'
-import { LogOut, Plus, Calendar, Users, Activity, RefreshCw, Key, Eye, EyeOff } from 'lucide-react'
+import { LogOut, Plus, Lock, Calendar, Users, Activity, RefreshCw, Key, Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
@@ -22,6 +23,7 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState<Record<string, unknown>[]>([])
     const [selectedBooking, setSelectedBooking] = useState<Record<string, unknown> | null>(null)
     const [showWalkIn, setShowWalkIn] = useState(false)
+    const [showBlockSlot, setShowBlockSlot] = useState(false)
     const [showChangePassword, setShowChangePassword] = useState(false)
     const [activeTab, setActiveTab] = useState<Tab>('today')
     const [loading, setLoading] = useState(true)
@@ -162,6 +164,14 @@ export default function AdminDashboard() {
                             👤 {employee?.name} {isManager && <span className="text-primary text-xs">(Manager)</span>}
                         </span>
                         <button
+                            onClick={() => setShowBlockSlot(true)}
+                            title="Zeitfenster sperren"
+                            className="flex items-center gap-2 bg-orange-500/20 text-orange-400 border border-orange-500/30 text-sm font-bold px-4 py-2 rounded-lg hover:bg-orange-500/30 transition-all"
+                        >
+                            <Lock className="h-4 w-4" />
+                            <span className="hidden sm:block">Sperren</span>
+                        </button>
+                        <button
                             id="admin-walkin-btn"
                             onClick={() => setShowWalkIn(true)}
                             className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-bold px-4 py-2 rounded-lg hover:bg-primary/80 transition-all shadow-[0_0_15px_rgba(0,240,255,0.3)]"
@@ -248,6 +258,13 @@ export default function AdminDashboard() {
                 <WalkInForm
                     onClose={() => setShowWalkIn(false)}
                     onSuccess={() => { setShowWalkIn(false); fetchBookings() }}
+                />
+            )}
+
+            {showBlockSlot && (
+                <BlockSlotForm
+                    onClose={() => setShowBlockSlot(false)}
+                    onSuccess={() => { setShowBlockSlot(false); fetchBookings() }}
                 />
             )}
 
@@ -381,8 +398,13 @@ function AuditLog() {
     }, [])
 
     const actionLabels: Record<string, string> = {
-        rescheduled: '📅 Umgebucht', cancelled: '❌ Storniert', walk_in_created: '🚶 Walk-in',
-        note_added: '📝 Notiz', deleted: '🗑️ Gelöscht', refund_issued: '💰 Rückerstattung',
+        rescheduled:     '📅 Umgebucht',
+        cancelled:       '❌ Storniert',
+        walk_in_created: '🚶 Walk-in',
+        slot_blocked:    '🔒 Slot gesperrt',
+        note_added:      '📝 Notiz',
+        deleted:         '🗑️ Gelöscht',
+        refund_issued:   '💰 Rückerstattung',
     }
 
     return (

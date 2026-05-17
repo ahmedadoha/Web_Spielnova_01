@@ -82,12 +82,87 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ bookings })
 }
 
-// POST: create a walk-in booking
+// POST: create a walk-in booking OR an internal slot block
 export async function POST(request: NextRequest) {
     const { employee, user, supabase } = await getAdminSession()
     if (!employee) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
+    const { booking_type } = body
+
+    // ── Internal slot block ────────────────────────────────────────────────────
+    if (booking_type === 'block') {
+        const { date, time, duration_minutes, arenas_count, reason, staff_notes } = body
+
+        if (!date || !time) {
+            return NextResponse.json({ error: 'date und time sind erforderlich' }, { status: 400 })
+        }
+
+        const dur    = duration_minutes || 60
+        const arenas = arenas_count    || 2
+        const label  = reason || 'Intern'
+
+        // Check for conflicts with existing bookings (skip opening-hours check —
+        // maintenance can happen on any day or time).
+        const startTime = new Date(`${date}T${time}:00`)
+        const endTime   = new Date(startTime.getTime() + dur * 60000)
+
+        const { data: conflicts } = await supabase
+            .from('bookings')
+            .select('id, arenas_count')
+            .neq('status', 'cancelled')
+            .neq('status', 'deleted')
+            .lt('start_time', endTime.toISOString())
+            .gt('end_time', startTime.toISOString())
+
+        const occupiedArenas = (conflicts ?? []).reduce(
+            (sum, b) => sum + ((b.arenas_count as number) || 1), 0
+        )
+        if (occupiedArenas + arenas > 2) {
+            return NextResponse.json(
+                { error: 'Dieser Zeitslot ist bereits (teilweise) belegt — Sperrung nicht möglich.' },
+                { status: 409 }
+            )
+        }
+
+        const { data: booking, error } = await supabase
+            .from('bookings')
+            .insert({
+                customer_name:    `[Gesperrt] ${label}`,
+                start_time:       startTime.toISOString(),
+                end_time:         endTime.toISOString(),
+                arena_id:         'arena-1',
+                game_mode:        'internal',
+                game_slug:        'internal',
+                game_name:        label,
+                date,
+                time,
+                duration_minutes: dur,
+                player_count:     arenas * 4,
+                arenas_count:     arenas,
+                status:           'confirmed',
+                walk_in:          false,
+                staff_notes:      staff_notes || label,
+                total_amount:     0,
+            })
+            .select()
+            .single()
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        await supabase.from('audit_log').insert({
+            employee_id:   user!.id,
+            employee_name: employee.name,
+            action:        'slot_blocked',
+            booking_id:    booking.id,
+            new_value:     booking,
+            notes:         `Slot gesperrt: ${label}, ${date} ${time}, ${dur} Min., ${arenas} Arena(en)`,
+        })
+
+        return NextResponse.json({ booking: normalizeBooking(booking) })
+    }
+
+    // ── Walk-in booking ───────────────────────────────────────────────────────
     const {
         customer_name, customer_email, customer_phone,
         game_name, game_slug, date, time, duration_minutes,
@@ -98,7 +173,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'customer_name, date, and time are required' }, { status: 400 })
     }
 
-    const dur = duration_minutes || 60
+    const dur    = duration_minutes || 60
     const arenas = arenas_count || (player_count > 4 ? 2 : 1)
 
     // Verify slot is valid and free
@@ -109,7 +184,7 @@ export async function POST(request: NextRequest) {
 
     // Build start_time / end_time for availability compatibility
     const startTime = new Date(`${date}T${time}:00`)
-    const endTime = new Date(startTime.getTime() + dur * 60000)
+    const endTime   = new Date(startTime.getTime() + dur * 60000)
 
     const { data: booking, error } = await supabase
         .from('bookings')
@@ -117,24 +192,22 @@ export async function POST(request: NextRequest) {
             customer_name,
             customer_email: customer_email || null,
             customer_phone: customer_phone || null,
-            // Legacy columns (needed for public booking system compatibility)
-            start_time: startTime.toISOString(),
-            end_time: endTime.toISOString(),
-            arena_id: 'arena-1', // walk-ins default to arena-1 (staff manages arena assignment)
-            game_mode: 'walk-in',
-            game_slug: game_slug || game_name,
-            // Admin-specific flat columns
-            game_name: game_name,
-            date: date,
-            time: time,
+            start_time:     startTime.toISOString(),
+            end_time:       endTime.toISOString(),
+            arena_id:       'arena-1',
+            game_mode:      'walk-in',
+            game_slug:      game_slug || game_name,
+            game_name,
+            date,
+            time,
             duration_minutes: dur,
             player_count,
-            arenas_count: arenas,
-            status: 'confirmed',
+            arenas_count:  arenas,
+            status:        'confirmed',
             payment_method: payment_method || 'cash',
-            walk_in: true,
-            staff_notes: staff_notes || null,
-            total_amount: 0, // walk-ins: cash handled in store
+            walk_in:       true,
+            staff_notes:   staff_notes || null,
+            total_amount:  0,
         })
         .select()
         .single()
@@ -143,16 +216,15 @@ export async function POST(request: NextRequest) {
 
     // Write audit log
     await supabase.from('audit_log').insert({
-        employee_id: user!.id,
+        employee_id:   user!.id,
         employee_name: employee.name,
-        action: 'walk_in_created',
-        booking_id: booking.id,
-        new_value: booking,
-        notes: `Walk-in: ${customer_name}, ${game_name}, ${player_count} Spieler, ${payment_method}`,
+        action:        'walk_in_created',
+        booking_id:    booking.id,
+        new_value:     booking,
+        notes:         `Walk-in: ${customer_name}, ${game_name}, ${player_count} Spieler, ${payment_method}`,
     })
 
     // Send confirmation email if the customer provided an address.
-    // Fired async — failure is non-fatal, the booking is already saved.
     if (customer_email) {
         const paymentLabel =
             payment_method === 'card' ? 'Kartenzahlung (vor Ort)' : 'Barzahlung (vor Ort)'
