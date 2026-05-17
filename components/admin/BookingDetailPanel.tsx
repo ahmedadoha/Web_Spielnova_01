@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Clock, XCircle, Mail, StickyNote, Trash2, RefreshCw } from 'lucide-react'
 
 interface Props {
@@ -21,6 +21,30 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
     const [refundType, setRefundType] = useState<'full' | 'partial'>('full')
     const [refundAmount, setRefundAmount] = useState('')
     const [refundReason, setRefundReason] = useState('')
+
+    // Public holidays for reschedule date validation
+    const [publicHolidays, setPublicHolidays] = useState<{ name: string; start_date: string; end_date: string }[]>([])
+    useEffect(() => {
+        fetch('/api/admin/holidays')
+            .then(r => r.json())
+            .then(({ holidays }) => {
+                if (Array.isArray(holidays)) {
+                    setPublicHolidays(holidays.filter((h: { type: string }) => h.type === 'public'))
+                }
+            })
+            .catch(() => {}) // silent — server-side is the safety net
+    }, [])
+
+    // Returns a German error string when the chosen date cannot be rescheduled to.
+    function rescheduleDateError(dateStr: string): string {
+        if (!dateStr) return ''
+        if (new Date(`${dateStr}T12:00:00`).getDay() === 0)
+            return 'Sonntage sind geschlossen.'
+        const hit = publicHolidays.find(h => dateStr >= h.start_date && dateStr <= h.end_date)
+        if (hit) return `„${hit.name}" ist ein gesetzlicher Feiertag — geschlossen.`
+        return ''
+    }
+    const dateError = rescheduleDateError(newDate)
 
     async function doAction(action: string, extra?: Record<string, unknown>) {
         setLoading(true); setMsg('')
@@ -116,12 +140,26 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                         </button>
                         {showReschedule && (
                             <div className="space-y-2 pl-2">
-                                <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)}
-                                    className="w-full bg-background/60 border border-border rounded-lg px-3 py-2 text-sm" />
+                                <input
+                                    type="date"
+                                    value={newDate}
+                                    onChange={e => setNewDate(e.target.value)}
+                                    className={`w-full bg-background/60 border rounded-lg px-3 py-2 text-sm ${
+                                        dateError ? 'border-red-400' : 'border-border'
+                                    }`}
+                                />
+                                {dateError && (
+                                    <p className="text-xs text-red-400 flex items-center gap-1">
+                                        ⛔ {dateError}
+                                    </p>
+                                )}
                                 <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)}
                                     className="w-full bg-background/60 border border-border rounded-lg px-3 py-2 text-sm" />
-                                <button disabled={loading} onClick={() => doAction('reschedule', { date: newDate, time: newTime })}
-                                    className="w-full bg-primary text-primary-foreground py-2 rounded-lg text-sm font-bold disabled:opacity-50">
+                                <button
+                                    disabled={loading || !!dateError}
+                                    onClick={() => doAction('reschedule', { date: newDate, time: newTime })}
+                                    className="w-full bg-primary text-primary-foreground py-2 rounded-lg text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
                                     Bestätigen & E-Mail senden
                                 </button>
                             </div>

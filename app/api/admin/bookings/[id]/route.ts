@@ -28,6 +28,32 @@ export async function PATCH(
     let auditNotes = ''
 
     if (action === 'reschedule' && date && time) {
+        // ── Guard: no Sundays ────────────────────────────────────────────────
+        // Use noon local time to avoid UTC-offset day-shift edge cases.
+        const dayOfWeek = new Date(`${date}T12:00:00`).getDay()
+        if (dayOfWeek === 0) {
+            return NextResponse.json(
+                { error: 'Sonntage sind geschlossen — Umbuchung nicht möglich.' },
+                { status: 400 }
+            )
+        }
+
+        // ── Guard: no public holidays ────────────────────────────────────────
+        const { data: publicHolidays } = await supabase
+            .from('holidays')
+            .select('name')
+            .eq('type', 'public')
+            .lte('start_date', date)
+            .gte('end_date', date)
+
+        if (publicHolidays && publicHolidays.length > 0) {
+            const holidayName = publicHolidays[0].name
+            return NextResponse.json(
+                { error: `„${holidayName}" ist ein gesetzlicher Feiertag — Umbuchung nicht möglich.` },
+                { status: 400 }
+            )
+        }
+
         // Update both the flat date/time columns AND the legacy start_time/end_time
         const duration = (oldBooking.duration_minutes as number) || 60
         const startTime = new Date(`${date}T${time}:00`)
