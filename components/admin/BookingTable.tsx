@@ -93,7 +93,9 @@ export default function BookingTable({ bookings, onSelect, onRefresh }: Props) {
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 text-xs text-muted-foreground capitalize">
-                                    {(booking.walk_in ? (booking.payment_method as string) : 'Online') || 'Online'}
+                                    {booking.payment_method === 'free_test'
+                                        ? '🧪 Free Test'
+                                        : (booking.walk_in ? (booking.payment_method as string) : 'Online') || 'Online'}
                                 </td>
                             </tr>
                         ))}

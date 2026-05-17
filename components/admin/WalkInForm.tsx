@@ -35,6 +35,7 @@ function getNextSlot() {
 interface Props {
     onClose: () => void
     onSuccess: () => void
+    employeeName: string // name of the logged-in staff member
 }
 
 const inputCls = `
@@ -44,7 +45,9 @@ const inputCls = `
     transition-colors
 `.replace(/\s+/g, ' ').trim()
 
-export default function WalkInForm({ onClose, onSuccess }: Props) {
+const FREE_TEST_EMAIL = 'support@spielnova.de'
+
+export default function WalkInForm({ onClose, onSuccess, employeeName }: Props) {
     const nextSlot = getNextSlot()
     const [form, setForm] = useState({
         customer_name: '',
@@ -62,8 +65,29 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
+    const isFreeTest = form.payment_method === 'free_test'
+
     function set(field: string, value: string | number) {
         setForm(f => ({ ...f, [field]: value }))
+    }
+
+    function handlePaymentChange(value: string) {
+        if (value === 'free_test') {
+            setForm(f => ({
+                ...f,
+                payment_method:  'free_test',
+                customer_name:   employeeName,
+                customer_email:  FREE_TEST_EMAIL,
+            }))
+        } else {
+            setForm(f => ({
+                ...f,
+                payment_method: value,
+                // Clear auto-filled values when switching away from Free Test
+                customer_name:  f.customer_name  === employeeName   ? '' : f.customer_name,
+                customer_email: f.customer_email === FREE_TEST_EMAIL ? '' : f.customer_email,
+            }))
+        }
     }
 
     function handleGameChange(slug: string) {
@@ -73,7 +97,7 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        if (!form.customer_name) { setError('Kundenname ist erforderlich.'); return }
+        if (!isFreeTest && !form.customer_name) { setError('Kundenname ist erforderlich.'); return }
         setLoading(true); setError('')
 
         const arenas_count = form.player_count > 4 ? 2 : 1
@@ -106,26 +130,27 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
 
                 <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 overflow-y-auto max-h-[75vh]">
                     <div className="space-y-4">
-                        <Field label="Kundenname *" id="walkin-name">
+                        <Field label={isFreeTest ? 'Mitarbeiter (automatisch)' : 'Kundenname *'} id="walkin-name">
                             <input
                                 id="walkin-name"
                                 value={form.customer_name}
-                                onChange={e => set('customer_name', e.target.value)}
-                                placeholder="Max Mustermann"
-                                required
-                                className={inputCls}
+                                onChange={e => !isFreeTest && set('customer_name', e.target.value)}
+                                placeholder={isFreeTest ? '' : 'Max Mustermann'}
+                                readOnly={isFreeTest}
+                                className={`${inputCls} ${isFreeTest ? 'opacity-60 cursor-not-allowed' : ''}`}
                             />
                         </Field>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="E-Mail (optional)" id="walkin-email">
+                            <Field label={isFreeTest ? 'E-Mail (automatisch)' : 'E-Mail (optional)'} id="walkin-email">
                                 <input
                                     id="walkin-email"
                                     type="email"
                                     value={form.customer_email}
-                                    onChange={e => set('customer_email', e.target.value)}
-                                    placeholder="max@example.com"
-                                    className={inputCls}
+                                    onChange={e => !isFreeTest && set('customer_email', e.target.value)}
+                                    placeholder={isFreeTest ? '' : 'max@example.com'}
+                                    readOnly={isFreeTest}
+                                    className={`${inputCls} ${isFreeTest ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 />
                             </Field>
                             <Field label="Telefon (optional)" id="walkin-phone">
@@ -209,11 +234,12 @@ export default function WalkInForm({ onClose, onSuccess }: Props) {
                             <select
                                 id="walkin-payment"
                                 value={form.payment_method}
-                                onChange={e => set('payment_method', e.target.value)}
+                                onChange={e => handlePaymentChange(e.target.value)}
                                 className={inputCls}
                             >
                                 <option value="cash">💵 Barzahlung</option>
                                 <option value="card">💳 Kartenzahlung</option>
+                                <option value="free_test">🧪 Free Test</option>
                             </select>
                         </Field>
 

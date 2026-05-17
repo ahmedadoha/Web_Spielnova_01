@@ -151,9 +151,9 @@ export async function POST(request: NextRequest) {
         notes: `Walk-in: ${customer_name}, ${game_name}, ${player_count} Spieler, ${payment_method}`,
     })
 
-    // Send confirmation email if the customer provided an address.
+    // Send confirmation email — skip for Free Test bookings (internal only).
     // Fired async — failure is non-fatal, the booking is already saved.
-    if (customer_email) {
+    if (customer_email && payment_method !== 'free_test') {
         const paymentLabel =
             payment_method === 'card' ? 'Kartenzahlung (vor Ort)' : 'Barzahlung (vor Ort)'
 
