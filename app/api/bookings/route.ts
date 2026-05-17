@@ -23,6 +23,20 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
         }
 
+        // Validate game mode — must be one of the two public booking modes.
+        // Prevents crafted API calls from inserting arbitrary game mode strings.
+        if (!gameMode || !['shooter', 'escape'].includes(gameMode)) {
+            return NextResponse.json({ error: 'Ungültiger Spielmodus.' }, { status: 400 })
+        }
+
+        // Validate and normalise player count to a guaranteed integer.
+        // The booking form always sends an integer, but a direct API call could send
+        // a string, 0, a negative number, or a value > 8 (exceeding venue capacity).
+        const playerCountNum = parseInt(String(playerCount), 10)
+        if (isNaN(playerCountNum) || playerCountNum < 1 || playerCountNum > 8) {
+            return NextResponse.json({ error: 'Spieleranzahl muss zwischen 1 und 8 liegen.' }, { status: 400 })
+        }
+
         // Construct timestamp
         const startTime = new Date(`${date}T${time}:00`)
         const bookingDuration = duration || 60
@@ -58,7 +72,7 @@ export async function POST(request: Request) {
         // --- End validation ---
 
         // Calculate arenas needed
-        const arenasCount = playerCount > 4 ? 2 : 1
+        const arenasCount = playerCountNum > 4 ? 2 : 1
 
         // Atomically check availability and insert in a single DB transaction.
         // pg_advisory_xact_lock inside the function serialises concurrent requests
@@ -72,7 +86,7 @@ export async function POST(request: Request) {
                 p_arenas_count:   arenasCount,
                 p_game_mode:      gameMode,
                 p_game_slug:      gameSlug,
-                p_player_count:   playerCount,
+                p_player_count:   playerCountNum,
                 p_customer_name:  customerName,
                 p_customer_email: customerEmail,
             }
@@ -110,8 +124,8 @@ export async function POST(request: Request) {
             teamPrice = isWeekend ? 12400 : 9000
         }
 
-        const teamCount = Math.floor(playerCount / 4)
-        const singleCount = playerCount % 4
+        const teamCount = Math.floor(playerCountNum / 4)
+        const singleCount = playerCountNum % 4
         
         const totalAmount = (teamCount * teamPrice) + (singleCount * singlePrice)
 
@@ -156,7 +170,7 @@ export async function POST(request: Request) {
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: `${gameMode === 'shooter' ? 'VR Shooter' : 'VR Escape Room'} (${bookingDuration} Min) - ${playerCount} Spieler ${isTopGamer ? `(Inkl. ${TOP_GAMER_DISCOUNT_PERCENT * 100}% Top Gamer Rabatt)` : ''}`,
+                            name: `${gameMode === 'shooter' ? 'VR Shooter' : 'VR Escape Room'} (${bookingDuration} Min) - ${playerCountNum} Spieler ${isTopGamer ? `(Inkl. ${TOP_GAMER_DISCOUNT_PERCENT * 100}% Top Gamer Rabatt)` : ''}`,
                             description: `Buchung für ${customerName} am ${date} um ${time}`,
                         },
                         unit_amount: finalAmount,

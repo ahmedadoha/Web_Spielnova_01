@@ -11,6 +11,19 @@ const LOCATION_HTML = `Spielnova im West Park<br/>Am Westpark 6<br/>85057 Ingols
 // Vercel deployment URLs are password protected, which breaks images in emails.
 const LOGO_URL = 'https://www.spielnova.de/logo.png';
 
+// Escapes user-supplied strings before inserting them into HTML email bodies.
+// Prevents injected HTML from rendering in the recipient's email client.
+// Only used for fields that appear as visible text inside HTML — NOT for plain-text
+// email headers (Subject:, replyTo:) or URL attribute values like mailto: hrefs.
+function escapeHtml(str: string): string {
+    return str
+        .replace(/&/g, '&amp;')   // must be first to avoid double-escaping
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+}
+
 // ---------------------------------------------------------------------------
 // Booking Confirmation (sent after successful payment via Stripe webhook)
 // ---------------------------------------------------------------------------
@@ -119,11 +132,15 @@ export async function sendContactEmail(details: ContactDetails) {
     try {
         const { senderName, senderEmail, subject, message } = details;
 
+        const safeName    = escapeHtml(senderName)
+        const safeEmail   = escapeHtml(senderEmail)
+        const safeSubject = escapeHtml(subject)
+
         const { data, error } = await resend.emails.send({
             from: `Spielnova Kontakt <${FROM_EMAIL}>`,
             to: ['info@spielnova.de'],
-            replyTo: senderEmail,
-            subject: `Kontaktanfrage: ${subject}`,
+            replyTo: senderEmail,                          // email header — plain text, no escaping
+            subject: `Kontaktanfrage: ${subject}`,         // email header — plain text, no escaping
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #fafafa; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
                     <div style="background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
@@ -137,17 +154,17 @@ export async function sendContactEmail(details: ContactDetails) {
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="padding: 8px 0; color: #a1a1aa; width: 120px;">👤 Name:</td>
-                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${senderName}</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${safeName}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px 0; color: #a1a1aa;">📧 E-Mail:</td>
                                     <td style="padding: 8px 0; font-weight: bold; color: #60a5fa;">
-                                        <a href="mailto:${senderEmail}" style="color: #60a5fa;">${senderEmail}</a>
+                                        <a href="mailto:${safeEmail}" style="color: #60a5fa;">${safeEmail}</a>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px 0; color: #a1a1aa;">📌 Betreff:</td>
-                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${subject}</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #ffffff;">${safeSubject}</td>
                                 </tr>
                             </table>
                         </div>
@@ -158,7 +175,7 @@ export async function sendContactEmail(details: ContactDetails) {
                         </div>
 
                         <p style="color: #52525b; font-size: 13px; margin-top: 28px; text-align: center;">
-                            Du kannst direkt auf diese E-Mail antworten — die Antwort geht an ${senderEmail}
+                            Du kannst direkt auf diese E-Mail antworten — die Antwort geht an ${safeEmail}
                         </p>
                     </div>
                 </div>
