@@ -40,7 +40,7 @@ function SessionExpiredBanner() {
             <div>
                 <p className="font-semibold">Buchungssitzung abgelaufen</p>
                 <p className="text-sm text-amber-300/80 mt-0.5">
-                    Deine Reservierung ist nach 15 Minuten abgelaufen. Bitte wähle einen neuen Zeitslot und starte die Buchung erneut.
+                    Deine Reservierung ist nach 32 Minuten abgelaufen. Bitte wähle einen neuen Zeitslot und starte die Buchung erneut.
                 </p>
             </div>
         </div>
