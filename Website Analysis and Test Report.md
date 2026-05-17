@@ -619,28 +619,49 @@ After a customer completes Stripe payment, the webhook fires a safety check to m
 .neq('id', bookingId)
 .lt('start_time', booking.end_time)
 .gt('end_time', booking.start_time)
-.limit(1)
+.limit(1)  // ← finds ANY overlap and treats it as a full block
 ```
 
-The problem: the check returns "conflict found" as soon as it finds **any** overlapping confirmed booking, even if that booking only uses **1 of the 2 available arenas**. Because the venue has 2 arenas, one of them can still be free. The check does not ask "are there enough arenas left?" — it just asks "is there anyone there at all?"
+The problem: it asks *"is there anyone in this slot?"* instead of *"are both arenas full?"*. The moment it finds even one confirmed booking using only 1 of the 2 available arenas, it concludes the slot is blocked and cancels the incoming payment — even when the second arena is completely free.
+
+> **Important clarification:** this bug does NOT affect groups of 5 or more people.
+> A large group always needs both arenas. If even 1 arena is already confirmed for the
+> same time, only 1 arena remains — which is not enough for them. Cancelling them in
+> that case is correct. The availability calendar also shows the slot as unavailable for
+> large groups the moment 1 arena is taken, so they would never reach Stripe in the
+> first place.
+>
+> The real bug is specifically about **two small groups** (≤ 4 people each, 1 arena each)
+> booking the same slot at exactly the same time.
 
 #### Business scenario — what could go wrong
-It is a busy Saturday at 15:00. Customer A (a couple) books 1 arena and pays — their booking is confirmed. Ten minutes later, a group of 6 friends (Customer B) selects the 15:00 slot, goes through the booking form, and pays on Stripe. The webhook fires for Customer B's payment. It finds Customer A's booking overlapping the same time. It concludes "conflict" and cancels Customer B's booking — voiding their payment authorisation without charging them. Customer B lands on the "Zeitfenster leider vergeben" screen. They had done nothing wrong. The second arena was completely free. Spielnova loses a €140+ group booking for no reason.
+It is a busy Saturday at 15:00. Both arenas are free. Two separate couples — Customer A and Customer B — both see the slot as available and both start the booking process within seconds of each other. Both pass the availability check, both get a `pending_payment` record created in the database, and both land on the Stripe payment page.
+
+Customer A pays first. Their webhook fires, finds no confirmed conflict, captures the payment, and confirms their booking — Arena 1 is now taken.
+
+Customer B pays one second later. Their webhook fires. It finds Customer A's newly-confirmed booking overlapping the same time. It concludes "conflict" and cancels Customer B — voiding their card authorisation, charging them nothing, and sending them back to the "Zeitfenster leider vergeben" screen.
+
+But Customer B did nothing wrong. Arena 2 was free the entire time. The venue could have had two bookings at €50–€90 each for that slot. Instead it has one, and Customer B is left confused and frustrated, having gone all the way to the payment page for a slot that the system showed as available.
 
 #### How it occurs
-This can only happen when **both of the following are true at the same time**:
-1. Exactly one confirmed booking exists for a given slot (1 arena occupied, 1 free)
-2. A second group of more than 4 people tries to book the same slot (needing 2 arenas) **and** pays just as the first booking is being confirmed
+This requires a specific race condition — both customers must be at the Stripe checkout page for the same slot at the same time. The exact sequence:
 
-The timing requirement (concurrent payments, overlapping time window) keeps this rare, but it is a real code path that runs on every payment.
+1. Both arenas are free at a given time slot.
+2. Customer A (small group, 1 arena) starts booking — passes RPC check, gets `pending_payment` record.
+3. Customer B (small group, 1 arena) starts booking — also passes RPC check (1+1=2 ≤ 2 arenas, both fit), also gets `pending_payment` record.
+4. Both are now on Stripe paying simultaneously.
+5. Customer A's payment completes first → webhook confirms them.
+6. Customer B's payment completes moments later → webhook finds Customer A's confirmed booking → wrongly cancels Customer B.
+
+The booking system (RPC function) correctly determined that both groups fit. Only the webhook's simplified conflict check gets it wrong.
 
 #### Impact
-A legitimate paying customer is turned away despite a free arena being available. They are not charged (correct), but they lose their time, their enthusiasm, and their trust. They will likely not try again immediately. For a large group, this represents €100–€200+ in lost revenue per incident. Additionally, because the customer sees "Zeitfenster vergeben," they may incorrectly believe that slot is full and look elsewhere, when in fact it still has one free arena.
+Two customers who both legitimately booked the same slot get different outcomes based purely on who clicks "Pay" first by a matter of seconds. The unlucky second customer is rejected and loses trust in the website. Spielnova loses a full booking (€50–€180 depending on group size and duration) that could have been accommodated. The customer sees "Zeitfenster leider vergeben" and may believe the slot is fully booked — when in fact it only has one group and the second arena is free for someone else to book.
 
-#### Likelihood: 🟠 Uncommon but realistic
-On busy days (Friday, Saturday) when both arenas are popular, this scenario can realistically occur once every few weeks. As the venue grows busier, the probability increases. It is unlikely on quiet weekday afternoons.
+#### Likelihood: 🟠 Uncommon but realistic on popular slots
+This requires two small groups to both be on the Stripe payment page at the same time for the same slot — which requires them to both start the booking process within about 32 minutes of each other. On a busy Saturday afternoon, with popular time slots (15:00, 16:00), this is a realistic scenario. It may happen a handful of times per month during peak periods. It is very unlikely on quiet weekday afternoons when bookings are sparse.
 
-**Fix:** The webhook should sum `arenas_count` across overlapping confirmed bookings and only cancel if the total exceeds 2:
+**Fix:** The webhook should sum total `arenas_count` across overlapping confirmed bookings and only cancel if the combined total would exceed 2:
 ```javascript
 const { data: overlapping } = await supabaseAdmin
     .from('bookings')
@@ -653,6 +674,7 @@ const { data: overlapping } = await supabaseAdmin
 const occupied = (overlapping ?? []).reduce((s, b) => s + (b.arenas_count || 1), 0)
 if (occupied + (booking.arenas_count || 1) > 2) { /* cancel */ }
 ```
+This mirrors exactly how the RPC function already counts arenas when creating the booking.
 
 ---
 
