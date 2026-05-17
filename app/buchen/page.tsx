@@ -139,25 +139,28 @@ export default function BookingPage() {
         }
         setLoading(true)
 
-        // Determine arena allocation logic
-        // Simple logic: Try Arena 1, if taken try Arena 2.
-        // Ideally user selects specific arena or system assigns.
-        // Here we auto-assign based on availability
-
         if (!selectedTime || !availableSlots[selectedTime]) return;
 
-        let assignedArena = "";
-        if (availableSlots[selectedTime].arena1) assignedArena = "arena-1"
-        else if (availableSlots[selectedTime].arena2) assignedArena = "arena-2"
+        // Groups of > 4 players need both arenas.
+        // Store "arena-1+arena-2" so the admin panel and any reports correctly
+        // reflect that both arenas are occupied — not just "arena-1".
+        // For small groups, assign whichever single arena is free.
+        // Note: arenaId is a label only; the RPC enforces actual availability.
+        const needsBothArenas = parseInt(playerCount) > 4
+        let assignedArena = ""
+        if (needsBothArenas) {
+            assignedArena = "arena-1+arena-2"
+        } else if (availableSlots[selectedTime].arena1) {
+            assignedArena = "arena-1"
+        } else if (availableSlots[selectedTime].arena2) {
+            assignedArena = "arena-2"
+        }
 
         if (!assignedArena) {
             alert("Sorry, dieser Slot ist nicht mehr verfügbar.")
             setLoading(false)
             return
         }
-
-        // For groups > 4, we might need 2 arenas, but let's keep it simple for now as per logic
-        // Booking 1 arena per transaction
 
         const res = await fetch("/api/bookings", {
             method: "POST",

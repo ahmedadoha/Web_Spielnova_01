@@ -1,7 +1,15 @@
 import { Resend } from 'resend';
 
-// Initialize Resend with the API key from environment variables
-// Note: In a production environment, ensure RESEND_API_KEY is set in .env.local
+// Initialize Resend with the API key from environment variables.
+// The dummy key keeps the build from failing when the variable is absent
+// (e.g. during Vercel preview builds that don't expose secrets), but all
+// email sends will fail at runtime if the real key is not set.
+if (!process.env.RESEND_API_KEY) {
+    console.error(
+        '[EMAIL] RESEND_API_KEY is not set — all emails will fail silently. ' +
+        'Add it to your Vercel environment variables and redeploy.'
+    )
+}
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
