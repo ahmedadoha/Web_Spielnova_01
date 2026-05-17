@@ -248,6 +248,7 @@ export default function AdminDashboard() {
                 <WalkInForm
                     onClose={() => setShowWalkIn(false)}
                     onSuccess={() => { setShowWalkIn(false); fetchBookings() }}
+                    employeeName={employee?.name ?? ''}
                 />
             )}
 
