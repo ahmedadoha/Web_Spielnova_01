@@ -180,7 +180,7 @@ export async function POST(request: Request) {
             ],
             mode: 'payment',
             success_url: `${request.headers.get('origin')}/buchen/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${request.headers.get('origin')}/buchen?session_expired=1`,
+            cancel_url: `${request.headers.get('origin')}/buchen?session_expired=1&booking_id=${bookingId}`,
             client_reference_id: bookingId,
             customer_email: customerEmail,
         })
