@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         .select('start_time, end_time, arenas_count, status, created_at')
         .gte('end_time', startOfDay) // Intersects with today
         .lte('start_time', endOfDay)
-        .not('status', 'in', '("cancelled","deleted")') // IGNORE cancelled/deleted!
+        .not('status', 'in', '("cancelled","deleted","refunded")') // IGNORE cancelled/deleted/refunded!
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 })
