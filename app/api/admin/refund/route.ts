@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
         .single()
 
     if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    if (booking.status === 'refunded') {
+        return NextResponse.json({ error: 'Diese Buchung wurde bereits erstattet.' }, { status: 400 })
+    }
     if (!booking.stripe_session_id) {
         return NextResponse.json({ error: 'No Stripe payment found for this booking. Walk-in cash bookings cannot be refunded here.' }, { status: 400 })
     }

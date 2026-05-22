@@ -88,6 +88,7 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
 
     const totalEur = ((booking.total_amount as number) / 100).toFixed(2)
     const isOnline = !booking.walk_in
+    const isRefunded = booking.status === 'refunded'
 
     return (
         <div className="fixed inset-0 z-50 flex">
@@ -206,10 +207,11 @@ export default function BookingDetailPanel({ booking, isManager, onClose, onRefr
                             <div className="space-y-2">
                                 <button
                                     id="admin-refund-btn"
-                                    onClick={() => setShowRefund(!showRefund)}
-                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/30 hover:bg-red-500/10 transition-all text-sm font-medium text-red-400"
+                                    onClick={() => !isRefunded && setShowRefund(!showRefund)}
+                                    disabled={isRefunded || loading}
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/30 hover:bg-red-500/10 transition-all text-sm font-medium text-red-400 disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
-                                    <RefreshCw className="h-4 w-4" /> Rückerstattung
+                                    <RefreshCw className="h-4 w-4" /> {isRefunded ? 'Bereits erstattet' : 'Rückerstattung'}
                                 </button>
                                 {showRefund && (
                                     <div className="space-y-2 pl-2">
