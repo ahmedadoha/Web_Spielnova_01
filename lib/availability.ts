@@ -90,7 +90,7 @@ export async function checkSlotAvailability(
         .select('start_time, end_time, arenas_count, status, created_at')
         .gte('end_time', startOfDay) // Overlaps with today
         .lte('start_time', endOfDay)
-        .not('status', 'in', '("cancelled","deleted")')
+        .not('status', 'in', '("cancelled","deleted","refunded")')
 
     if (error) {
         console.error('Error fetching bookings for availability check:', error)
