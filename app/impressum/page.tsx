@@ -1,4 +1,5 @@
 import { SectionHeader } from "@/components/section-header"
+import { CONTACT_INFO } from "@/lib/contact"
 
 export default function ImpressumPage() {
     return (
@@ -8,15 +9,15 @@ export default function ImpressumPage() {
             <div className="max-w-3xl mx-auto space-y-8 text-muted-foreground">
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Betreiber der Website</h3>
-                    <p>Spielnova GmbH (Beispiel)</p>
-                    <p>Am Westpark 6</p>
-                    <p>85057 Ingolstadt</p>
+                    <p>{CONTACT_INFO.companyName}</p>
+                    <p>{CONTACT_INFO.address.street}</p>
+                    <p>{CONTACT_INFO.address.cityZip}</p>
                 </div>
 
                 <div>
                     <h3 className="font-bold text-lg text-foreground mb-2">Kontakt</h3>
-                    <p>Telefon: +49 15754497518</p>
-                    <p>E-Mail: support@spielnova.de</p>
+                    <p>Telefon: {CONTACT_INFO.phone.display}</p>
+                    <p>E-Mail: {CONTACT_INFO.email.support}</p>
                 </div>
 
                 <div>

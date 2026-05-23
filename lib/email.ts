@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { CONTACT_INFO } from './contact';
 
 // Initialize Resend with the API key from environment variables.
 // The dummy key keeps the build from failing when the variable is absent
@@ -13,11 +14,8 @@ if (!process.env.RESEND_API_KEY) {
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-const LOCATION_HTML = `Spielnova im West Park<br/>Am Westpark 6<br/>85057 Ingolstadt`
-
-// Ensure the logo is always fetched from the public production domain.
-// Vercel deployment URLs are password protected, which breaks images in emails.
-const LOGO_URL = 'https://www.spielnova.de/logo.png';
+const LOCATION_HTML = CONTACT_INFO.address.fullHtml
+const LOGO_URL = CONTACT_INFO.logoUrl;
 
 // Escapes user-supplied strings before inserting them into HTML email bodies.
 // Prevents injected HTML from rendering in the recipient's email client.
@@ -146,7 +144,7 @@ export async function sendContactEmail(details: ContactDetails) {
 
         const { data, error } = await resend.emails.send({
             from: `Spielnova Kontakt <${FROM_EMAIL}>`,
-            to: ['info@spielnova.de'],
+            to: [CONTACT_INFO.email.info],
             replyTo: senderEmail,                          // email header — plain text, no escaping
             subject: `Kontaktanfrage: ${subject}`,         // email header — plain text, no escaping
             html: `

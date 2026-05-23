@@ -1,4 +1,5 @@
 import { supabaseAdmin as supabase } from './supabase-admin'
+import { OPENING_HOURS } from './hours'
 
 export const TOTAL_ARENAS = 2
 
@@ -31,14 +32,14 @@ export async function generateSlots(dateStr: string, dayOfWeek: number): Promise
     // Public holidays are closed
     if (holidayType === 'public') return []
 
-    let startHour = 14
-    let startMinute = 30
-    const endHour = 20
+    let startHour = OPENING_HOURS.engine.weekday.startHour
+    let startMinute = OPENING_HOURS.engine.weekday.startMinute
+    const endHour = OPENING_HOURS.engine.weekday.endHour
 
     // Check if Saturday (6) or School Holiday
     if (dayOfWeek === 6 || holidayType === 'school') {
-        startHour = 10
-        startMinute = 0
+        startHour = OPENING_HOURS.engine.weekendOrHoliday.startHour
+        startMinute = OPENING_HOURS.engine.weekendOrHoliday.startMinute
     }
 
     const slots: string[] = []
