@@ -19,8 +19,14 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 
 
+import { usePathname } from "next/navigation"
+
 export function Navbar() {
     const [isOpen, setIsOpen] = React.useState(false)
+    const pathname = usePathname()
+    const isAdmin = pathname?.startsWith('/admin')
+
+    if (isAdmin) return null
 
     return (
         <div className="border-b border-white/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
