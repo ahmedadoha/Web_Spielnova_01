@@ -34,14 +34,37 @@ import { de } from "date-fns/locale"
 // useSearchParams must live in its own component wrapped by <Suspense>
 function SessionExpiredBanner() {
     const searchParams = useSearchParams()
+    const bookingId = searchParams.get('booking_id')
+    const hasCancelled = React.useRef(false)
+
+    React.useEffect(() => {
+        if (bookingId && !hasCancelled.current) {
+            hasCancelled.current = true
+            fetch('/api/bookings/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Successfully cancelled/released booking slot:', bookingId)
+                } else {
+                    console.error('Failed to cancel booking slot:', data.error)
+                }
+            })
+            .catch(err => console.error('Failed to cancel abandoned booking:', err))
+        }
+    }, [bookingId])
+
     if (searchParams.get('session_expired') !== '1') return null
     return (
         <div className="mb-6 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-xl px-5 py-4 flex items-start gap-3">
             <span className="text-xl mt-0.5">⏱</span>
             <div>
-                <p className="font-semibold">Buchungssitzung abgelaufen</p>
+                <p className="font-semibold">Buchungssitzung abgebrochen oder abgelaufen</p>
                 <p className="text-sm text-amber-300/80 mt-0.5">
-                    Deine Reservierung ist nach 32 Minuten abgelaufen. Bitte wähle einen neuen Zeitslot und starte die Buchung erneut.
+                    Deine Reservierung wurde storniert oder ist abgelaufen. Bitte wähle einen neuen Zeitslot und starte die Buchung erneut.
                 </p>
             </div>
         </div>

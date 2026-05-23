@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/supabase-server'
-import { checkSlotAvailability } from '@/lib/availability'
+import { checkSlotAvailability, generateSlots } from '@/lib/availability'
 import { sendBookingConfirmation } from '@/lib/email'
 
 // Converts a raw Supabase booking row (which uses start_time/end_time timestamps)
@@ -101,10 +101,29 @@ export async function POST(request: NextRequest) {
     const dur = duration_minutes || 60
     const arenas = arenas_count || (player_count > 4 ? 2 : 1)
 
+    // Validate that the date is not a closed day (Sunday/public holiday) and time is within opening hours.
+    // generateSlots returns [] for Sundays and public holidays.
+    const dayOfWeek = new Date(date).getUTCDay()
+    const validSlots = await generateSlots(date, dayOfWeek)
+    if (validSlots.length === 0) {
+        return NextResponse.json({ error: 'An dem gewählten Datum ist Spielnova geschlossen.' }, { status: 400 })
+    }
+
+    // Check that the requested start time and all subsequent chunks within the duration are valid.
+    const numChunks = dur / 30
+    for (let i = 0; i < numChunks; i++) {
+        const [h, m] = time.split(':').map(Number)
+        const totalMin = h * 60 + m + i * 30
+        const chunkTime = `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:${String(totalMin % 60).padStart(2, '0')}`
+        if (!validSlots.includes(chunkTime)) {
+            return NextResponse.json({ error: 'Die gewählte Uhrzeit oder Buchungsdauer liegt außerhalb der Öffnungszeiten.' }, { status: 400 })
+        }
+    }
+
     // Verify slot is valid and free
     const isAvailable = await checkSlotAvailability(date, time, dur, arenas)
     if (!isAvailable) {
-        return NextResponse.json({ error: 'This time slot is no longer available or is not a valid 30-minute block.' }, { status: 409 })
+        return NextResponse.json({ error: 'Dieser Zeitslot ist nicht verfügbar (bereits ausgebucht).' }, { status: 409 })
     }
 
     // Build start_time / end_time for availability compatibility
