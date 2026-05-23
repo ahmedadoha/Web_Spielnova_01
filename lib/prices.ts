@@ -17,7 +17,7 @@ export const PRICING = {
             team: 50.00,
         },
         weekend: {
-            single: 19.00,
+            single: 17.00,
             team: 60.00,
         }
     },
