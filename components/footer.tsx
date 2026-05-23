@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { CONTACT_INFO } from "@/lib/contact"
 
 export function Footer() {
     const pathname = usePathname()
@@ -22,11 +23,11 @@ export function Footer() {
                             Dein ultimatives VR-Erlebnis in Ingolstadt. Tauche ein in neue Welten im West Park.
                         </p>
                         <div className="flex space-x-4">
-                            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                            <Link href={CONTACT_INFO.socials.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                                 <Instagram className="h-5 w-5" />
                                 <span className="sr-only">Instagram</span>
                             </Link>
-                            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                            <Link href={CONTACT_INFO.socials.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                                 <Facebook className="h-5 w-5" />
                                 <span className="sr-only">Facebook</span>
                             </Link>
@@ -92,15 +93,15 @@ export function Footer() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li className="flex items-center space-x-2">
                                 <MapPin className="h-4 w-4 text-primary" />
-                                <span>West Park, Ingolstadt</span>
+                                <span>{CONTACT_INFO.address.cityZip}</span>
                             </li>
                             <li className="flex items-center space-x-2">
                                 <Phone className="h-4 w-4 text-primary" />
-                                <span>+49 15754497518</span>
+                                <span>{CONTACT_INFO.phone.display}</span>
                             </li>
                             <li className="flex items-center space-x-2">
                                 <Mail className="h-4 w-4 text-primary" />
-                                <span>info@spielnova.de</span>
+                                <span>{CONTACT_INFO.email.info}</span>
                             </li>
                         </ul>
                     </div>

@@ -1,6 +1,7 @@
 import { SectionHeader } from "@/components/section-header"
 import { Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { OPENING_HOURS } from "@/lib/hours"
 
 export default function OpeningHoursPage() {
     return (
@@ -19,16 +20,16 @@ export default function OpeningHoursPage() {
 
                         <div className="space-y-4 text-lg">
                             <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Mo. - Fr.</span>
-                                <span className="font-semibold">14:00 - 20:00 Uhr</span>
+                                <span className="text-muted-foreground">{OPENING_HOURS.visual.weekdaysLabel}</span>
+                                <span className="font-semibold">{OPENING_HOURS.visual.weekdays}</span>
                             </div>
                             <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-muted-foreground">Samstag</span>
-                                <span className="font-semibold">10:00 - 20:00 Uhr</span>
+                                <span className="text-muted-foreground">{OPENING_HOURS.visual.saturdayLabel}</span>
+                                <span className="font-semibold">{OPENING_HOURS.visual.saturday}</span>
                             </div>
                             <div className="flex justify-between pt-2 text-muted-foreground/60">
-                                <span>Sonntag</span>
-                                <span>Geschlossen (Einkaufzentrum)</span>
+                                <span>{OPENING_HOURS.visual.sundayLabel}</span>
+                                <span>{OPENING_HOURS.visual.sunday}</span>
                             </div>
                         </div>
                     </CardContent>
@@ -36,9 +37,9 @@ export default function OpeningHoursPage() {
 
                 <div className="mt-8 p-4 rounded-lg bg-secondary/10 border border-secondary/20 text-center">
                     <p className="font-medium text-secondary">
-                        In Schulferien:
+                        {OPENING_HOURS.visual.holidaysLabel}:
                     </p>
-                    <p className="text-xl font-bold mt-1">10:00 - 20:00 Uhr</p>
+                    <p className="text-xl font-bold mt-1">{OPENING_HOURS.visual.holidays}</p>
                 </div>
             </div>
         </div>

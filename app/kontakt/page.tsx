@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { SectionHeader } from "@/components/section-header"
 import { Card, CardContent } from "@/components/ui/card"
+import { CONTACT_INFO } from "@/lib/contact"
+import { OPENING_HOURS } from "@/lib/hours"
 
 // Ändere diese Nummer, um sie auf der gesamten Seite zu aktualisieren
-const CONTACT_PHONE = "+49 15754497518"
+const CONTACT_PHONE = CONTACT_INFO.phone.display
 
 export default function ContactPage() {
     const [name, setName] = React.useState("")
@@ -69,9 +71,9 @@ export default function ContactPage() {
                                 <MapPin className="h-6 w-6 text-primary mt-1" />
                                 <div>
                                     <h3 className="font-bold mb-1">Anschrift</h3>
-                                    <p className="text-muted-foreground">Spielnova VR</p>
-                                    <p className="text-muted-foreground">West Park Einkaufzentrum, OG</p>
-                                    <p className="text-muted-foreground">Am Westpark 6, 85057 Ingolstadt</p>
+                                    <p className="text-muted-foreground">{CONTACT_INFO.brandName}</p>
+                                    <p className="text-muted-foreground">{CONTACT_INFO.address.mallDetails}</p>
+                                    <p className="text-muted-foreground">{CONTACT_INFO.address.street}, {CONTACT_INFO.address.cityZip}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -81,8 +83,8 @@ export default function ContactPage() {
                                 <Clock className="h-6 w-6 text-primary mt-1" />
                                 <div>
                                     <h3 className="font-bold mb-1">Öffnungszeiten</h3>
-                                    <p className="text-muted-foreground">Mo. - Fr. : 14:00 - 20:00 Uhr</p>
-                                    <p className="text-muted-foreground">Sa: 10:00 - 20:00 Uhr</p>
+                                    <p className="text-muted-foreground">{OPENING_HOURS.visual.weekdaysLabel} : {OPENING_HOURS.visual.weekdays}</p>
+                                    <p className="text-muted-foreground">{OPENING_HOURS.visual.saturdayLabel}: {OPENING_HOURS.visual.saturday}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -112,7 +114,7 @@ export default function ContactPage() {
                                 </a>
                             </Button>
                             <Button variant="outline" className="w-full gap-2" asChild>
-                                <a href="mailto:support@spielnova.de">
+                                <a href={`mailto:${CONTACT_INFO.email.support}`}>
                                     <Mail className="h-4 w-4" /> Email
                                 </a>
                             </Button>

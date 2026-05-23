@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { SectionHeader } from "@/components/section-header"
+import { CONTACT_INFO } from "@/lib/contact"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The canonical text of these AGB is maintained in /AGB.md at the repo root.
@@ -38,7 +39,7 @@ export default function AGBPage() {
         <div className="container py-20 px-4 md:px-6">
             <SectionHeader
                 title="Allgemeine Geschäftsbedingungen"
-                subtitle="Spielnova GmbH · Am Westpark 6 · 85057 Ingolstadt"
+                subtitle={`${CONTACT_INFO.companyName} · ${CONTACT_INFO.address.street} · ${CONTACT_INFO.address.cityZip}`}
             />
 
             <div className="max-w-3xl mx-auto space-y-10 mt-10">
@@ -121,8 +122,8 @@ export default function AGBPage() {
                         <p>
                             Anfragen zu Stornierungen, Umbuchungen, Reklamationen oder sonstigen Anliegen sind per
                             E-Mail an{' '}
-                            <a href="mailto:support@spielnova.de" className="text-primary hover:underline">
-                                support@spielnova.de
+                            <a href={`mailto:${CONTACT_INFO.email.support}`} className="text-primary hover:underline">
+                                {CONTACT_INFO.email.support}
                             </a>{' '}
                             zu richten.
                         </p>
@@ -191,7 +192,7 @@ export default function AGBPage() {
                 {/* Footer note */}
                 <div className="border-t border-border/30 pt-6 text-sm text-muted-foreground/50 space-y-1">
                     <p>Diese AGB können jederzeit aktualisiert werden. Die jeweils aktuelle Fassung ist auf dieser Seite abrufbar.</p>
-                    <p>Kontakt: <a href="mailto:info@spielnova.de" className="hover:text-primary transition-colors">info@spielnova.de</a></p>
+                    <p>Kontakt: <a href={`mailto:${CONTACT_INFO.email.info}`} className="hover:text-primary transition-colors">{CONTACT_INFO.email.info}</a></p>
                 </div>
 
             </div>
