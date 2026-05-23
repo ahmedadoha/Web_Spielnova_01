@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { SectionHeader } from "@/components/section-header"
 import { TOP_GAMER_DISCOUNT_PERCENT } from "@/lib/constants"
+import { PRICING, formatGermanPrice } from "@/lib/prices"
 
 export default function PricingPage() {
     return (
@@ -33,22 +34,22 @@ export default function PricingPage() {
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Einzelspieler</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg">14.90€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arena_30.weekday.single)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg">19.90€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arena_30.weekend.single)}</span>
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-white/10">
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Team (4 Spieler)</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg text-primary">55.00€</span>
+                                    <span className="font-bold text-lg text-primary">{formatGermanPrice(PRICING.arena_30.weekday.team)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg text-primary">74.00€</span>
+                                    <span className="font-bold text-lg text-primary">{formatGermanPrice(PRICING.arena_30.weekend.team)}</span>
                                 </div>
                             </div>
                         </div>
@@ -73,22 +74,22 @@ export default function PricingPage() {
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Einzelspieler</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg">24.90€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arena_60.weekday.single)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg">34.90€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arena_60.weekend.single)}</span>
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-white/10">
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Team (4 Spieler)</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg text-primary">90.00€</span>
+                                    <span className="font-bold text-lg text-primary">{formatGermanPrice(PRICING.arena_60.weekday.team)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg text-primary">124.00€</span>
+                                    <span className="font-bold text-lg text-primary">{formatGermanPrice(PRICING.arena_60.weekend.team)}</span>
                                 </div>
                             </div>
                         </div>
@@ -112,22 +113,22 @@ export default function PricingPage() {
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">VR Simulator</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg">7.00€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.simulator.weekday)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg">9.00€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.simulator.weekend)}</span>
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-white/10">
                                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Kinder Arcade</h4>
                                 <div className="flex justify-between items-center mb-2">
                                     <span>Mo - Do</span>
-                                    <span className="font-bold text-lg">3.00€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arcade.weekday)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Fr - Sa</span>
-                                    <span className="font-bold text-lg">4.00€</span>
+                                    <span className="font-bold text-lg">{formatGermanPrice(PRICING.arcade.weekend)}</span>
                                 </div>
                             </div>
                         </div>

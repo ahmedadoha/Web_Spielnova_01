@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { TOP_GAMER_DISCOUNT_PERCENT } from '@/lib/constants'
 import { generateSlots, isValidSlotTime } from '@/lib/availability'
+import { PRICING, toCents } from '@/lib/prices'
 
 export async function POST(request: Request) {
     try {
@@ -117,11 +118,13 @@ export async function POST(request: Request) {
         let singlePrice = 0
         let teamPrice = 0
         if (bookingDuration === 30) {
-            singlePrice = isWeekend ? 1990 : 1490
-            teamPrice = isWeekend ? 7400 : 5500
+            const rates = isWeekend ? PRICING.arena_30.weekend : PRICING.arena_30.weekday
+            singlePrice = toCents(rates.single)
+            teamPrice = toCents(rates.team)
         } else {
-            singlePrice = isWeekend ? 3490 : 2490
-            teamPrice = isWeekend ? 12400 : 9000
+            const rates = isWeekend ? PRICING.arena_60.weekend : PRICING.arena_60.weekday
+            singlePrice = toCents(rates.single)
+            teamPrice = toCents(rates.team)
         }
 
         const teamCount = Math.floor(playerCountNum / 4)
