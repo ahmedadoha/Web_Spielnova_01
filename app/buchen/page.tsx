@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { TOP_GAMER_DISCOUNT_PERCENT, MAX_PLAYERS, PLAYERS_PER_ARENA } from "@/lib/constants"
 import { GAMES_BY_MODE } from "@/lib/games"
+import { PRICING, formatGermanPrice } from "@/lib/prices"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -112,11 +113,13 @@ export default function BookingPage() {
         const isWeekend = [0, 5, 6].includes(date.getDay()) // Sun, Fri, Sat
         let singlePrice = 0, teamPrice = 0
         if (duration === "30") {
-            singlePrice = isWeekend ? 19.90 : 14.90
-            teamPrice = isWeekend ? 74.00 : 55.00
+            const rates = isWeekend ? PRICING.arena_30.weekend : PRICING.arena_30.weekday
+            singlePrice = rates.single
+            teamPrice = rates.team
         } else {
-            singlePrice = isWeekend ? 34.90 : 24.90
-            teamPrice = isWeekend ? 124.00 : 90.00
+            const rates = isWeekend ? PRICING.arena_60.weekend : PRICING.arena_60.weekday
+            singlePrice = rates.single
+            teamPrice = rates.team
         }
         const pCount = parseInt(playerCount)
         const teamCount = Math.floor(pCount / 4)
@@ -424,13 +427,13 @@ export default function BookingPage() {
                                             <>
                                                 <span className="text-muted-foreground">Standardpreis:</span>
                                                 <span className="font-medium text-right line-through text-muted-foreground">
-                                                    {pricing.standardTotal.toFixed(2)} € <span className="text-xs">({playerCount}x {pricing.singlePrice.toFixed(2)} €)</span>
+                                                    {formatGermanPrice(pricing.standardTotal)} <span className="text-xs">({playerCount}x {formatGermanPrice(pricing.singlePrice)})</span>
                                                 </span>
                                             </>
                                         ) : (
                                             <>
                                                 <span className="text-muted-foreground">Preis pro Person:</span>
-                                                <span className="font-medium text-right">{pricing.singlePrice.toFixed(2)} €</span>
+                                                <span className="font-medium text-right">{formatGermanPrice(pricing.singlePrice)}</span>
                                             </>
                                         )}
 
@@ -438,12 +441,12 @@ export default function BookingPage() {
 
                                         <span className="text-lg font-bold">Dein Preis:</span>
                                         <span className="text-lg font-bold text-right text-primary">
-                                            {pricing.total.toFixed(2)} €
+                                            {formatGermanPrice(pricing.total)}
                                         </span>
                                     </div>
                                     {pricing.savings > 0 && (
                                         <div className="mt-4 p-3 bg-primary/20 border border-primary/30 rounded text-center">
-                                            <span className="font-bold text-primary">🎉 Du sparst: {pricing.savings.toFixed(2)} €!</span>
+                                            <span className="font-bold text-primary">🎉 Du sparst: {formatGermanPrice(pricing.savings)}!</span>
                                         </div>
                                     )}
                                 </div>
