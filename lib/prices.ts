@@ -14,22 +14,22 @@ export const PRICING = {
     arena_30: {
         weekday: {
             single: 14.90,
-            team: 55.00,
+            team: 50.00,
         },
         weekend: {
-            single: 19.90,
-            team: 74.00,
+            single: 19.00,
+            team: 60.00,
         }
     },
     // VR Arena 60 Minutes sessions
     arena_60: {
         weekday: {
-            single: 24.90,
-            team: 90.00,
+            single: 24.00,
+            team: 80.00,
         },
         weekend: {
-            single: 34.90,
-            team: 124.00,
+            single: 32.00,
+            team: 100.00,
         }
     },
     // VR Simulator (Paraglider or Super Fighter)
