@@ -28,8 +28,8 @@ export const PRICING = {
             team: 80.00,
         },
         weekend: {
-            single: 32.00,
-            team: 100.00,
+            single: 28.00,
+            team: 99.00,
         }
     },
     // VR Simulator (Paraglider or Super Fighter)
