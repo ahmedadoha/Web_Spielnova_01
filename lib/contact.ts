@@ -15,11 +15,11 @@ export const CONTACT_INFO = {
         fullHtml: "Spielnova im West Park<br/>Am Westpark 6<br/>85057 Ingolstadt"
     },
     phone: {
-        display: "+49 15754497518",
+        display: "+49 1525 3641621",
         // Cleaned version for HTML links: tel:+4915754497518
-        telHref: "tel:+4915754497518",
+        telHref: "tel:+49 1525 3641621",
         // Cleaned version for WhatsApp links: https://wa.me/4915754497518
-        whatsappHref: "https://wa.me/4915754497518"
+        whatsappHref: "https://wa.me/4915253641621"
     },
     email: {
         support: "support@spielnova.de",
