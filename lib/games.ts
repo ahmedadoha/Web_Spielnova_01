@@ -97,6 +97,30 @@ export const GAMES: Game[] = [
         ],
     },
 
+    {
+        slug: 'Cops-vs-Robbers',
+        category: 'shooter',
+        bookingMode: 'shooter',
+        title: 'Cops-vs-Robbers',
+        trailerUrl: 'https://www.youtube.com/watch?v=WRfX8oqdk0A',
+        description: '„Cops vs. Robbers“ ist ein actiongeladener LBVR-Arena-Shooter.',
+        longDescription: `Der Tresor wurde aufgebrochen – ein Raubüberfall ist in vollem Gange. Stürze dich als Polizist oder Räuber ins Gefecht und liefere dir im Inneren einer Bank ein packendes Duell. 
+        Erlebe Schusswechsel mit völliger Bewegungsfreiheit in diesem standortbasierten VR-Shooter.
+        
+        Spielmodi: Team Deathmatch & Free-for-All
+        Crossplay-Unterstützung`,
+        imageSrc: '/CopsVsRobbers.jpg',
+        duration: '30 - 60 Minuten',
+        players: '1–4 Spieler',
+        minAge: '12 Jahre',
+        features: [
+            '4-Spieler Koop-Multiplayer',
+            'Player vs Player',
+            'Shooting',
+            'Action',
+        ],
+    },
+
     // ──────────────────────────────────────────────
     // VR ESCAPE ROOMS
     // ──────────────────────────────────────────────
