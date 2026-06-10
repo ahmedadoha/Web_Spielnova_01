@@ -147,22 +147,24 @@ export default function PricingPage() {
 
             {/* Birthday Section */}
             <div className="mt-12">
-                <Card className="border-secondary/50 bg-secondary/5 backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-transparent pointer-events-none" />
-                    <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative z-10">
-                        <div className="flex-1 space-y-4">
-                            <h3 className="text-3xl font-bold text-secondary">Wir feiern Geburtstage!</h3>
-                            <p className="text-lg text-muted-foreground">
-                                Auf der Suche nach dem ultimativen Geburtstagserlebnis in Ingolstadt? Feiere bei Spielnova für einen unvergesslichen Tag voller Gaming, VR-Abenteuer und Spaß.
-                            </p>
-                        </div>
-                        <div className="flex-none">
-                            <Button asChild size="lg" className="h-14 px-8 text-lg font-bold bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-[0_0_15px_rgba(255,0,255,0.4)]">
-                                <Link href="/kontakt">Kontaktiere uns</Link>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                <Link href="/BirthdayFlyer.pdf" target="_blank" rel="noopener noreferrer" className="block group">
+                    <Card className="border-secondary/50 bg-secondary/5 backdrop-blur-sm relative overflow-hidden transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,0,255,0.2)] hover:border-secondary">
+                        <div className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-transparent pointer-events-none" />
+                        <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative z-10">
+                            <div className="flex-1 space-y-4">
+                                <h3 className="text-3xl font-bold text-secondary group-hover:underline">Wir feiern Geburtstage!</h3>
+                                <p className="text-lg text-muted-foreground group-hover:text-foreground transition-colors">
+                                    Auf der Suche nach dem ultimativen Geburtstagserlebnis in Ingolstadt? Feiere bei Spielnova für einen unvergesslichen Tag voller Gaming, VR-Abenteuer und Spaß.
+                                </p>
+                            </div>
+                            <div className="flex-none">
+                                <Button asChild size="lg" className="h-14 px-8 text-lg font-bold bg-secondary text-secondary-foreground shadow-[0_0_15px_rgba(255,0,255,0.4)] group-hover:bg-secondary/90">
+                                    <span className="pointer-events-none">Flyer Ansehen</span>
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
             </div>
 
             <div className="mt-20">
