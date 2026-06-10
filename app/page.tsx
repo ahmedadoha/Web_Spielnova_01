@@ -66,6 +66,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Birthday Banner */}
+      <section className="py-12 relative overflow-hidden bg-gradient-to-r from-fuchsia-600/20 via-purple-600/20 to-cyan-600/20 border-y border-fuchsia-500/30">
+        <Link href="/BirthdayFlyer.pdf" target="_blank" rel="noopener noreferrer" className="block group">
+          <div className="container mx-auto px-4 text-center relative z-10 flex flex-col items-center">
+            <div className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-fuchsia-500/20 text-fuchsia-300 group-hover:bg-fuchsia-500/30 transition-colors">
+              <span className="text-4xl mr-2">🎂</span>
+              <span className="text-4xl">🎈</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-400 mb-4 tracking-tight group-hover:scale-105 transition-transform duration-300 ease-out drop-shadow-md">
+              Wir feiern Geburtstage!
+            </h2>
+            <p className="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-fuchsia-200 transition-colors">
+              Buche deine Geburtstagsparty bei uns
+            </p>
+            <span className="inline-block mt-2 text-sm font-medium text-fuchsia-300/80 border border-fuchsia-500/30 rounded-full px-4 py-1 bg-fuchsia-950/50 group-hover:bg-fuchsia-900/50 transition-colors">
+              Geburtstagsflyer ansehen
+            </span>
+          </div>
+        </Link>
+      </section>
+
       {/* Booking CTA Teaser */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary/5 z-0"></div>
