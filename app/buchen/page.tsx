@@ -244,6 +244,14 @@ export default function BookingPage() {
                 </p>
             </div>
 
+            <div className="mb-6 bg-secondary/10 border border-secondary/30 p-4 rounded-xl flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(255,0,255,0.1)]">
+                <span className="text-2xl">🎂</span>
+                <p className="font-medium text-sm sm:text-base">
+                    <strong className="text-secondary font-bold">Geburtstag buchen?</strong> Bitte beachte, dass Geburtstagspartys nur <strong className="text-white">telefonisch</strong> gebucht und <strong className="text-white">vor Ort</strong> bezahlt werden können. 
+                    <a href="/BirthdayFlyer.pdf" target="_blank" rel="noopener noreferrer" className="ml-2 text-primary hover:text-primary/80 underline underline-offset-2 font-medium">Flyer ansehen</a>
+                </p>
+            </div>
+
             <Card className="border-border/50 bg-card/60 backdrop-blur-md">
                 <CardContent className="p-6 md:p-10">
                     <AnimatePresence mode="wait">
