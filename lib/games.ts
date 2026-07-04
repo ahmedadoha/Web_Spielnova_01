@@ -58,6 +58,30 @@ export const GAMES: Game[] = [
     // ──────────────────────────────────────────────
 
     {
+        slug: 'terminator',
+        category: 'shooter',
+        bookingMode: 'shooter',
+        title: 'Terminator Uprising',
+        trailerUrl: 'https://www.youtube.com/watch?v=w1-JEMy2CDU&t=2s',
+        description: 'Das preisgekrönte VR-Zombie-Original, jetzt komplett neu aufgebaut! Überlebe die sengende Hitze der Post-Apokalypse mit atemberaubender Grafik und Next-Gen-Waffen-Action.',
+        longDescription: `Ein rasanter VR-Shooter, der in einer vom Krieg gezeichneten Zukunft spielt, in der die Menschheit ihren letzten Kampf gegen die Maschinen führt. 
+Konzipiert als filmreifer, adrenalingeladener Blockbuster, der Spieler jeden Alters begeistert. 
+Der Krieg um die Zukunft hat begonnen! Betritt die Ruinen des letzten Gefechts der Menschheit und schließ dich dem Widerstand gegen die Maschinen an. 
+TERMINATOR UPRISING katapultiert dich direkt ins Geschehen. Nervenaufreibende Kämpfe, intensive Koop-Missionen und der ultimative Kampf ums Überleben. 🦾
+Rüste dich aus. Mach dich bereit. Verteidige die Menschheit. Die Maschinen erheben sich.`,
+        imageSrc: '/terminator.jpg',
+        duration: '30–60 Minuten',
+        players: '1–4 Spieler',
+        minAge: '8+ Jahre',
+        features: [
+            'Realistische Waffen und explosive Kämpfef',
+            'Immersive, filmreife Optik',
+            'Herzrasende Action, bei der jede Sekunde zählt.',
+            'Ein umsatzsteigerndes Franchise-Erlebnis, zu dem die Spieler strömen.',
+        ],
+    },
+	
+/*	{
         slug: 'arizona-ss',
         category: 'shooter',
         bookingMode: 'shooter',
@@ -76,6 +100,7 @@ export const GAMES: Game[] = [
             'Inklusive aller Original-DLCs',
         ],
     },
+
 
     {
         slug: 'after-the-fall',
@@ -96,7 +121,7 @@ export const GAMES: Game[] = [
             'Umfangreiches Waffen-Crafting',
         ],
     },
-
+*/
     {
         slug: 'Cops-vs-Robbers',
         category: 'shooter',
@@ -112,7 +137,7 @@ export const GAMES: Game[] = [
         imageSrc: '/CopsVsRobbers.jpg',
         duration: '30 - 60 Minuten',
         players: '1–4 Spieler',
-        minAge: '12 Jahre',
+        minAge: '8+ Jahre',
         features: [
             '4-Spieler Koop-Multiplayer',
             'Player vs Player',
