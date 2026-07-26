@@ -17,7 +17,15 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "Spielnova - VR Erlebnis in Ingolstadt",
-  description: "Erlebe Virtual Reality in Ingolstadt. VR Escape Rooms, Shooter Games & Simulatoren im West Park.",
+  description:
+    "Erlebe Virtual Reality in Ingolstadt. VR Escape Rooms, Shooter Games & Simulatoren im West Park.",
+
+  verification: {
+    other: {
+      "facebook-domain-verification":
+        "3zqp8e2u9nnf9aema0mqmwbxqj6zq4",
+    },
+  },
 };
 
 export default function RootLayout({
